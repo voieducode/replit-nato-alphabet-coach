@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Clock, Trophy, Brain, Target, CheckCircle, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,7 @@ export default function QuizSection({ userId }: QuizSectionProps) {
   const [timer, setTimer] = useState(0);
   const [isActive, setIsActive] = useState(false);
   const [isQuizComplete, setIsQuizComplete] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   // Fetch user progress
@@ -78,6 +79,13 @@ export default function QuizSection({ userId }: QuizSectionProps) {
     return () => clearInterval(intervalId);
   }, [isActive]);
 
+  // Focus input helper
+  const focusInput = () => {
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 100);
+  };
+
   // Start new quiz set
   const startNewQuizSet = () => {
     const newQuizSet = generateQuizSet(userProgress, 10);
@@ -89,6 +97,7 @@ export default function QuizSection({ userId }: QuizSectionProps) {
     setIsQuizComplete(false);
     setTimer(0);
     setIsActive(true);
+    focusInput();
   };
 
   // Initialize first quiz set
@@ -153,6 +162,7 @@ export default function QuizSection({ userId }: QuizSectionProps) {
         setUserAnswer("");
         setShowResult(false);
         setIsActive(true);
+        focusInput();
       }
     }, 2000);
   };
@@ -180,6 +190,7 @@ export default function QuizSection({ userId }: QuizSectionProps) {
       setCurrentQuestionIndex(prev => prev + 1);
       setUserAnswer("");
       setShowResult(false);
+      focusInput();
     }
   };
 
@@ -199,6 +210,18 @@ export default function QuizSection({ userId }: QuizSectionProps) {
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !showResult && userAnswer.trim()) {
       handleSubmitAnswer();
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    // Allow Tab and Shift+Tab for accessibility
+    if (e.key === 'Tab') {
+      return;
+    }
+    // Skip with S key
+    if (e.key.toLowerCase() === 's' && !showResult && e.target === inputRef.current) {
+      e.preventDefault();
+      handleSkipQuestion();
     }
   };
 
@@ -256,7 +279,12 @@ export default function QuizSection({ userId }: QuizSectionProps) {
             <p className="text-lg text-gray-600 mb-4">
               You scored {score} out of {sessionResults.length} ({accuracy}%)
             </p>
-            <Button onClick={finishQuizSet} className="px-8">
+            <Button 
+              onClick={finishQuizSet} 
+              className="px-8"
+              autoFocus
+              aria-label="Start a new quiz set of 10 questions"
+            >
               Start New Quiz Set
             </Button>
           </CardContent>
@@ -363,16 +391,23 @@ export default function QuizSection({ userId }: QuizSectionProps) {
               <label htmlFor="answer-input" className="block text-sm font-medium text-gray-700 mb-2">
                 Type your answer:
               </label>
+              <div id="answer-instructions" className="text-xs text-gray-500 mb-2">
+                Press Enter to submit • Press S to skip • Accepts variations like "whisky"
+              </div>
               <Input
+                ref={inputRef}
                 id="answer-input"
                 type="text"
                 value={userAnswer}
                 onChange={(e) => setUserAnswer(e.target.value.toLowerCase())}
                 onKeyPress={handleKeyPress}
+                onKeyDown={handleKeyDown}
                 placeholder="Enter NATO word (e.g., alpha, bravo...)"
                 className="w-full p-4 text-lg text-center"
                 disabled={showResult}
                 autoFocus
+                aria-label={`Type the NATO word for letter ${currentQuestion?.letter}`}
+                aria-describedby="answer-instructions"
               />
             </div>
             
