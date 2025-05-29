@@ -265,10 +265,10 @@ export default function QuizSection({ userId }: QuizSectionProps) {
     }
   };
 
-  // Calculate stats
-  const totalSessions = quizSessions.length;
-  const averageScore = totalSessions > 0 
-    ? Math.round(quizSessions.reduce((sum, session) => sum + (session.score / session.totalQuestions * 100), 0) / totalSessions)
+  // Calculate stats from localStorage
+  const totalSessions = localStats.totalSessions;
+  const averageScore = localStats.totalAnswers > 0 
+    ? Math.round((localStats.correctAnswers / localStats.totalAnswers) * 100)
     : 0;
 
   const progressStats = userProgress.reduce((acc, progress) => {
