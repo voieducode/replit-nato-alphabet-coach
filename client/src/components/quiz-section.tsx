@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Clock, Trophy, Brain, Target, CheckCircle, XCircle } from "lucide-react";
+import { Trophy, Brain, Target, CheckCircle, XCircle, Lightbulb } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
 import { natoAlphabet } from "@/lib/nato-alphabet";
-import { generateQuizSet, checkAnswerVariants, type QuizQuestion, type QuizSet } from "@/lib/spaced-repetition";
+import { generateQuizSet, checkAnswerVariants, getHintForLetter, type QuizQuestion, type QuizSet } from "@/lib/spaced-repetition";
 import type { UserProgress, QuizSession } from "@shared/schema";
 
 interface QuizSectionProps {
@@ -22,9 +22,11 @@ export default function QuizSection({ userId }: QuizSectionProps) {
   const [userAnswer, setUserAnswer] = useState("");
   const [showResult, setShowResult] = useState(false);
   const [sessionResults, setSessionResults] = useState<Array<{question: QuizQuestion, userAnswer: string, isCorrect: boolean}>>([]);
-  const [timer, setTimer] = useState(0);
   const [isActive, setIsActive] = useState(false);
   const [isQuizComplete, setIsQuizComplete] = useState(false);
+  const [showHint, setShowHint] = useState(false);
+  const [hintTimer, setHintTimer] = useState(0);
+  const [showStats, setShowStats] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
@@ -70,14 +72,21 @@ export default function QuizSection({ userId }: QuizSectionProps) {
     },
   });
 
-  // Timer effect
+  // Hint timer effect - show hint after 5 seconds
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
-    if (isActive) {
-      intervalId = setInterval(() => setTimer(timer => timer + 1), 1000);
+    if (isActive && !showResult) {
+      intervalId = setInterval(() => {
+        setHintTimer(timer => {
+          if (timer >= 5 && !showHint) {
+            setShowHint(true);
+          }
+          return timer + 1;
+        });
+      }, 1000);
     }
     return () => clearInterval(intervalId);
-  }, [isActive]);
+  }, [isActive, showResult, showHint]);
 
   // Focus input helper
   const focusInput = () => {

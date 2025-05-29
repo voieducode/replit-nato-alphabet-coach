@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Copy, X, Play, Info } from "lucide-react";
+import { Copy, X, Play, Square, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,6 +10,7 @@ import { natoAlphabet, convertToNATO } from "@/lib/nato-alphabet";
 export default function ConverterSection() {
   const [inputText, setInputText] = useState("");
   const [showFullReference, setShowFullReference] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
   const { toast } = useToast();
 
   const convertedText = convertToNATO(inputText);
@@ -32,11 +33,36 @@ export default function ConverterSection() {
   };
 
   const handlePlay = () => {
-    // Text-to-speech functionality
+    if (isPlaying) {
+      speechSynthesis.cancel();
+      setIsPlaying(false);
+      return;
+    }
+
     const natoText = convertedText.map(item => item.nato).join(", ");
     if (natoText && 'speechSynthesis' in window) {
+      setIsPlaying(true);
       const utterance = new SpeechSynthesisUtterance(natoText);
       utterance.rate = 0.8;
+      
+      // Get voice preference from localStorage
+      const voiceType = localStorage.getItem('tts-voice') || 'female';
+      const voices = speechSynthesis.getVoices();
+      
+      if (voiceType === 'male') {
+        const maleVoice = voices.find(voice => voice.name.toLowerCase().includes('male') || voice.name.toLowerCase().includes('david') || voice.name.toLowerCase().includes('mark'));
+        if (maleVoice) utterance.voice = maleVoice;
+      } else if (voiceType === 'female') {
+        const femaleVoice = voices.find(voice => voice.name.toLowerCase().includes('female') || voice.name.toLowerCase().includes('zira') || voice.name.toLowerCase().includes('samantha'));
+        if (femaleVoice) utterance.voice = femaleVoice;
+      } else if (voiceType === 'robot') {
+        utterance.pitch = 0.3;
+        utterance.rate = 0.6;
+      }
+      
+      utterance.onend = () => setIsPlaying(false);
+      utterance.onerror = () => setIsPlaying(false);
+      
       speechSynthesis.speak(utterance);
     } else {
       toast({
@@ -93,16 +119,16 @@ export default function ConverterSection() {
               </Button>
             </div>
             
-            {/* NATO Output */}
-            <div className="space-y-2">
+            {/* NATO Output - Compact Pills */}
+            <div className="flex flex-wrap gap-2">
               {convertedText.map((item, index) => (
-                <div key={index} className="flex items-center space-x-3 p-2 bg-white rounded border">
-                  <span className="font-mono text-lg font-semibold text-primary w-8 text-center">
-                    {item.char}
-                  </span>
-                  <span className="text-gray-600">→</span>
-                  <span className="font-medium">{item.nato}</span>
-                </div>
+                <Badge 
+                  key={index} 
+                  variant="secondary" 
+                  className="px-3 py-1 text-sm font-medium bg-blue-100 text-blue-800 border border-blue-200"
+                >
+                  {item.nato}
+                </Badge>
               ))}
             </div>
             
@@ -112,9 +138,12 @@ export default function ConverterSection() {
                 variant="ghost"
                 className="flex items-center space-x-2 text-primary hover:text-primary/80"
                 onClick={handlePlay}
+                disabled={isPlaying}
               >
-                <Play className="h-4 w-4" />
-                <span className="font-medium">Play Pronunciation</span>
+                {isPlaying ? <Square className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                <span className="font-medium">
+                  {isPlaying ? "Stop" : "Play Pronunciation"}
+                </span>
               </Button>
             </div>
           </CardContent>

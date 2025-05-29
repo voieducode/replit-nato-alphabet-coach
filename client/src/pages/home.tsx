@@ -53,7 +53,7 @@ export default function Home() {
       {/* Header */}
       <header className="bg-primary text-primary-foreground p-4 shadow-material relative">
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-semibold">NATO Trainer</h1>
+          <h1 className="text-xl font-semibold">NATO Alphabet Coach</h1>
           <div className="relative">
             <Button
               variant="ghost"
