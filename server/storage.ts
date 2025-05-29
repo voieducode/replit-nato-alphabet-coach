@@ -108,6 +108,7 @@ export class MemStorage implements IStorage {
       ...insertNotification,
       id,
       createdAt: new Date(),
+      isRead: false,
     };
     this.notifications.set(id, notification);
     return notification;

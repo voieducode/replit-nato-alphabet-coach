@@ -138,7 +138,6 @@ export default function ConverterSection() {
                 variant="ghost"
                 className="flex items-center space-x-2 text-primary hover:text-primary/80"
                 onClick={handlePlay}
-                disabled={isPlaying}
               >
                 {isPlaying ? <Square className="h-4 w-4" /> : <Play className="h-4 w-4" />}
                 <span className="font-medium">
