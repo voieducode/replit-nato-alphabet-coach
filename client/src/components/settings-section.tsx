@@ -5,11 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function SettingsSection() {
   const [ttsVoice, setTtsVoice] = useState(localStorage.getItem('tts-voice') || 'female');
   const [notificationsEnabled, setNotificationsEnabled] = useState(localStorage.getItem('notifications-enabled') === 'true');
-  const [language, setLanguage] = useState(localStorage.getItem('app-language') || 'en');
+  const { language, translations, setLanguage } = useLanguage();
 
   const handleVoiceChange = (value: string) => {
     setTtsVoice(value);
@@ -32,8 +33,6 @@ export default function SettingsSection() {
 
   const handleLanguageChange = (value: string) => {
     setLanguage(value);
-    localStorage.setItem('app-language', value);
-    // In a real app, this would trigger a language change
   };
 
   const languages = [
@@ -51,7 +50,7 @@ export default function SettingsSection() {
       {/* Header */}
       <div className="flex items-center space-x-3 mb-6">
         <Settings className="h-6 w-6 text-primary" />
-        <h2 className="text-xl font-semibold text-gray-800">Settings</h2>
+        <h2 className="text-xl font-semibold text-gray-800">{translations.settings}</h2>
       </div>
 
       {/* Voice Settings */}
@@ -59,22 +58,22 @@ export default function SettingsSection() {
         <CardContent className="p-4">
           <div className="flex items-center space-x-3 mb-4">
             <Volume2 className="h-5 w-5 text-primary" />
-            <h3 className="font-semibold text-gray-800">Voice Settings</h3>
+            <h3 className="font-semibold text-gray-800">{translations.voiceSettings}</h3>
           </div>
           
           <div className="space-y-3">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Text-to-Speech Voice
+                {translations.textToSpeechVoice}
               </label>
               <Select value={ttsVoice} onValueChange={handleVoiceChange}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select voice type" />
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="female">Female Voice</SelectItem>
-                  <SelectItem value="male">Male Voice</SelectItem>
-                  <SelectItem value="robot">Robot Voice</SelectItem>
+                  <SelectItem value="female">{translations.femaleVoice}</SelectItem>
+                  <SelectItem value="male">{translations.maleVoice}</SelectItem>
+                  <SelectItem value="robot">{translations.robotVoice}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -94,7 +93,7 @@ export default function SettingsSection() {
                 speechSynthesis.speak(utterance);
               }}
             >
-              Test Voice
+              {translations.testVoice}
             </Button>
           </div>
         </CardContent>
