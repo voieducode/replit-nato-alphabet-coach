@@ -104,7 +104,8 @@ export default function QuizSection({ userId }: QuizSectionProps) {
     setShowResult(false);
     setSessionResults([]);
     setIsQuizComplete(false);
-    setTimer(0);
+    setShowHint(false);
+    setHintTimer(0);
     setIsActive(true);
     focusInput();
   };
@@ -177,6 +178,8 @@ export default function QuizSection({ userId }: QuizSectionProps) {
         setCurrentQuestionIndex(prev => prev + 1);
         setUserAnswer("");
         setShowResult(false);
+        setShowHint(false);
+        setHintTimer(0);
         setIsActive(true);
         focusInput();
       }
@@ -206,6 +209,8 @@ export default function QuizSection({ userId }: QuizSectionProps) {
       setCurrentQuestionIndex(prev => prev + 1);
       setUserAnswer("");
       setShowResult(false);
+      setShowHint(false);
+      setHintTimer(0);
       focusInput();
     }
   };
@@ -347,8 +352,8 @@ export default function QuizSection({ userId }: QuizSectionProps) {
 
   return (
     <div className="p-4 space-y-6">
-      {/* Progress Header */}
-      <Card className="bg-white shadow-material border border-gray-100">
+      {/* Progress Header - Clickable to show stats */}
+      <Card className="bg-white shadow-material border border-gray-100 cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setShowStats(!showStats)}>
         <CardContent className="p-4">
           <div className="flex items-center justify-between mb-3">
             <h2 className="font-semibold text-lg">Quiz Set Practice</h2>
@@ -376,16 +381,50 @@ export default function QuizSection({ userId }: QuizSectionProps) {
         </CardContent>
       </Card>
 
+      {/* Stats Section - Shows when header is clicked */}
+      {showStats && (
+        <div className="grid grid-cols-2 gap-4">
+          <Card className="bg-white shadow-material border border-gray-100">
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold text-primary mb-1">{totalSessions}</div>
+              <div className="text-sm text-gray-600">Quiz Sets</div>
+            </CardContent>
+          </Card>
+          <Card className="bg-white shadow-material border border-gray-100">
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold text-green-600 mb-1">{averageScore}%</div>
+              <div className="text-sm text-gray-600">Average Score</div>
+            </CardContent>
+          </Card>
+          <Card className="bg-white shadow-material border border-gray-100 col-span-2">
+            <CardContent className="p-4">
+              <h4 className="font-semibold text-gray-800 mb-3">Learning Progress</h4>
+              <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                  <span>Learning: {progressStats.learning}</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                  <span>Review: {progressStats.review}</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <span>Mastered: {progressStats.mastered}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
       {/* Quiz Card */}
       <Card className="bg-white shadow-material border border-gray-100 overflow-hidden">
         <div className="bg-primary text-primary-foreground p-4">
           <div className="flex items-center justify-between">
             <h3 className="font-semibold">Question {currentQuestionIndex + 1}</h3>
-            <div className="flex items-center space-x-2">
-              <Clock className="h-4 w-4" />
-              <span className="text-sm">
-                {Math.floor(timer / 60)}:{(timer % 60).toString().padStart(2, '0')}
-              </span>
+            <div className="text-sm">
+              {currentQuestionIndex + 1} of {currentQuizSet?.questions.length || 10}
             </div>
           </div>
         </div>
@@ -427,6 +466,18 @@ export default function QuizSection({ userId }: QuizSectionProps) {
               />
             </div>
             
+            {/* Hint Display */}
+            {showHint && !showResult && currentQuestion && (
+              <div className="p-3 rounded-lg bg-yellow-50 border border-yellow-200 text-yellow-800">
+                <div className="flex items-center space-x-2">
+                  <Lightbulb className="h-4 w-4" />
+                  <p className="text-sm font-medium">
+                    Hint: {getHintForLetter(currentQuestion.letter)}
+                  </p>
+                </div>
+              </div>
+            )}
+
             {showResult && (
               <div className={`p-4 rounded-lg border ${
                 checkAnswerVariants(userAnswer, currentQuestion?.correctAnswer || '') 

@@ -51,7 +51,7 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col max-w-md mx-auto bg-white shadow-lg relative">
       {/* Header */}
-      <header className="bg-primary text-primary-foreground p-4 shadow-material relative">
+      <header className="bg-primary text-primary-foreground p-4 shadow-material relative cityscape-bg">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-semibold">NATO Alphabet Coach</h1>
           <div className="relative">
