@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
 import { natoAlphabet } from "@/lib/nato-alphabet";
 import { generateQuizSet, checkAnswerVariants, getHintForLetter, type QuizQuestion, type QuizSet } from "@/lib/spaced-repetition";
+import { getUserStats, updateUserStats, getUserProgressLocal, updateUserProgressLocal } from "@/lib/storage";
 import type { UserProgress, QuizSession } from "@shared/schema";
 
 interface QuizSectionProps {
@@ -27,6 +28,7 @@ export default function QuizSection({ userId }: QuizSectionProps) {
   const [showHint, setShowHint] = useState(false);
   const [hintTimer, setHintTimer] = useState(0);
   const [showStats, setShowStats] = useState(false);
+  const [localStats, setLocalStats] = useState(getUserStats());
   const inputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 

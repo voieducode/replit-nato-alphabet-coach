@@ -18,16 +18,19 @@ export default function SettingsSection() {
   };
 
   const handleNotificationToggle = (enabled: boolean) => {
-    setNotificationsEnabled(enabled);
-    localStorage.setItem('notifications-enabled', enabled.toString());
-    
     if (enabled && 'Notification' in window) {
       Notification.requestPermission().then(permission => {
-        if (permission !== 'granted') {
+        if (permission === 'granted') {
+          setNotificationsEnabled(true);
+          localStorage.setItem('notifications-enabled', 'true');
+        } else {
           setNotificationsEnabled(false);
           localStorage.setItem('notifications-enabled', 'false');
         }
       });
+    } else {
+      setNotificationsEnabled(enabled);
+      localStorage.setItem('notifications-enabled', enabled.toString());
     }
   };
 

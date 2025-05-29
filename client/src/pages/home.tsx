@@ -85,7 +85,7 @@ export default function Home() {
               }`}
               onClick={() => setActiveTab("converter")}
             >
-              Converter
+              {translations.converter}
             </button>
             <button
               className={`flex-1 py-2 px-4 rounded-md font-medium transition-colors ${
@@ -95,7 +95,7 @@ export default function Home() {
               }`}
               onClick={() => setActiveTab("quiz")}
             >
-              Quiz
+              {translations.quiz}
             </button>
           </div>
         </nav>

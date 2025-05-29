@@ -39,6 +39,8 @@ export function convertToNATO(text: string): ConvertedLetter[] {
     .map(char => {
       if (natoAlphabet[char]) {
         return { char, nato: natoAlphabet[char] };
+      } else if (char === ' ') {
+        return { char: ' ', nato: 'SPACE' };
       }
       return null;
     })
