@@ -4,7 +4,13 @@ import type { UserProgress } from "@shared/schema";
 export interface QuizQuestion {
   letter: string;
   correctAnswer: string;
-  options: string[];
+}
+
+export interface QuizSet {
+  id: string;
+  questions: QuizQuestion[];
+  startedAt?: Date;
+  completedAt?: Date;
 }
 
 export function calculateNextReviewDate(difficulty: number, isCorrect: boolean): Date {
@@ -84,35 +90,74 @@ export function selectLetterForReview(userProgress: UserProgress[]): string {
   return userProgress[0]?.letter || getAllLetters()[0];
 }
 
-export function generateWrongAnswers(correctAnswer: string, count: number = 3): string[] {
-  const allWords = Object.values(natoAlphabet);
-  const wrongAnswers = allWords.filter(word => word !== correctAnswer);
+export function checkAnswerVariants(userAnswer: string, correctAnswer: string): boolean {
+  const normalizedUser = userAnswer.toLowerCase().trim();
+  const normalizedCorrect = correctAnswer.toLowerCase();
   
-  // Shuffle and take the required count
-  for (let i = wrongAnswers.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [wrongAnswers[i], wrongAnswers[j]] = [wrongAnswers[j], wrongAnswers[i]];
+  // Direct match
+  if (normalizedUser === normalizedCorrect) return true;
+  
+  // Common alternate spellings
+  const alternates: Record<string, string[]> = {
+    'whiskey': ['whisky'],
+    'juliet': ['juliett'],
+    'x-ray': ['xray', 'x ray'],
+    'alfa': ['alpha'], // NATO officially uses "Alfa" but "Alpha" is common
+  };
+  
+  // Check if correct answer has alternates and user provided one
+  const correctAlternates = alternates[normalizedCorrect] || [];
+  if (correctAlternates.includes(normalizedUser)) return true;
+  
+  // Check reverse - if user typed standard spelling but correct is alternate
+  for (const [standard, alts] of Object.entries(alternates)) {
+    if (alts.includes(normalizedCorrect) && normalizedUser === standard) {
+      return true;
+    }
   }
   
-  return wrongAnswers.slice(0, count);
+  return false;
 }
 
 export function generateQuizQuestion(userProgress: UserProgress[]): QuizQuestion {
   const letter = selectLetterForReview(userProgress);
   const correctAnswer = getNATOWord(letter)!;
-  const wrongAnswers = generateWrongAnswers(correctAnswer, 3);
-  
-  // Combine and shuffle options
-  const options = [correctAnswer, ...wrongAnswers];
-  for (let i = options.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [options[i], options[j]] = [options[j], options[i]];
-  }
   
   return {
     letter,
     correctAnswer,
-    options,
+  };
+}
+
+export function generateQuizSet(userProgress: UserProgress[], setSize: number = 10): QuizSet {
+  const questions: QuizQuestion[] = [];
+  const usedLetters = new Set<string>();
+  
+  for (let i = 0; i < setSize; i++) {
+    // Get letters prioritizing those that need review
+    let letter = selectLetterForReview(userProgress);
+    
+    // If we've already used this letter in this set, try to get a different one
+    let attempts = 0;
+    while (usedLetters.has(letter) && attempts < 26) {
+      const allLetters = getAllLetters();
+      letter = allLetters[Math.floor(Math.random() * allLetters.length)];
+      attempts++;
+    }
+    
+    usedLetters.add(letter);
+    const correctAnswer = getNATOWord(letter)!;
+    
+    questions.push({
+      letter,
+      correctAnswer,
+    });
+  }
+  
+  return {
+    id: `set-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+    questions,
+    startedAt: new Date(),
   };
 }
 

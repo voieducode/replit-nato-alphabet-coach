@@ -1,28 +1,30 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Clock, Trophy, Brain, Target } from "lucide-react";
+import { Clock, Trophy, Brain, Target, CheckCircle, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
 import { natoAlphabet } from "@/lib/nato-alphabet";
-import { generateQuizQuestion, type QuizQuestion } from "@/lib/spaced-repetition";
-import type { UserProgress } from "@shared/schema";
+import { generateQuizSet, checkAnswerVariants, type QuizQuestion, type QuizSet } from "@/lib/spaced-repetition";
+import type { UserProgress, QuizSession } from "@shared/schema";
 
 interface QuizSectionProps {
   userId: string;
 }
 
 export default function QuizSection({ userId }: QuizSectionProps) {
-  const [currentQuestion, setCurrentQuestion] = useState<QuizQuestion | null>(null);
-  const [selectedAnswer, setSelectedAnswer] = useState<string>("");
+  const [currentQuizSet, setCurrentQuizSet] = useState<QuizSet | null>(null);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [userAnswer, setUserAnswer] = useState("");
   const [showResult, setShowResult] = useState(false);
-  const [sessionScore, setSessionScore] = useState(0);
-  const [sessionTotal, setSessionTotal] = useState(0);
+  const [sessionResults, setSessionResults] = useState<Array<{question: QuizQuestion, userAnswer: string, isCorrect: boolean}>>([]);
   const [timer, setTimer] = useState(0);
   const [isActive, setIsActive] = useState(false);
+  const [isQuizComplete, setIsQuizComplete] = useState(false);
   const { toast } = useToast();
 
   // Fetch user progress
@@ -31,7 +33,7 @@ export default function QuizSection({ userId }: QuizSectionProps) {
   });
 
   // Fetch quiz sessions for stats
-  const { data: quizSessions = [] } = useQuery({
+  const { data: quizSessions = [] } = useQuery<QuizSession[]>({
     queryKey: [`/api/quiz-sessions/${userId}`],
   });
 
@@ -76,47 +78,59 @@ export default function QuizSection({ userId }: QuizSectionProps) {
     return () => clearInterval(intervalId);
   }, [isActive]);
 
-  // Generate new question
-  const generateNewQuestion = () => {
-    const question = generateQuizQuestion(userProgress);
-    setCurrentQuestion(question);
-    setSelectedAnswer("");
+  // Start new quiz set
+  const startNewQuizSet = () => {
+    const newQuizSet = generateQuizSet(userProgress, 10);
+    setCurrentQuizSet(newQuizSet);
+    setCurrentQuestionIndex(0);
+    setUserAnswer("");
     setShowResult(false);
+    setSessionResults([]);
+    setIsQuizComplete(false);
+    setTimer(0);
     setIsActive(true);
   };
 
-  // Initialize first question
+  // Initialize first quiz set
   useEffect(() => {
-    if (userProgress.length >= 0) { // Allow empty progress to start
-      generateNewQuestion();
+    if (userProgress.length >= 0 && !currentQuizSet) {
+      startNewQuizSet();
     }
-  }, [userProgress]);
+  }, [userProgress, currentQuizSet]);
 
-  const handleAnswerSelect = (answer: string) => {
-    if (!showResult) {
-      setSelectedAnswer(answer);
+  const getCurrentQuestion = (): QuizQuestion | null => {
+    if (!currentQuizSet || currentQuestionIndex >= currentQuizSet.questions.length) {
+      return null;
     }
+    return currentQuizSet.questions[currentQuestionIndex];
   };
 
   const handleSubmitAnswer = async () => {
-    if (!currentQuestion || !selectedAnswer) return;
+    const currentQuestion = getCurrentQuestion();
+    if (!currentQuestion || !userAnswer.trim()) return;
 
     setIsActive(false);
     setShowResult(true);
-    setSessionTotal(prev => prev + 1);
 
-    const isCorrect = selectedAnswer === currentQuestion.correctAnswer;
+    const isCorrect = checkAnswerVariants(userAnswer, currentQuestion.correctAnswer);
     
+    // Add to session results
+    const newResult = {
+      question: currentQuestion,
+      userAnswer: userAnswer.trim(),
+      isCorrect,
+    };
+    setSessionResults(prev => [...prev, newResult]);
+
     if (isCorrect) {
-      setSessionScore(prev => prev + 1);
       toast({
-        title: "Correct! 🎉",
+        title: "Correct!",
         description: `${currentQuestion.letter} is indeed ${currentQuestion.correctAnswer}`,
       });
     } else {
       toast({
-        title: "Incorrect 😔",
-        description: `${currentQuestion.letter} is ${currentQuestion.correctAnswer}, not ${selectedAnswer}`,
+        title: "Incorrect",
+        description: `${currentQuestion.letter} is ${currentQuestion.correctAnswer}, not ${userAnswer}`,
         variant: "destructive",
       });
     }
@@ -129,12 +143,22 @@ export default function QuizSection({ userId }: QuizSectionProps) {
 
     // Auto-advance after 2 seconds
     setTimeout(() => {
-      generateNewQuestion();
-      setTimer(0);
+      if (currentQuestionIndex + 1 >= (currentQuizSet?.questions.length || 0)) {
+        // Quiz set complete
+        setIsQuizComplete(true);
+        setIsActive(false);
+      } else {
+        // Next question
+        setCurrentQuestionIndex(prev => prev + 1);
+        setUserAnswer("");
+        setShowResult(false);
+        setIsActive(true);
+      }
     }, 2000);
   };
 
   const handleSkipQuestion = () => {
+    const currentQuestion = getCurrentQuestion();
     if (!currentQuestion) return;
     
     setIsActive(false);
@@ -142,22 +166,40 @@ export default function QuizSection({ userId }: QuizSectionProps) {
       letter: currentQuestion.letter,
       isCorrect: false,
     });
+
+    // Add skip to results
+    setSessionResults(prev => [...prev, {
+      question: currentQuestion,
+      userAnswer: "(skipped)",
+      isCorrect: false,
+    }]);
     
-    generateNewQuestion();
-    setTimer(0);
+    if (currentQuestionIndex + 1 >= (currentQuizSet?.questions.length || 0)) {
+      setIsQuizComplete(true);
+    } else {
+      setCurrentQuestionIndex(prev => prev + 1);
+      setUserAnswer("");
+      setShowResult(false);
+    }
   };
 
-  const finishSession = () => {
-    if (sessionTotal > 0) {
+  const finishQuizSet = () => {
+    if (sessionResults.length > 0) {
+      const score = sessionResults.filter(r => r.isCorrect).length;
       saveSessionMutation.mutate({
-        score: sessionScore,
-        totalQuestions: sessionTotal,
+        score,
+        totalQuestions: sessionResults.length,
       });
     }
-    setSessionScore(0);
-    setSessionTotal(0);
-    setTimer(0);
-    setIsActive(false);
+    
+    // Start new quiz set
+    startNewQuizSet();
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !showResult && userAnswer.trim()) {
+      handleSubmitAnswer();
+    }
   };
 
   // Calculate stats
@@ -179,8 +221,9 @@ export default function QuizSection({ userId }: QuizSectionProps) {
   }, { learning: 0, review: 0, mastered: 0 });
 
   const currentStreak = Math.min(7, totalSessions); // Simplified streak calculation
+  const currentQuestion = getCurrentQuestion();
 
-  if (!currentQuestion) {
+  if (!currentQuestion && !isQuizComplete) {
     return (
       <div className="p-4 flex items-center justify-center h-64">
         <div className="text-center">
