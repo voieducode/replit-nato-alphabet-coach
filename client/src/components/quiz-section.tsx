@@ -234,13 +234,80 @@ export default function QuizSection({ userId }: QuizSectionProps) {
     );
   }
 
+  if (isQuizComplete) {
+    const score = sessionResults.filter(r => r.isCorrect).length;
+    const accuracy = Math.round((score / sessionResults.length) * 100);
+    
+    return (
+      <div className="p-4 space-y-6">
+        {/* Quiz Complete Header */}
+        <Card className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200">
+          <CardContent className="p-6 text-center">
+            <div className="mb-4">
+              {accuracy >= 80 ? (
+                <Trophy className="h-12 w-12 text-yellow-500 mx-auto" />
+              ) : accuracy >= 60 ? (
+                <CheckCircle className="h-12 w-12 text-green-500 mx-auto" />
+              ) : (
+                <Target className="h-12 w-12 text-blue-500 mx-auto" />
+              )}
+            </div>
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">Quiz Set Complete!</h2>
+            <p className="text-lg text-gray-600 mb-4">
+              You scored {score} out of {sessionResults.length} ({accuracy}%)
+            </p>
+            <Button onClick={finishQuizSet} className="px-8">
+              Start New Quiz Set
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Results Review */}
+        <Card>
+          <CardContent className="p-4">
+            <h3 className="font-semibold text-lg mb-4">Review Your Answers</h3>
+            <div className="space-y-3">
+              {sessionResults.map((result, index) => (
+                <div 
+                  key={index}
+                  className={`flex items-center justify-between p-3 rounded-lg border ${
+                    result.isCorrect ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'
+                  }`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <span className="font-mono text-lg font-bold w-8">
+                      {result.question.letter}
+                    </span>
+                    <div>
+                      <p className="font-medium">{result.question.correctAnswer}</p>
+                      {!result.isCorrect && (
+                        <p className="text-sm text-gray-600">
+                          Your answer: {result.userAnswer}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  {result.isCorrect ? (
+                    <CheckCircle className="h-5 w-5 text-green-600" />
+                  ) : (
+                    <XCircle className="h-5 w-5 text-red-600" />
+                  )}
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="p-4 space-y-6">
       {/* Progress Header */}
       <Card className="bg-white shadow-material border border-gray-100">
         <CardContent className="p-4">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="font-semibold text-lg">Daily Practice</h2>
+            <h2 className="font-semibold text-lg">Quiz Set Practice</h2>
             <span className="text-sm text-gray-600">
               {new Date().toLocaleDateString()}
             </span>
@@ -248,18 +315,18 @@ export default function QuizSection({ userId }: QuizSectionProps) {
           
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
-              <span className="text-gray-600">Session Progress</span>
+              <span className="text-gray-600">Quiz Progress</span>
               <span className="font-medium">
-                {sessionTotal > 0 ? Math.round((sessionScore / sessionTotal) * 100) : 0}%
+                {currentQuestionIndex + 1} of {currentQuizSet?.questions.length || 10}
               </span>
             </div>
             <Progress 
-              value={sessionTotal > 0 ? (sessionScore / sessionTotal) * 100 : 0} 
+              value={((currentQuestionIndex + (showResult ? 1 : 0)) / (currentQuizSet?.questions.length || 10)) * 100} 
               className="w-full h-2"
             />
             <div className="flex justify-between text-xs text-gray-500">
-              <span>{sessionScore}/{sessionTotal} correct</span>
-              <span>{currentStreak} day streak 🔥</span>
+              <span>{sessionResults.filter(r => r.isCorrect).length} correct so far</span>
+              <span>{currentStreak} day streak</span>
             </div>
           </div>
         </CardContent>
@@ -269,7 +336,7 @@ export default function QuizSection({ userId }: QuizSectionProps) {
       <Card className="bg-white shadow-material border border-gray-100 overflow-hidden">
         <div className="bg-primary text-primary-foreground p-4">
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold">Question {sessionTotal + 1}</h3>
+            <h3 className="font-semibold">Question {currentQuestionIndex + 1}</h3>
             <div className="flex items-center space-x-2">
               <Clock className="h-4 w-4" />
               <span className="text-sm">
@@ -285,41 +352,43 @@ export default function QuizSection({ userId }: QuizSectionProps) {
             <p className="text-gray-600 mb-4">What NATO word represents:</p>
             <div className="bg-blue-50 rounded-lg p-6 mb-6">
               <span className="text-4xl font-mono font-bold text-primary">
-                {currentQuestion.letter}
+                {currentQuestion?.letter}
               </span>
             </div>
           </div>
 
-          {/* Answer Options */}
-          <div className="space-y-3">
-            {currentQuestion.options.map((option) => {
-              let buttonClass = "w-full p-4 border-2 border-gray-200 rounded-lg text-left transition-all";
-              
-              if (showResult) {
-                if (option === currentQuestion.correctAnswer) {
-                  buttonClass += " border-green-500 bg-green-50 text-green-700";
-                } else if (option === selectedAnswer && option !== currentQuestion.correctAnswer) {
-                  buttonClass += " border-red-500 bg-red-50 text-red-700";
-                } else {
-                  buttonClass += " opacity-50";
-                }
-              } else if (selectedAnswer === option) {
-                buttonClass += " border-primary bg-blue-50";
-              } else {
-                buttonClass += " hover:border-primary/50 hover:bg-blue-50";
-              }
-
-              return (
-                <button
-                  key={option}
-                  className={buttonClass}
-                  onClick={() => handleAnswerSelect(option)}
-                  disabled={showResult}
-                >
-                  <span className="font-medium">{option}</span>
-                </button>
-              );
-            })}
+          {/* Text Input */}
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="answer-input" className="block text-sm font-medium text-gray-700 mb-2">
+                Type your answer:
+              </label>
+              <Input
+                id="answer-input"
+                type="text"
+                value={userAnswer}
+                onChange={(e) => setUserAnswer(e.target.value.toLowerCase())}
+                onKeyPress={handleKeyPress}
+                placeholder="Enter NATO word (e.g., alpha, bravo...)"
+                className="w-full p-4 text-lg text-center"
+                disabled={showResult}
+                autoFocus
+              />
+            </div>
+            
+            {showResult && (
+              <div className={`p-4 rounded-lg border ${
+                checkAnswerVariants(userAnswer, currentQuestion?.correctAnswer || '') 
+                  ? 'bg-green-50 border-green-200 text-green-800' 
+                  : 'bg-red-50 border-red-200 text-red-800'
+              }`}>
+                <p className="font-medium">
+                  {checkAnswerVariants(userAnswer, currentQuestion?.correctAnswer || '') 
+                    ? 'Correct!' 
+                    : `Correct answer: ${currentQuestion?.correctAnswer}`}
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Quiz Actions */}
@@ -335,21 +404,11 @@ export default function QuizSection({ userId }: QuizSectionProps) {
             <Button
               className="flex-1"
               onClick={handleSubmitAnswer}
-              disabled={!selectedAnswer || showResult}
+              disabled={!userAnswer.trim() || showResult}
             >
               Submit
             </Button>
           </div>
-
-          {sessionTotal >= 5 && (
-            <Button
-              variant="outline"
-              className="w-full mt-3"
-              onClick={finishSession}
-            >
-              Finish Session
-            </Button>
-          )}
         </CardContent>
       </Card>
 
@@ -359,9 +418,9 @@ export default function QuizSection({ userId }: QuizSectionProps) {
           <div className="flex items-start space-x-3">
             <Brain className="text-green-600 mt-1 h-5 w-5" />
             <div>
-              <h4 className="font-semibold text-green-800 mb-1">Spaced Repetition</h4>
+              <h4 className="font-semibold text-green-800 mb-1">Adaptive Learning</h4>
               <p className="text-sm text-green-700 mb-2">
-                Letters you miss will appear more frequently until mastered.
+                Each quiz set of 10 questions adapts based on your performance using spaced repetition.
               </p>
               <div className="flex items-center space-x-4 text-xs">
                 <Badge variant="secondary" className="bg-red-100 text-red-700">
@@ -384,13 +443,13 @@ export default function QuizSection({ userId }: QuizSectionProps) {
         <Card className="bg-white shadow-material border border-gray-100">
           <CardContent className="p-4 text-center">
             <div className="text-2xl font-bold text-primary mb-1">{totalSessions}</div>
-            <div className="text-sm text-gray-600">Sessions</div>
+            <div className="text-sm text-gray-600">Quiz Sets</div>
           </CardContent>
         </Card>
         <Card className="bg-white shadow-material border border-gray-100">
           <CardContent className="p-4 text-center">
             <div className="text-2xl font-bold text-green-600 mb-1">{averageScore}%</div>
-            <div className="text-sm text-gray-600">Accuracy</div>
+            <div className="text-sm text-gray-600">Average Score</div>
           </CardContent>
         </Card>
       </div>
