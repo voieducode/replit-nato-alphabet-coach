@@ -5,10 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import ConverterSection from "@/components/converter-section";
 import QuizSection from "@/components/quiz-section";
+import SettingsSection from "@/components/settings-section";
 import NotificationModal from "@/components/notification-modal";
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<"converter" | "quiz">("converter");
+  const [activeTab, setActiveTab] = useState<"converter" | "quiz" | "settings">("converter");
   const [showNotifications, setShowNotifications] = useState(false);
   const [userId] = useState("user-1"); // In a real app, this would come from auth
 
@@ -102,8 +103,10 @@ export default function Home() {
       <main className="flex-1 overflow-y-auto">
         {activeTab === "converter" ? (
           <ConverterSection />
-        ) : (
+        ) : activeTab === "quiz" ? (
           <QuizSection userId={userId} />
+        ) : (
+          <SettingsSection />
         )}
       </main>
 
@@ -128,7 +131,12 @@ export default function Home() {
             <div className="text-lg">🎓</div>
             <span className="text-xs font-medium">Quiz</span>
           </button>
-          <button className="flex flex-col items-center space-y-1 text-gray-400">
+          <button
+            className={`flex flex-col items-center space-y-1 ${
+              activeTab === "settings" ? "text-primary" : "text-gray-400"
+            }`}
+            onClick={() => setActiveTab("settings")}
+          >
             <div className="text-lg">⚙️</div>
             <span className="text-xs font-medium">Settings</span>
           </button>
