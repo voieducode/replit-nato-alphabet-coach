@@ -107,6 +107,13 @@ export default function QuizSection({ userId }: QuizSectionProps) {
     }
   }, [userProgress, currentQuizSet]);
 
+  // Focus input when component mounts or becomes active
+  useEffect(() => {
+    if (!showResult && !isQuizComplete && currentQuizSet) {
+      focusInput();
+    }
+  }, [showResult, isQuizComplete, currentQuizSet]);
+
   const getCurrentQuestion = (): QuizQuestion | null => {
     if (!currentQuizSet || currentQuestionIndex >= currentQuizSet.questions.length) {
       return null;
@@ -218,8 +225,8 @@ export default function QuizSection({ userId }: QuizSectionProps) {
     if (e.key === 'Tab') {
       return;
     }
-    // Skip with S key
-    if (e.key.toLowerCase() === 's' && !showResult && e.target === inputRef.current) {
+    // Skip with Escape key for better accessibility
+    if (e.key === 'Escape' && !showResult) {
       e.preventDefault();
       handleSkipQuestion();
     }
@@ -392,7 +399,7 @@ export default function QuizSection({ userId }: QuizSectionProps) {
                 Type your answer:
               </label>
               <div id="answer-instructions" className="text-xs text-gray-500 mb-2">
-                Press Enter to submit • Press S to skip • Accepts variations like "whisky"
+                Press Enter to submit • Press Escape to skip • Accepts variations like "whisky"
               </div>
               <Input
                 ref={inputRef}
