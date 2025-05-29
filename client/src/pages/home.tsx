@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useLanguage } from "@/contexts/LanguageContext";
 import ConverterSection from "@/components/converter-section";
 import QuizSection from "@/components/quiz-section";
 import SettingsSection from "@/components/settings-section";
@@ -12,6 +13,7 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<"converter" | "quiz" | "settings">("converter");
   const [showNotifications, setShowNotifications] = useState(false);
   const [userId] = useState("user-1"); // In a real app, this would come from auth
+  const { translations } = useLanguage();
 
   const { data: unreadCount = 0 } = useQuery({
     queryKey: [`/api/notifications/${userId}/unread-count`],
@@ -54,7 +56,7 @@ export default function Home() {
       {/* Header */}
       <header className="bg-primary text-primary-foreground p-4 shadow-material relative cityscape-bg">
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-semibold">NATO Alphabet Coach</h1>
+          <h1 className="text-xl font-semibold">{translations.appName}</h1>
           <div className="relative">
             <Button
               variant="ghost"
@@ -120,7 +122,7 @@ export default function Home() {
             onClick={() => setActiveTab("converter")}
           >
             <div className="text-lg">⇄</div>
-            <span className="text-xs font-medium">Convert</span>
+            <span className="text-xs font-medium">{translations.converter}</span>
           </button>
           <button
             className={`flex flex-col items-center space-y-1 ${
@@ -129,7 +131,7 @@ export default function Home() {
             onClick={() => setActiveTab("quiz")}
           >
             <div className="text-lg">🎓</div>
-            <span className="text-xs font-medium">Quiz</span>
+            <span className="text-xs font-medium">{translations.quiz}</span>
           </button>
           <button
             className={`flex flex-col items-center space-y-1 ${
@@ -138,7 +140,7 @@ export default function Home() {
             onClick={() => setActiveTab("settings")}
           >
             <div className="text-lg">⚙️</div>
-            <span className="text-xs font-medium">Settings</span>
+            <span className="text-xs font-medium">{translations.settings}</span>
           </button>
         </div>
       </nav>
