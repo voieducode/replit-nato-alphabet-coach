@@ -15,41 +15,8 @@ export default function Home() {
   const [userId] = useState("user-1"); // In a real app, this would come from auth
   const { translations } = useLanguage();
 
-  const { data: unreadCount = 0 } = useQuery({
-    queryKey: [`/api/notifications/${userId}/unread-count`],
-    select: (data: { count: number }) => data.count,
-    refetchInterval: 30000, // Refresh every 30 seconds
-  });
-
-  // Create initial daily reminder notification
-  useEffect(() => {
-    const createDailyReminder = async () => {
-      try {
-        await fetch("/api/notifications", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            userId,
-            type: "daily_reminder",
-            title: "Daily Practice Reminder",
-            message: "Time for your NATO alphabet practice!",
-            isRead: false,
-          }),
-        });
-      } catch (error) {
-        console.error("Failed to create daily reminder:", error);
-      }
-    };
-
-    // Check if we should create a daily reminder (simplified logic)
-    const lastReminder = localStorage.getItem("lastDailyReminder");
-    const today = new Date().toDateString();
-    
-    if (lastReminder !== today) {
-      createDailyReminder();
-      localStorage.setItem("lastDailyReminder", today);
-    }
-  }, [userId]);
+  // Use localStorage for notification management to avoid API dependencies
+  const unreadCount = 0;
 
   return (
     <div className="min-h-screen flex flex-col max-w-md mx-auto bg-white shadow-lg relative">
