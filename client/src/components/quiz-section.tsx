@@ -32,47 +32,73 @@ export default function QuizSection({ userId }: QuizSectionProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
-  // Fetch user progress
-  const { data: userProgress = [] } = useQuery<UserProgress[]>({
-    queryKey: [`/api/progress/${userId}`],
-  });
+  // Use localStorage for all data persistence
+  const [userProgress, setUserProgress] = useState<UserProgress[]>([]);
 
-  // Fetch quiz sessions for stats
-  const { data: quizSessions = [] } = useQuery<QuizSession[]>({
-    queryKey: [`/api/quiz-sessions/${userId}`],
-  });
+  // Initialize progress from localStorage on mount
+  useEffect(() => {
+    const localProgress = getUserProgressLocal();
+    const apiProgress = localProgress.map((p, index) => ({
+      id: index + 1,
+      userId: userId,
+      letter: p.letter,
+      correctCount: p.correctCount,
+      incorrectCount: p.incorrectCount,
+      lastReviewed: new Date(p.lastReview),
+      nextReview: new Date(p.nextReview),
+      difficulty: p.difficulty,
+    }));
+    setUserProgress(apiProgress);
+  }, [userId]);
 
-  // Update progress mutation
-  const updateProgressMutation = useMutation({
-    mutationFn: async ({ letter, isCorrect }: { letter: string; isCorrect: boolean }) => {
-      const response = await fetch(`/api/progress/${userId}/${letter}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ isCorrect }),
-      });
-      if (!response.ok) throw new Error("Failed to update progress");
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/progress/${userId}`] });
-    },
-  });
+  // Local progress update function
+  const updateProgress = (letter: string, isCorrect: boolean) => {
+    const localProgress = updateUserProgressLocal(letter, isCorrect);
+    
+    // Update state
+    setUserProgress(prev => {
+      const existing = prev.find(p => p.letter === letter);
+      if (existing) {
+        return prev.map(p => p.letter === letter ? {
+          ...p,
+          correctCount: localProgress.correctCount,
+          incorrectCount: localProgress.incorrectCount,
+          lastReviewed: new Date(localProgress.lastReview),
+          nextReview: new Date(localProgress.nextReview),
+          difficulty: localProgress.difficulty,
+        } : p);
+      } else {
+        return [...prev, {
+          id: prev.length + 1,
+          userId: userId,
+          letter: localProgress.letter,
+          correctCount: localProgress.correctCount,
+          incorrectCount: localProgress.incorrectCount,
+          lastReviewed: new Date(localProgress.lastReview),
+          nextReview: new Date(localProgress.nextReview),
+          difficulty: localProgress.difficulty,
+        }];
+      }
+    });
+  };
 
-  // Save quiz session mutation
-  const saveSessionMutation = useMutation({
-    mutationFn: async ({ score, totalQuestions }: { score: number; totalQuestions: number }) => {
-      const response = await fetch("/api/quiz-sessions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, score, totalQuestions }),
-      });
-      if (!response.ok) throw new Error("Failed to save session");
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/quiz-sessions/${userId}`] });
-    },
-  });
+  // Local session save function
+  const saveSession = (score: number, totalQuestions: number) => {
+    const accuracy = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
+    const today = new Date().toDateString();
+    const lastSession = localStats.lastSessionDate;
+    const isNewDay = lastSession !== today;
+    
+    const newStats = updateUserStats({
+      totalSessions: localStats.totalSessions + 1,
+      correctAnswers: localStats.correctAnswers + score,
+      totalAnswers: localStats.totalAnswers + totalQuestions,
+      currentStreak: isNewDay ? (accuracy >= 70 ? localStats.currentStreak + 1 : 0) : localStats.currentStreak,
+      lastSessionDate: today,
+    });
+    
+    setLocalStats(newStats);
+  };
 
   // Hint timer effect - show hint after 5 seconds
   useEffect(() => {
@@ -164,10 +190,7 @@ export default function QuizSection({ userId }: QuizSectionProps) {
     }
 
     // Update progress
-    await updateProgressMutation.mutateAsync({
-      letter: currentQuestion.letter,
-      isCorrect,
-    });
+    updateProgress(currentQuestion.letter, isCorrect);
 
     // Auto-advance after 2 seconds
     setTimeout(() => {
@@ -193,10 +216,7 @@ export default function QuizSection({ userId }: QuizSectionProps) {
     if (!currentQuestion) return;
     
     setIsActive(false);
-    updateProgressMutation.mutate({
-      letter: currentQuestion.letter,
-      isCorrect: false,
-    });
+    updateProgress(currentQuestion.letter, false);
 
     // Add skip to results
     setSessionResults(prev => [...prev, {
@@ -220,10 +240,7 @@ export default function QuizSection({ userId }: QuizSectionProps) {
   const finishQuizSet = () => {
     if (sessionResults.length > 0) {
       const score = sessionResults.filter(r => r.isCorrect).length;
-      saveSessionMutation.mutate({
-        score,
-        totalQuestions: sessionResults.length,
-      });
+      saveSession(score, sessionResults.length);
     }
     
     // Start new quiz set
