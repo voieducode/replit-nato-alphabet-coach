@@ -785,7 +785,7 @@ export default function QuizSection({ userId }: QuizSectionProps) {
             <Brain className="text-green-600 mt-1 h-5 w-5" />
             <div>
               <h4 className="font-semibold text-green-800 mb-1">
-                Adaptive Learning
+                {translations.adaptiveLearning}
               </h4>
               <p className="text-sm text-green-700 mb-2">
                 Each quiz set of 10 questions adapts based on your performance
