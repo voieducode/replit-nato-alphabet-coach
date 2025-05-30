@@ -91,12 +91,12 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-image: var(--cityscape-1);
-    background-repeat: repeat-x;
-    background-position: bottom;
-    background-size: 400px 100px;
-    animation: rotateCityscape 20s infinite linear;
-    opacity: 0.4;
+    background: linear-gradient(45deg, rgba(255,255,255,0.1) 25%, transparent 25%), 
+                linear-gradient(-45deg, rgba(255,255,255,0.1) 25%, transparent 25%);
+    background-size: 20px 20px;
+    background-position: 0 0, 10px 10px;
+    animation: slidePattern 10s infinite linear;
+    opacity: 0.3;
     z-index: 1;
     pointer-events: none;
   }
@@ -104,6 +104,11 @@
   .cityscape-bg > * {
     position: relative;
     z-index: 2;
+  }
+  
+  @keyframes slidePattern {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(40px); }
   }
   
   @keyframes rotateCityscape {
