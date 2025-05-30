@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { natoAlphabet, convertToNATO } from "@/lib/nato-alphabet";
 
 export default function ConverterSection() {
@@ -12,6 +13,7 @@ export default function ConverterSection() {
   const [showFullReference, setShowFullReference] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const { toast } = useToast();
+  const { translations } = useLanguage();
 
   const convertedText = convertToNATO(inputText);
 
@@ -20,12 +22,12 @@ export default function ConverterSection() {
     try {
       await navigator.clipboard.writeText(natoText);
       toast({
-        title: "Copied!",
+        title: translations.copied,
         description: "NATO alphabet text copied to clipboard",
       });
     } catch (error) {
       toast({
-        title: "Copy failed",
+        title: translations.copyFailed,
         description: "Unable to copy to clipboard",
         variant: "destructive",
       });
@@ -66,7 +68,7 @@ export default function ConverterSection() {
       speechSynthesis.speak(utterance);
     } else {
       toast({
-        title: "Speech not available",
+        title: translations.speechNotAvailable,
         description: "Text-to-speech is not supported in your browser",
         variant: "destructive",
       });
@@ -80,12 +82,12 @@ export default function ConverterSection() {
       {/* Text Input */}
       <div className="space-y-2">
         <label htmlFor="textInput" className="block text-sm font-medium text-gray-700">
-          Enter text to convert:
+          {translations.enterText}
         </label>
         <div className="relative">
           <Textarea
             id="textInput"
-            placeholder="Type your message here..."
+            placeholder={translations.placeholder}
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             className="w-full p-4 border-2 border-gray-200 rounded-lg focus:border-primary focus:outline-none transition-colors resize-none h-32 text-base"
@@ -108,7 +110,7 @@ export default function ConverterSection() {
         <Card className="bg-gray-50 border border-gray-200">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="font-semibold text-gray-800">NATO Alphabet:</h3>
+              <h3 className="font-semibold text-gray-800">{translations.natoAlphabet}</h3>
               <Button
                 variant="ghost"
                 size="icon"
@@ -141,7 +143,7 @@ export default function ConverterSection() {
               >
                 {isPlaying ? <Square className="h-4 w-4" /> : <Play className="h-4 w-4" />}
                 <span className="font-medium">
-                  {isPlaying ? "Stop" : "Play Pronunciation"}
+                  {isPlaying ? translations.stop : translations.playPronunciation}
                 </span>
               </Button>
             </div>
@@ -154,7 +156,7 @@ export default function ConverterSection() {
         <CardContent className="p-4">
           <h3 className="font-semibold text-blue-800 mb-3 flex items-center">
             <Info className="mr-2 h-4 w-4" />
-            Quick Reference
+            {translations.quickReference}
           </h3>
           <div className="grid grid-cols-2 gap-2 text-sm">
             {(showFullReference ? Object.entries(natoAlphabet) : quickReferenceLetters.map(letter => [letter, natoAlphabet[letter]])).map(([letter, nato]) => (
@@ -169,7 +171,7 @@ export default function ConverterSection() {
             className="mt-3 text-primary text-sm font-medium hover:text-primary/80 p-0 h-auto"
             onClick={() => setShowFullReference(!showFullReference)}
           >
-            {showFullReference ? "Show Less" : "View Full Alphabet →"}
+            {showFullReference ? translations.showLess : translations.viewFullAlphabet}
           </Button>
         </CardContent>
       </Card>
