@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Trophy, Brain, Target, CheckCircle, XCircle, Lightbulb } from "lucide-react";
+import { Trophy, Brain, Target, CheckCircle, XCircle, Lightbulb, Mic, MicOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -30,7 +30,10 @@ export default function QuizSection({ userId }: QuizSectionProps) {
   const [hintTimer, setHintTimer] = useState(0);
   const [showStats, setShowStats] = useState(false);
   const [localStats, setLocalStats] = useState(getUserStats());
+  const [isListening, setIsListening] = useState(false);
+  const [speechSupported, setSpeechSupported] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const recognitionRef = useRef<any>(null);
   const { toast } = useToast();
   const { translations } = useLanguage();
 
@@ -52,6 +55,35 @@ export default function QuizSection({ userId }: QuizSectionProps) {
     }));
     setUserProgress(apiProgress);
   }, [userId]);
+
+  // Initialize speech recognition
+  useEffect(() => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      setSpeechSupported(true);
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = 'en-US';
+      
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript.toLowerCase().trim();
+        setUserAnswer(transcript);
+        setIsListening(false);
+      };
+      
+      recognition.onerror = (event) => {
+        console.log('Speech recognition error:', event.error);
+        setIsListening(false);
+      };
+      
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+      
+      recognitionRef.current = recognition;
+    }
+  }, []);
 
   // Local progress update function
   const updateProgress = (letter: string, isCorrect: boolean) => {
@@ -264,6 +296,20 @@ export default function QuizSection({ userId }: QuizSectionProps) {
     if (e.key === 'Escape' && !showResult) {
       e.preventDefault();
       handleSkipQuestion();
+    }
+  };
+
+  const startListening = () => {
+    if (recognitionRef.current && speechSupported && !showResult) {
+      setIsListening(true);
+      recognitionRef.current.start();
+    }
+  };
+
+  const stopListening = () => {
+    if (recognitionRef.current && isListening) {
+      recognitionRef.current.stop();
+      setIsListening(false);
     }
   };
 
