@@ -49,6 +49,14 @@ export interface Translations {
   dailyReminders: string;
   speakAnswer: string;
   voiceInputActive: string;
+  adaptiveLearning: string;
+  skipQuestion: string;
+  pressEnterToSubmit: string;
+  pressEscapeToSkip: string;
+  exampleAnswers: string;
+  notificationsPanelTitle: string;
+  markAllAsRead: string;
+  noNotifications: string;
   natoHints: Record<string, string>;
 }
 
@@ -104,6 +112,14 @@ export const translations: Record<string, Translations> = {
     dailyReminders: "You'll receive daily reminders to practice the NATO alphabet based on your learning progress.",
     speakAnswer: "Speak your answer",
     voiceInputActive: "Listening...",
+    adaptiveLearning: "Adaptive Learning",
+    skipQuestion: "Skip",
+    pressEnterToSubmit: "Press Enter to submit",
+    pressEscapeToSkip: "Press Escape to skip",
+    exampleAnswers: 'Example: "Alpha", "Bravo", "Charlie"',
+    notificationsPanelTitle: "Notifications",
+    markAllAsRead: "Mark all as read",
+    noNotifications: "No notifications",
     natoHints: {
       'A': 'First letter of Greek alphabet',
       'B': 'Well done, applause!',
@@ -184,6 +200,14 @@ export const translations: Record<string, Translations> = {
     dailyReminders: "Vous recevrez des rappels quotidiens pour pratiquer l'alphabet OTAN basés sur vos progrès.",
     speakAnswer: "Parlez votre réponse",
     voiceInputActive: "Écoute en cours...",
+    adaptiveLearning: "Apprentissage Adaptatif",
+    skipQuestion: "Passer",
+    pressEnterToSubmit: "Appuyez sur Entrée pour soumettre",
+    pressEscapeToSkip: "Appuyez sur Échap pour passer",
+    exampleAnswers: 'Exemple : "Alpha", "Bravo", "Charlie"',
+    notificationsPanelTitle: "Notifications",
+    markAllAsRead: "Marquer tout comme lu",
+    noNotifications: "Aucune notification",
     natoHints: {
       'A': 'Première lettre de l\'alphabet grec',
       'B': 'Bien joué, applaudissements!',
@@ -264,6 +288,14 @@ export const translations: Record<string, Translations> = {
     dailyReminders: "Recibirá recordatorios diarios para practicar el alfabeto OTAN basados en su progreso de aprendizaje.",
     speakAnswer: "Habla tu respuesta",
     voiceInputActive: "Escuchando...",
+    adaptiveLearning: "Aprendizaje Adaptativo",
+    skipQuestion: "Saltar",
+    pressEnterToSubmit: "Presiona Enter para enviar",
+    pressEscapeToSkip: "Presiona Escape para saltar",
+    exampleAnswers: 'Ejemplo: "Alpha", "Bravo", "Charlie"',
+    notificationsPanelTitle: "Notificaciones",
+    markAllAsRead: "Marcar todo como leído",
+    noNotifications: "Sin notificaciones",
     natoHints: {
       'A': 'Primera letra del alfabeto griego',
       'B': '¡Bien hecho, aplausos!',
@@ -342,6 +374,16 @@ export const translations: Record<string, Translations> = {
     maleVoice: "Männliche Stimme",
     robotVoice: "Roboterstimme",
     dailyReminders: "Sie erhalten tägliche Erinnerungen zum Üben des NATO-Alphabets basierend auf Ihrem Lernfortschritt.",
+    speakAnswer: "Sprechen Sie Ihre Antwort",
+    voiceInputActive: "Zuhören...",
+    adaptiveLearning: "Adaptives Lernen",
+    skipQuestion: "Überspringen",
+    pressEnterToSubmit: "Drücken Sie Enter zum Senden",
+    pressEscapeToSkip: "Drücken Sie Escape zum Überspringen",
+    exampleAnswers: 'Beispiel: "Alpha", "Bravo", "Charlie"',
+    notificationsPanelTitle: "Benachrichtigungen",
+    markAllAsRead: "Alle als gelesen markieren",
+    noNotifications: "Keine Benachrichtigungen",
     natoHints: {
       'A': 'Erster Buchstabe des griechischen Alphabets',
       'B': 'Gut gemacht, Applaus!',
@@ -420,6 +462,16 @@ export const translations: Record<string, Translations> = {
     maleVoice: "صوت ذكوري",
     robotVoice: "صوت آلي",
     dailyReminders: "ستتلقى تذكيرات يومية لممارسة الأبجدية العسكرية بناءً على تقدم تعلمك.",
+    speakAnswer: "تحدث بإجابتك",
+    voiceInputActive: "الاستماع...",
+    adaptiveLearning: "التعلم التكيفي",
+    skipQuestion: "تخطي",
+    pressEnterToSubmit: "اضغط Enter للإرسال",
+    pressEscapeToSkip: "اضغط Escape للتخطي",
+    exampleAnswers: 'مثال: "Alpha", "Bravo", "Charlie"',
+    notificationsPanelTitle: "الإشعارات",
+    markAllAsRead: "تحديد الكل كمقروء",
+    noNotifications: "لا توجد إشعارات",
     natoHints: {
       'A': 'الحرف الأول من الأبجدية اليونانية',
       'B': 'أحسنت، تصفيق!',

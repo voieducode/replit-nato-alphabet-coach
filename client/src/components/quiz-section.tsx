@@ -580,7 +580,7 @@ export default function QuizSection({ userId }: QuizSectionProps) {
                 {translations.enterText}:
               </label>
               <div id="answer-instructions" className="text-xs text-gray-500 mb-2">
-                Press Enter to submit • Press Escape to skip • Example: "Alpha", "Bravo", "Charlie"
+                {translations.pressEnterToSubmit} • {translations.pressEscapeToSkip} • {translations.exampleAnswers}
               </div>
               <div className="relative">
                 <Input
