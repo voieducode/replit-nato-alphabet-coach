@@ -47,6 +47,7 @@ export interface Translations {
   maleVoice: string;
   robotVoice: string;
   dailyReminders: string;
+  natoHints: Record<string, string>;
 }
 
 export const translations: Record<string, Translations> = {
@@ -98,7 +99,35 @@ export const translations: Record<string, Translations> = {
     femaleVoice: "Female Voice",
     maleVoice: "Male Voice",
     robotVoice: "Robot Voice",
-    dailyReminders: "You'll receive daily reminders to practice the NATO alphabet based on your learning progress."
+    dailyReminders: "You'll receive daily reminders to practice the NATO alphabet based on your learning progress.",
+    natoHints: {
+      'A': 'First letter of Greek alphabet',
+      'B': 'Well done, applause!',
+      'C': 'Phonetic C, like the name',
+      'D': 'River formation triangle',
+      'E': 'Sound reflection',
+      'F': 'Ballroom dance',
+      'G': 'Sport with clubs and holes',
+      'H': 'Place to stay overnight',
+      'I': 'Large Asian country',
+      'J': 'Shakespeare heroine',
+      'K': 'Unit of weight (1000 grams)',
+      'L': 'Capital of Peru',
+      'M': 'Short for microphone',
+      'N': 'Autumn month',
+      'O': 'Academy Award',
+      'P': 'Father, informal',
+      'Q': 'Canadian province',
+      'R': 'Shakespeare character',
+      'S': 'Mountain range',
+      'T': 'Argentine dance',
+      'U': 'Same clothing for all',
+      'V': 'Winner, champion',
+      'W': 'Strong alcoholic drink',
+      'X': 'Medical imaging',
+      'Y': 'American baseball player',
+      'Z': 'African warrior nation'
+    }
   },
   fr: {
     appName: "Entraîneur Alphabet OTAN",
@@ -148,7 +177,35 @@ export const translations: Record<string, Translations> = {
     femaleVoice: "Voix Féminine",
     maleVoice: "Voix Masculine",
     robotVoice: "Voix Robot",
-    dailyReminders: "Vous recevrez des rappels quotidiens pour pratiquer l'alphabet OTAN basés sur vos progrès."
+    dailyReminders: "Vous recevrez des rappels quotidiens pour pratiquer l'alphabet OTAN basés sur vos progrès.",
+    natoHints: {
+      'A': 'Première lettre de l\'alphabet grec',
+      'B': 'Bien joué, applaudissements!',
+      'C': 'C phonétique, comme le nom',
+      'D': 'Formation triangulaire de rivière',
+      'E': 'Réflexion du son',
+      'F': 'Danse de salon',
+      'G': 'Sport avec clubs et trous',
+      'H': 'Lieu pour passer la nuit',
+      'I': 'Grand pays asiatique',
+      'J': 'Héroïne de Shakespeare',
+      'K': 'Unité de poids (1000 grammes)',
+      'L': 'Capitale du Pérou',
+      'M': 'Abréviation de microphone',
+      'N': 'Mois d\'automne',
+      'O': 'Prix de l\'Académie',
+      'P': 'Père, informel',
+      'Q': 'Province canadienne',
+      'R': 'Personnage de Shakespeare',
+      'S': 'Chaîne de montagnes',
+      'T': 'Danse argentine',
+      'U': 'Même vêtement pour tous',
+      'V': 'Gagnant, champion',
+      'W': 'Boisson alcoolisée forte',
+      'X': 'Imagerie médicale',
+      'Y': 'Joueur de baseball américain',
+      'Z': 'Nation guerrière africaine'
+    }
   },
   es: {
     appName: "Entrenador Alfabeto OTAN",
@@ -198,7 +255,35 @@ export const translations: Record<string, Translations> = {
     femaleVoice: "Voz Femenina",
     maleVoice: "Voz Masculina",
     robotVoice: "Voz Robot",
-    dailyReminders: "Recibirá recordatorios diarios para practicar el alfabeto OTAN basados en su progreso de aprendizaje."
+    dailyReminders: "Recibirá recordatorios diarios para practicar el alfabeto OTAN basados en su progreso de aprendizaje.",
+    natoHints: {
+      'A': 'Primera letra del alfabeto griego',
+      'B': '¡Bien hecho, aplausos!',
+      'C': 'C fonética, como el nombre',
+      'D': 'Formación triangular de río',
+      'E': 'Reflejo del sonido',
+      'F': 'Baile de salón',
+      'G': 'Deporte con palos y hoyos',
+      'H': 'Lugar para pasar la noche',
+      'I': 'Gran país asiático',
+      'J': 'Heroína de Shakespeare',
+      'K': 'Unidad de peso (1000 gramos)',
+      'L': 'Capital de Perú',
+      'M': 'Abreviatura de micrófono',
+      'N': 'Mes de otoño',
+      'O': 'Premio de la Academia',
+      'P': 'Padre, informal',
+      'Q': 'Provincia canadiense',
+      'R': 'Personaje de Shakespeare',
+      'S': 'Cadena montañosa',
+      'T': 'Baile argentino',
+      'U': 'Misma ropa para todos',
+      'V': 'Ganador, campeón',
+      'W': 'Bebida alcohólica fuerte',
+      'X': 'Imagen médica',
+      'Y': 'Jugador de béisbol americano',
+      'Z': 'Nación guerrera africana'
+    }
   },
   de: {
     appName: "NATO-Alphabet Trainer",
@@ -248,7 +333,35 @@ export const translations: Record<string, Translations> = {
     femaleVoice: "Weibliche Stimme",
     maleVoice: "Männliche Stimme",
     robotVoice: "Roboterstimme",
-    dailyReminders: "Sie erhalten tägliche Erinnerungen zum Üben des NATO-Alphabets basierend auf Ihrem Lernfortschritt."
+    dailyReminders: "Sie erhalten tägliche Erinnerungen zum Üben des NATO-Alphabets basierend auf Ihrem Lernfortschritt.",
+    natoHints: {
+      'A': 'Erster Buchstabe des griechischen Alphabets',
+      'B': 'Gut gemacht, Applaus!',
+      'C': 'Phonetisches C, wie der Name',
+      'D': 'Dreieckige Flussformation',
+      'E': 'Schallreflexion',
+      'F': 'Gesellschaftstanz',
+      'G': 'Sport mit Schlägern und Löchern',
+      'H': 'Ort zum Übernachten',
+      'I': 'Großes asiatisches Land',
+      'J': 'Shakespeare-Heldin',
+      'K': 'Gewichtseinheit (1000 Gramm)',
+      'L': 'Hauptstadt von Peru',
+      'M': 'Abkürzung für Mikrofon',
+      'N': 'Herbstmonat',
+      'O': 'Akademie-Preis',
+      'P': 'Vater, umgangssprachlich',
+      'Q': 'Kanadische Provinz',
+      'R': 'Shakespeare-Figur',
+      'S': 'Gebirgskette',
+      'T': 'Argentinischer Tanz',
+      'U': 'Gleiche Kleidung für alle',
+      'V': 'Gewinner, Champion',
+      'W': 'Starkes alkoholisches Getränk',
+      'X': 'Medizinische Bildgebung',
+      'Y': 'Amerikanischer Baseballspieler',
+      'Z': 'Afrikanische Kriegernation'
+    }
   },
   ar: {
     appName: "مدرب الأبجدية العسكرية",
@@ -298,7 +411,35 @@ export const translations: Record<string, Translations> = {
     femaleVoice: "صوت أنثوي",
     maleVoice: "صوت ذكوري",
     robotVoice: "صوت آلي",
-    dailyReminders: "ستتلقى تذكيرات يومية لممارسة الأبجدية العسكرية بناءً على تقدم تعلمك."
+    dailyReminders: "ستتلقى تذكيرات يومية لممارسة الأبجدية العسكرية بناءً على تقدم تعلمك.",
+    natoHints: {
+      'A': 'الحرف الأول من الأبجدية اليونانية',
+      'B': 'أحسنت، تصفيق!',
+      'C': 'حرف C الصوتي، مثل الاسم',
+      'D': 'تشكيل مثلثي للنهر',
+      'E': 'انعكاس الصوت',
+      'F': 'رقصة القاعة',
+      'G': 'رياضة بالعصي والحفر',
+      'H': 'مكان للمبيت',
+      'I': 'بلد آسيوي كبير',
+      'J': 'بطلة شكسبير',
+      'K': 'وحدة الوزن (1000 جرام)',
+      'L': 'عاصمة البيرو',
+      'M': 'اختصار للميكروفون',
+      'N': 'شهر الخريف',
+      'O': 'جائزة الأكاديمية',
+      'P': 'أب، غير رسمي',
+      'Q': 'مقاطعة كندية',
+      'R': 'شخصية شكسبير',
+      'S': 'سلسلة جبال',
+      'T': 'رقصة أرجنتينية',
+      'U': 'نفس الملابس للجميع',
+      'V': 'فائز، بطل',
+      'W': 'مشروب كحولي قوي',
+      'X': 'التصوير الطبي',
+      'Y': 'لاعب بيسبول أمريكي',
+      'Z': 'أمة محاربة أفريقية'
+    }
   },
   sw: {
     appName: "Mwalimu wa Herufi za NATO",
