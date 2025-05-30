@@ -788,8 +788,7 @@ export default function QuizSection({ userId }: QuizSectionProps) {
                 {translations.adaptiveLearning}
               </h4>
               <p className="text-sm text-green-700 mb-2">
-                Each quiz set of 10 questions adapts based on your performance
-                using spaced repetition.
+                {translations.spacedRepetitionDescription}
               </p>
               <div className="flex items-center space-x-4 text-xs">
                 <Badge variant="secondary" className="bg-red-100 text-red-700">
