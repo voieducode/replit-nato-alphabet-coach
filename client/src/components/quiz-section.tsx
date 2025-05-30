@@ -508,7 +508,10 @@ export default function QuizSection({ userId }: QuizSectionProps) {
             />
             <div className="flex justify-between text-xs text-gray-500">
               <span>{sessionResults.filter(r => r.isCorrect).length} {translations.correct.toLowerCase()}</span>
-              <span>{localStats.currentStreak} {translations.currentStreak.toLowerCase()}</span>
+              <span className="flex items-center gap-1">
+                <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                {translations.adaptiveLearning}
+              </span>
             </div>
           </div>
         </CardContent>

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { queryClient } from "@/lib/queryClient";
+import { useLanguage } from "@/contexts/LanguageContext";
 import type { Notification } from "@shared/schema";
 
 interface NotificationModalProps {
@@ -13,6 +14,7 @@ interface NotificationModalProps {
 }
 
 export default function NotificationModal({ isOpen, onClose, userId }: NotificationModalProps) {
+  const { translations } = useLanguage();
   const { data: notifications = [] } = useQuery<Notification[]>({
     queryKey: [`/api/notifications/${userId}`],
     enabled: isOpen,
@@ -83,22 +85,37 @@ export default function NotificationModal({ isOpen, onClose, userId }: Notificat
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end">
       <div className="bg-white w-full rounded-t-lg p-4 transform transition-transform max-h-[80vh] overflow-hidden flex flex-col">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold text-lg">Notifications</h3>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="p-2 hover:bg-gray-100 rounded-full"
-            onClick={onClose}
-          >
-            <X className="h-5 w-5" />
-          </Button>
+          <h3 className="font-semibold text-lg">{translations.notificationsPanelTitle}</h3>
+          <div className="flex items-center gap-2">
+            {notifications.some(n => !n.isRead) && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  notifications
+                    .filter(n => !n.isRead)
+                    .forEach(n => markReadMutation.mutate(n.id));
+                }}
+              >
+                {translations.markAllAsRead}
+              </Button>
+            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="p-2 hover:bg-gray-100 rounded-full"
+              onClick={onClose}
+            >
+              <X className="h-5 w-5" />
+            </Button>
+          </div>
         </div>
         
         <div className="space-y-3 overflow-y-auto flex-1">
           {notifications.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
               <Bell className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-              <p>No notifications yet</p>
+              <p>{translations.noNotifications}</p>
             </div>
           ) : (
             notifications.map((notification) => (
