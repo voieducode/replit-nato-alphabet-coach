@@ -66,11 +66,32 @@ export default function QuizSection({ userId }: QuizSectionProps) {
         recognition.interimResults = false;
         recognition.maxAlternatives = 1;
         
-        // Always use English for NATO alphabet recognition
-        recognition.lang = 'en-US';
+        // Try different language configurations including no language specification
+        const languages = [null, 'en-US', 'en-GB', 'en', 'en-CA', 'en-AU'];
+        let currentLangIndex = 0;
+        
+        const tryNextLanguage = () => {
+          if (currentLangIndex < languages.length) {
+            const lang = languages[currentLangIndex];
+            if (lang) {
+              recognition.lang = lang;
+              console.log('Trying language:', lang);
+            } else {
+              // Remove language specification to use browser default
+              delete recognition.lang;
+              console.log('Trying with browser default language');
+            }
+            currentLangIndex++;
+            return true;
+          }
+          return false;
+        };
+        
+        // Start with first option (no language specified)
+        tryNextLanguage();
         
         recognition.onstart = () => {
-          console.log('Speech recognition started');
+          console.log('Speech recognition started with language:', recognition.lang);
           setIsListening(true);
         };
         
@@ -82,10 +103,27 @@ export default function QuizSection({ userId }: QuizSectionProps) {
         };
         
         recognition.onerror = (event: any) => {
-          console.log('Speech recognition error:', event.error);
+          console.log('Speech recognition error:', event.error, 'with language:', recognition.lang);
           setIsListening(false);
           
-          // Show user-friendly error message
+          // If language not supported, try next language
+          if (event.error === 'language-not-supported') {
+            if (tryNextLanguage()) {
+              console.log('Retrying with different language...');
+              // Don't show error yet, try again
+              return;
+            } else {
+              toast({
+                title: "Speech Recognition Not Available",
+                description: "Speech recognition is not supported in your browser or region.",
+                variant: "destructive",
+              });
+              setSpeechSupported(false);
+              return;
+            }
+          }
+          
+          // Show user-friendly error message for other errors
           if (event.error === 'not-allowed') {
             toast({
               title: "Microphone Access Denied",
