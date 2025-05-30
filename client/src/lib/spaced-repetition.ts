@@ -120,37 +120,39 @@ export function checkAnswerVariants(userAnswer: string, correctAnswer: string): 
 }
 
 // Hints for NATO alphabet words
-const natoHints: Record<string, string> = {
-  'A': 'First letter of Greek alphabet',
-  'B': 'Well done, applause!',
-  'C': 'Phonetic C, like the name',
-  'D': 'River formation triangle',
-  'E': 'Sound reflection',
-  'F': 'Ballroom dance',
-  'G': 'Sport with clubs and holes',
-  'H': 'Place to stay overnight',
-  'I': 'Large Asian country',
-  'J': 'Shakespeare heroine',
-  'K': 'Unit of weight (1000 grams)',
-  'L': 'Capital of Peru',
-  'M': 'Short for microphone',
-  'N': 'Autumn month',
-  'O': 'Academy Award',
-  'P': 'Father, informal',
-  'Q': 'Canadian province',
-  'R': 'Shakespeare character',
-  'S': 'Mountain range',
-  'T': 'Argentine dance',
-  'U': 'Same clothing for all',
-  'V': 'Winner, champion',
-  'W': 'Strong alcoholic drink',
-  'X': 'Medical imaging',
-  'Y': 'American baseball player',
-  'Z': 'African warrior nation'
-};
-
-export function getHintForLetter(letter: string): string {
-  return natoHints[letter.toUpperCase()] || '';
+export function getHintForLetter(letter: string, natoHints?: Record<string, string>): string {
+  // Default English hints for fallback
+  const defaultHints: Record<string, string> = {
+    'A': 'First letter of Greek alphabet',
+    'B': 'Well done, applause!',
+    'C': 'Phonetic C, like the name',
+    'D': 'River formation triangle',
+    'E': 'Sound reflection',
+    'F': 'Ballroom dance',
+    'G': 'Sport with clubs and holes',
+    'H': 'Place to stay overnight',
+    'I': 'Large Asian country',
+    'J': 'Shakespeare heroine',
+    'K': 'Unit of weight (1000 grams)',
+    'L': 'Capital of Peru',
+    'M': 'Short for microphone',
+    'N': 'Autumn month',
+    'O': 'Academy Award',
+    'P': 'Father, informal',
+    'Q': 'Canadian province',
+    'R': 'Shakespeare character',
+    'S': 'Mountain range',
+    'T': 'Argentine dance',
+    'U': 'Same clothing for all',
+    'V': 'Winner, champion',
+    'W': 'Strong alcoholic drink',
+    'X': 'Medical imaging',
+    'Y': 'American baseball player',
+    'Z': 'African warrior nation'
+  };
+  
+  const hints = natoHints || defaultHints;
+  return hints[letter.toUpperCase()] || '';
 }
 
 export function generateQuizQuestion(userProgress: UserProgress[]): QuizQuestion {

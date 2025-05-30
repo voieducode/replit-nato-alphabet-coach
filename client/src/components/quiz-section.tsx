@@ -493,7 +493,7 @@ export default function QuizSection({ userId }: QuizSectionProps) {
                 <div className="flex items-center space-x-2">
                   <Lightbulb className="h-4 w-4" />
                   <p className="text-sm font-medium">
-                    {translations.hint}: {getHintForLetter(currentQuestion.letter)}
+                    {translations.hint}: {getHintForLetter(currentQuestion.letter, translations.natoHints)}
                   </p>
                 </div>
               </div>

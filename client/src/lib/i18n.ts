@@ -489,7 +489,35 @@ export const translations: Record<string, Translations> = {
     femaleVoice: "Sauti ya Kike",
     maleVoice: "Sauti ya Kiume",
     robotVoice: "Sauti ya Roboti",
-    dailyReminders: "Utapokea vikumbusho vya kila siku vya kufanya mazoezi ya herufi za NATO kulingana na maendeleo yako ya kujifunza."
+    dailyReminders: "Utapokea vikumbusho vya kila siku vya kufanya mazoezi ya herufi za NATO kulingana na maendeleo yako ya kujifunza.",
+    natoHints: {
+      'A': 'Herufi ya kwanza ya alfabeti ya Kigiriki',
+      'B': 'Vizuri, makofi!',
+      'C': 'C ya sauti, kama jina',
+      'D': 'Umbo la pembetatu la mto',
+      'E': 'Mwangwi wa sauti',
+      'F': 'Ngoma ya ukumbi',
+      'G': 'Mchezo wa fimbo na mashimo',
+      'H': 'Mahali pa kulala',
+      'I': 'Nchi kubwa ya Asia',
+      'J': 'Bingwa wa Shakespeare',
+      'K': 'Kipimo cha uzito (gramu 1000)',
+      'L': 'Mji mkuu wa Peru',
+      'M': 'Kifupi cha kipaza sauti',
+      'N': 'Mwezi wa majira ya baridi',
+      'O': 'Tuzo ya Akademi',
+      'P': 'Baba, kirafiki',
+      'Q': 'Jimbo la Canada',
+      'R': 'Mhusika wa Shakespeare',
+      'S': 'Mlolongo wa milima',
+      'T': 'Ngoma ya Argentina',
+      'U': 'Mavazi sawa kwa wote',
+      'V': 'Mshindi, bingwa',
+      'W': 'Kinywaji chenye nguvu',
+      'X': 'Upigaji picha wa kimatibabu',
+      'Y': 'Mchezaji wa besiboli wa Marekani',
+      'Z': 'Taifa la vita la Afrika'
+    }
   },
   zh: {
     appName: "北约字母教练",
@@ -539,7 +567,35 @@ export const translations: Record<string, Translations> = {
     femaleVoice: "女声",
     maleVoice: "男声",
     robotVoice: "机器人声音",
-    dailyReminders: "您将根据学习进度收到练习北约字母的每日提醒。"
+    dailyReminders: "您将根据学习进度收到练习北约字母的每日提醒。",
+    natoHints: {
+      'A': '希腊字母表的第一个字母',
+      'B': '做得好，掌声！',
+      'C': '语音C，像名字一样',
+      'D': '河流三角形形成',
+      'E': '声音反射',
+      'F': '交际舞',
+      'G': '用球杆和洞的运动',
+      'H': '过夜的地方',
+      'I': '亚洲大国',
+      'J': '莎士比亚女主角',
+      'K': '重量单位（1000克）',
+      'L': '秘鲁首都',
+      'M': '麦克风的缩写',
+      'N': '秋天的月份',
+      'O': '学院奖',
+      'P': '父亲，非正式',
+      'Q': '加拿大省份',
+      'R': '莎士比亚角色',
+      'S': '山脉',
+      'T': '阿根廷舞蹈',
+      'U': '所有人相同的服装',
+      'V': '获胜者，冠军',
+      'W': '烈性酒精饮料',
+      'X': '医学成像',
+      'Y': '美国棒球运动员',
+      'Z': '非洲战士民族'
+    }
   }
 };
 
