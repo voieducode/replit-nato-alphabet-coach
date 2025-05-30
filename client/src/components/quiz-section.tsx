@@ -60,28 +60,59 @@ export default function QuizSection({ userId }: QuizSectionProps) {
   useEffect(() => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (SpeechRecognition) {
-      setSpeechSupported(true);
-      const recognition = new SpeechRecognition();
-      recognition.continuous = false;
-      recognition.interimResults = false;
-      recognition.lang = 'en-US';
-      
-      recognition.onresult = (event: any) => {
-        const transcript = event.results[0][0].transcript.toLowerCase().trim();
-        setUserAnswer(transcript);
-        setIsListening(false);
-      };
-      
-      recognition.onerror = (event: any) => {
-        console.log('Speech recognition error:', event.error);
-        setIsListening(false);
-      };
-      
-      recognition.onend = () => {
-        setIsListening(false);
-      };
-      
-      recognitionRef.current = recognition;
+      try {
+        const recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+        
+        // Always use English for NATO alphabet recognition
+        recognition.lang = 'en-US';
+        
+        recognition.onstart = () => {
+          console.log('Speech recognition started');
+          setIsListening(true);
+        };
+        
+        recognition.onresult = (event: any) => {
+          const transcript = event.results[0][0].transcript.toLowerCase().trim();
+          console.log('Speech recognition result:', transcript);
+          setUserAnswer(transcript);
+          setIsListening(false);
+        };
+        
+        recognition.onerror = (event: any) => {
+          console.log('Speech recognition error:', event.error);
+          setIsListening(false);
+          
+          // Show user-friendly error message
+          if (event.error === 'not-allowed') {
+            toast({
+              title: "Microphone Access Denied",
+              description: "Please allow microphone access to use voice input.",
+              variant: "destructive",
+            });
+          } else if (event.error === 'no-speech') {
+            toast({
+              title: "No Speech Detected",
+              description: "Please try speaking again.",
+            });
+          }
+        };
+        
+        recognition.onend = () => {
+          setIsListening(false);
+        };
+        
+        recognitionRef.current = recognition;
+        setSpeechSupported(true);
+      } catch (error) {
+        console.log('Speech recognition initialization failed:', error);
+        setSpeechSupported(false);
+      }
+    } else {
+      console.log('Speech recognition not supported');
+      setSpeechSupported(false);
     }
   }, []);
 
