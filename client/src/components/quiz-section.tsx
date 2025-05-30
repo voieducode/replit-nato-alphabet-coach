@@ -7,6 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { queryClient } from "@/lib/queryClient";
 import { natoAlphabet } from "@/lib/nato-alphabet";
 import { generateQuizSet, checkAnswerVariants, getHintForLetter, type QuizQuestion, type QuizSet } from "@/lib/spaced-repetition";
@@ -31,6 +32,7 @@ export default function QuizSection({ userId }: QuizSectionProps) {
   const [localStats, setLocalStats] = useState(getUserStats());
   const inputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  const { translations } = useLanguage();
 
   // Use localStorage for all data persistence
   const [userProgress, setUserProgress] = useState<UserProgress[]>([]);
@@ -178,12 +180,12 @@ export default function QuizSection({ userId }: QuizSectionProps) {
 
     if (isCorrect) {
       toast({
-        title: "Correct!",
+        title: translations.correct,
         description: `${currentQuestion.letter} is indeed ${currentQuestion.correctAnswer}`,
       });
     } else {
       toast({
-        title: "Incorrect",
+        title: translations.incorrect,
         description: `${currentQuestion.letter} is ${currentQuestion.correctAnswer}, not ${userAnswer}`,
         variant: "destructive",
       });
@@ -315,9 +317,9 @@ export default function QuizSection({ userId }: QuizSectionProps) {
                 <Target className="h-12 w-12 text-blue-500 mx-auto" />
               )}
             </div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">Quiz Set Complete!</h2>
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">{translations.sessionComplete}</h2>
             <p className="text-lg text-gray-600 mb-4">
-              You scored {score} out of {sessionResults.length} ({accuracy}%)
+              {translations.score}: {score} / {sessionResults.length} ({accuracy}%)
             </p>
             <Button 
               onClick={finishQuizSet} 
@@ -325,7 +327,7 @@ export default function QuizSection({ userId }: QuizSectionProps) {
               autoFocus
               aria-label="Start a new quiz set of 10 questions"
             >
-              Start New Quiz Set
+              {translations.startQuiz}
             </Button>
           </CardContent>
         </Card>
@@ -350,7 +352,7 @@ export default function QuizSection({ userId }: QuizSectionProps) {
                       <p className="font-medium">{result.question.correctAnswer}</p>
                       {!result.isCorrect && (
                         <p className="text-sm text-gray-600">
-                          Your answer: {result.userAnswer}
+                          {translations.yourAnswer}: {result.userAnswer}
                         </p>
                       )}
                     </div>
@@ -375,7 +377,7 @@ export default function QuizSection({ userId }: QuizSectionProps) {
       <Card className="bg-white shadow-material border border-gray-100 cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setShowStats(!showStats)}>
         <CardContent className="p-4">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="font-semibold text-lg">Quiz Set Practice</h2>
+            <h2 className="font-semibold text-lg">{translations.quiz}</h2>
             <span className="text-sm text-gray-600">
               {new Date().toLocaleDateString()}
             </span>
@@ -383,7 +385,7 @@ export default function QuizSection({ userId }: QuizSectionProps) {
           
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
-              <span className="text-gray-600">Quiz Progress</span>
+              <span className="text-gray-600">{translations.learningProgress}</span>
               <span className="font-medium">
                 {currentQuestionIndex + 1} of {currentQuizSet?.questions.length || 10}
               </span>
@@ -393,8 +395,8 @@ export default function QuizSection({ userId }: QuizSectionProps) {
               className="w-full h-2"
             />
             <div className="flex justify-between text-xs text-gray-500">
-              <span>{sessionResults.filter(r => r.isCorrect).length} correct so far</span>
-              <span>{currentStreak} day streak</span>
+              <span>{sessionResults.filter(r => r.isCorrect).length} {translations.correct.toLowerCase()}</span>
+              <span>{localStats.currentStreak} {translations.currentStreak.toLowerCase()}</span>
             </div>
           </div>
         </CardContent>
@@ -406,13 +408,13 @@ export default function QuizSection({ userId }: QuizSectionProps) {
           <Card className="bg-white shadow-material border border-gray-100">
             <CardContent className="p-4 text-center">
               <div className="text-2xl font-bold text-primary mb-1">{totalSessions}</div>
-              <div className="text-sm text-gray-600">Quiz Sets</div>
+              <div className="text-sm text-gray-600">{translations.totalSessions}</div>
             </CardContent>
           </Card>
           <Card className="bg-white shadow-material border border-gray-100">
             <CardContent className="p-4 text-center">
               <div className="text-2xl font-bold text-green-600 mb-1">{averageScore}%</div>
-              <div className="text-sm text-gray-600">Average Score</div>
+              <div className="text-sm text-gray-600">{translations.accuracy}</div>
             </CardContent>
           </Card>
           <Card className="bg-white shadow-material border border-gray-100 col-span-2">
