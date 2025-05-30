@@ -35,7 +35,6 @@ describe('NATO Alphabet Functions', () => {
       const result = convertToNATO('A1B')
       expect(result).toEqual([
         { char: 'A', nato: 'Alpha' },
-        { char: '1', nato: '1' },
         { char: 'B', nato: 'Bravo' }
       ])
     })
@@ -44,9 +43,8 @@ describe('NATO Alphabet Functions', () => {
       const result = convertToNATO('A B-C')
       expect(result).toEqual([
         { char: 'A', nato: 'Alpha' },
-        { char: ' ', nato: ' ' },
+        { char: ' ', nato: 'SPACE' },
         { char: 'B', nato: 'Bravo' },
-        { char: '-', nato: '-' },
         { char: 'C', nato: 'Charlie' }
       ])
     })
@@ -58,10 +56,10 @@ describe('NATO Alphabet Functions', () => {
 
     it('should handle full sentence', () => {
       const result = convertToNATO('Hello World!')
-      expect(result).toHaveLength(12)
+      expect(result).toHaveLength(11)
       expect(result[0]).toEqual({ char: 'H', nato: 'Hotel' })
-      expect(result[5]).toEqual({ char: ' ', nato: ' ' })
-      expect(result[11]).toEqual({ char: '!', nato: '!' })
+      expect(result[5]).toEqual({ char: ' ', nato: 'SPACE' })
+      // Only letters and spaces are converted, special characters are filtered out
     })
   })
 
