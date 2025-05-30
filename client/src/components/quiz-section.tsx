@@ -621,15 +621,15 @@ export default function QuizSection({ userId }: QuizSectionProps) {
               <div className="flex items-center justify-between text-sm">
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                  <span>Learning: {progressStats.learning}</span>
+                  <span>{translations.learning}: {progressStats.learning}</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                  <span>Review: {progressStats.review}</span>
+                  <span>{translations.review}: {progressStats.review}</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                  <span>Mastered: {progressStats.mastered}</span>
+                  <span>{translations.mastered}: {progressStats.mastered}</span>
                 </div>
               </div>
             </CardContent>
@@ -793,19 +793,19 @@ export default function QuizSection({ userId }: QuizSectionProps) {
               </p>
               <div className="flex items-center space-x-4 text-xs">
                 <Badge variant="secondary" className="bg-red-100 text-red-700">
-                  Learning ({progressStats.learning})
+                  {translations.learning} ({progressStats.learning})
                 </Badge>
                 <Badge
                   variant="secondary"
                   className="bg-yellow-100 text-yellow-700"
                 >
-                  Review ({progressStats.review})
+                  {translations.review} ({progressStats.review})
                 </Badge>
                 <Badge
                   variant="secondary"
                   className="bg-green-100 text-green-700"
                 >
-                  Mastered ({progressStats.mastered})
+                  {translations.mastered} ({progressStats.mastered})
                 </Badge>
               </div>
             </div>

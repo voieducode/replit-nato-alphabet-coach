@@ -147,7 +147,11 @@ export const translations: Record<string, Translations> = {
       'X': 'Medical imaging',
       'Y': 'American baseball player',
       'Z': 'African warrior nation'
-    }
+    },
+    // Quiz specific
+    learning: 'Learning',
+    review: 'Review',
+    mastered: 'Mastered',
   },
   fr: {
     appName: "Entraîneur Alphabet OTAN",
@@ -235,7 +239,11 @@ export const translations: Record<string, Translations> = {
       'X': 'Imagerie médicale',
       'Y': 'Joueur de baseball américain',
       'Z': 'Nation guerrière africaine'
-    }
+    },
+    // Quiz specific
+    learning: 'Apprentissage',
+    review: 'Révision',
+    mastered: 'Maîtrisé',
   },
   es: {
     appName: "Entrenador Alfabeto OTAN",
@@ -323,7 +331,11 @@ export const translations: Record<string, Translations> = {
       'X': 'Imagen médica',
       'Y': 'Jugador de béisbol americano',
       'Z': 'Nación guerrera africana'
-    }
+    },
+    // Quiz specific
+    learning: 'Aprendiendo',
+    review: 'Repaso',
+    mastered: 'Dominado',
   },
   de: {
     appName: "NATO-Alphabet Trainer",
@@ -380,7 +392,7 @@ export const translations: Record<string, Translations> = {
     skipQuestion: "Überspringen",
     pressEnterToSubmit: "Drücken Sie Enter zum Senden",
     pressEscapeToSkip: "Drücken Sie Escape zum Überspringen",
-    exampleAnswers: 'Beispiel: "Alpha", "Bravo", "Charlie"',
+    exampleAnswers: 'z.B. alpha, bravo, charlie',
     notificationsPanelTitle: "Benachrichtigungen",
     markAllAsRead: "Alle als gelesen markieren",
     noNotifications: "Keine Benachrichtigungen",
@@ -411,7 +423,11 @@ export const translations: Record<string, Translations> = {
       'X': 'Medizinische Bildgebung',
       'Y': 'Amerikanischer Baseballspieler',
       'Z': 'Afrikanische Kriegernation'
-    }
+    },
+    // Quiz specific
+    learning: 'Lernen',
+    review: 'Wiederholen',
+    mastered: 'Beherrscht',
   },
   ar: {
     appName: "مدرب الأبجدية العسكرية",
