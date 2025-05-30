@@ -56,102 +56,11 @@ export default function QuizSection({ userId }: QuizSectionProps) {
     setUserProgress(apiProgress);
   }, [userId]);
 
-  // Initialize speech recognition
+  // Check speech recognition support (disabled for now due to compatibility issues)
   useEffect(() => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (SpeechRecognition) {
-      try {
-        const recognition = new SpeechRecognition();
-        recognition.continuous = false;
-        recognition.interimResults = false;
-        recognition.maxAlternatives = 1;
-        
-        // Try different language configurations including no language specification
-        const languages = [null, 'en-US', 'en-GB', 'en', 'en-CA', 'en-AU'];
-        let currentLangIndex = 0;
-        
-        const tryNextLanguage = () => {
-          if (currentLangIndex < languages.length) {
-            const lang = languages[currentLangIndex];
-            if (lang) {
-              recognition.lang = lang;
-              console.log('Trying language:', lang);
-            } else {
-              // Remove language specification to use browser default
-              delete recognition.lang;
-              console.log('Trying with browser default language');
-            }
-            currentLangIndex++;
-            return true;
-          }
-          return false;
-        };
-        
-        // Start with first option (no language specified)
-        tryNextLanguage();
-        
-        recognition.onstart = () => {
-          console.log('Speech recognition started with language:', recognition.lang);
-          setIsListening(true);
-        };
-        
-        recognition.onresult = (event: any) => {
-          const transcript = event.results[0][0].transcript.toLowerCase().trim();
-          console.log('Speech recognition result:', transcript);
-          setUserAnswer(transcript);
-          setIsListening(false);
-        };
-        
-        recognition.onerror = (event: any) => {
-          console.log('Speech recognition error:', event.error, 'with language:', recognition.lang);
-          setIsListening(false);
-          
-          // If language not supported, try next language
-          if (event.error === 'language-not-supported') {
-            if (tryNextLanguage()) {
-              console.log('Retrying with different language...');
-              // Don't show error yet, try again
-              return;
-            } else {
-              toast({
-                title: "Speech Recognition Not Available",
-                description: "Speech recognition is not supported in your browser or region.",
-                variant: "destructive",
-              });
-              setSpeechSupported(false);
-              return;
-            }
-          }
-          
-          // Show user-friendly error message for other errors
-          if (event.error === 'not-allowed') {
-            toast({
-              title: "Microphone Access Denied",
-              description: "Please allow microphone access to use voice input.",
-              variant: "destructive",
-            });
-          } else if (event.error === 'no-speech') {
-            toast({
-              title: "No Speech Detected",
-              description: "Please try speaking again.",
-            });
-          }
-        };
-        
-        recognition.onend = () => {
-          setIsListening(false);
-        };
-        
-        recognitionRef.current = recognition;
-        setSpeechSupported(true);
-      } catch (error) {
-        console.log('Speech recognition initialization failed:', error);
-        setSpeechSupported(false);
-      }
-    } else {
-      console.log('Speech recognition not supported');
-      setSpeechSupported(false);
-    }
+    // Disable speech recognition due to widespread browser compatibility issues
+    setSpeechSupported(false);
+    console.log('Speech recognition disabled due to browser compatibility issues');
   }, []);
 
   // Local progress update function
@@ -583,7 +492,7 @@ export default function QuizSection({ userId }: QuizSectionProps) {
                 {translations.enterText}:
               </label>
               <div id="answer-instructions" className="text-xs text-gray-500 mb-2">
-                Press Enter to submit • Press Escape to skip • Accepts variations like "whisky"
+                Press Enter to submit • Press Escape to skip • Example: "Alpha", "Bravo", "Charlie"
               </div>
               <div className="relative">
                 <Input
