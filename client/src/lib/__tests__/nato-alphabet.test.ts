@@ -25,9 +25,9 @@ describe('NATO Alphabet Functions', () => {
     it('should handle lowercase letters', () => {
       const result = convertToNATO('abc')
       expect(result).toEqual([
-        { char: 'a', nato: 'Alpha' },
-        { char: 'b', nato: 'Bravo' },
-        { char: 'c', nato: 'Charlie' }
+        { char: 'A', nato: 'Alpha' },
+        { char: 'B', nato: 'Bravo' },
+        { char: 'C', nato: 'Charlie' }
       ])
     })
 

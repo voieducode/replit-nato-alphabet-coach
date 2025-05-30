@@ -9,7 +9,19 @@ import {
   generateQuizSet, 
   getProgressStats 
 } from '../spaced-repetition'
-import type { UserProgress } from '@shared/schema'
+// Mock UserProgress type for testing
+type UserProgress = {
+  id: number;
+  userId: string;
+  letter: string;
+  correctCount: number;
+  incorrectCount: number;
+  lastReview: Date;
+  nextReview: Date;
+  difficulty: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 describe('Spaced Repetition Functions', () => {
   describe('calculateNextReviewDate', () => {
