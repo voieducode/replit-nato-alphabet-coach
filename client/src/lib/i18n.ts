@@ -50,6 +50,7 @@ export interface Translations {
   speakAnswer: string;
   voiceInputActive: string;
   adaptiveLearning: string;
+  spacedRepetitionDescription: string;
   skipQuestion: string;
   pressEnterToSubmit: string;
   pressEscapeToSkip: string;
@@ -57,6 +58,9 @@ export interface Translations {
   notificationsPanelTitle: string;
   markAllAsRead: string;
   noNotifications: string;
+  learning: string;
+  review: string;
+  mastered: string;
   natoHints: Record<string, string>;
 }
 
@@ -121,6 +125,9 @@ export const translations: Record<string, Translations> = {
     notificationsPanelTitle: "Notifications",
     markAllAsRead: "Mark all as read",
     noNotifications: "No notifications",
+    learning: "Learning",
+    review: "Review",
+    mastered: "Mastered",
     natoHints: {
       'A': 'First letter of Greek alphabet',
       'B': 'Well done, applause!',
@@ -148,11 +155,7 @@ export const translations: Record<string, Translations> = {
       'X': 'Medical imaging',
       'Y': 'American baseball player',
       'Z': 'African warrior nation'
-    },
-    // Quiz specific
-    learning: 'Learning',
-    review: 'Review',
-    mastered: 'Mastered',
+    }
   },
   fr: {
     appName: "Entraîneur Alphabet OTAN",
@@ -206,6 +209,7 @@ export const translations: Record<string, Translations> = {
     speakAnswer: "Parlez votre réponse",
     voiceInputActive: "Écoute en cours...",
     adaptiveLearning: "Apprentissage Adaptatif",
+    spacedRepetitionDescription: "Chaque série de 10 questions s'adapte selon vos performances en utilisant la répétition espacée.",
     skipQuestion: "Passer",
     pressEnterToSubmit: "Appuyez sur Entrée pour soumettre",
     pressEscapeToSkip: "Appuyez sur Échap pour passer",
@@ -298,7 +302,6 @@ export const translations: Record<string, Translations> = {
     speakAnswer: "Habla tu respuesta",
     voiceInputActive: "Escuchando...",
     adaptiveLearning: "Aprendizaje Adaptativo",
-    spacedRepetitionDescription: "Cada conjunto de 10 preguntas se adapta según tu rendimiento usando repetición espaciada.",vo",
     skipQuestion: "Saltar",
     pressEnterToSubmit: "Presiona Enter para enviar",
     pressEscapeToSkip: "Presiona Escape para saltar",
