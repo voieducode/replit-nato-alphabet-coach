@@ -1,6 +1,15 @@
 import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Trophy, Brain, Target, CheckCircle, XCircle, Lightbulb, Mic, MicOff } from "lucide-react";
+import {
+  Trophy,
+  Brain,
+  Target,
+  CheckCircle,
+  XCircle,
+  Lightbulb,
+  Mic,
+  MicOff,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -10,8 +19,19 @@ import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { queryClient } from "@/lib/queryClient";
 import { natoAlphabet } from "@/lib/nato-alphabet";
-import { generateQuizSet, checkAnswerVariants, getHintForLetter, type QuizQuestion, type QuizSet } from "@/lib/spaced-repetition";
-import { getUserStats, updateUserStats, getUserProgressLocal, updateUserProgressLocal } from "@/lib/storage";
+import {
+  generateQuizSet,
+  checkAnswerVariants,
+  getHintForLetter,
+  type QuizQuestion,
+  type QuizSet,
+} from "@/lib/spaced-repetition";
+import {
+  getUserStats,
+  updateUserStats,
+  getUserProgressLocal,
+  updateUserProgressLocal,
+} from "@/lib/storage";
 import type { UserProgress, QuizSession } from "@shared/schema";
 
 interface QuizSectionProps {
@@ -23,7 +43,9 @@ export default function QuizSection({ userId }: QuizSectionProps) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userAnswer, setUserAnswer] = useState("");
   const [showResult, setShowResult] = useState(false);
-  const [sessionResults, setSessionResults] = useState<Array<{question: QuizQuestion, userAnswer: string, isCorrect: boolean}>>([]);
+  const [sessionResults, setSessionResults] = useState<
+    Array<{ question: QuizQuestion; userAnswer: string; isCorrect: boolean }>
+  >([]);
   const [isActive, setIsActive] = useState(false);
   const [isQuizComplete, setIsQuizComplete] = useState(false);
   const [showHint, setShowHint] = useState(false);
@@ -58,73 +80,80 @@ export default function QuizSection({ userId }: QuizSectionProps) {
 
   // Initialize speech recognition with browser-specific handling
   useEffect(() => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    
+    const SpeechRecognition =
+      (window as any).SpeechRecognition ||
+      (window as any).webkitSpeechRecognition;
+
     if (SpeechRecognition) {
       try {
         const recognition = new SpeechRecognition();
         recognition.continuous = false;
         recognition.interimResults = false;
         recognition.maxAlternatives = 1;
-        
+
         // Detect browser type for optimal configuration
         const isEdge = /Edg/.test(navigator.userAgent);
-        const isSafari = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
+        const isSafari =
+          /Safari/.test(navigator.userAgent) &&
+          !/Chrome/.test(navigator.userAgent);
         const isChrome = /Chrome/.test(navigator.userAgent);
-        
-        console.log('Browser detected:', { isEdge, isSafari, isChrome });
-        
+
+        console.log("Browser detected:", { isEdge, isSafari, isChrome });
+
         // Configure language based on browser
         if (isSafari) {
           // Safari works best with English locales
-          recognition.lang = 'en-US';
+          recognition.lang = "en-US";
         } else if (isEdge) {
           // Edge might need specific configuration
-          recognition.lang = 'en-US';
+          recognition.lang = "en-US";
           recognition.serviceURI = undefined; // Remove any service URI
         } else if (isChrome) {
           // Chrome generally has good support
-          recognition.lang = 'en-US';
+          recognition.lang = "en-US";
         } else {
           // Default for other browsers
-          recognition.lang = 'en-US';
+          recognition.lang = "en-US";
         }
-        
+
         recognition.onstart = () => {
-          console.log('Speech recognition started successfully');
+          console.log("Speech recognition started successfully");
           setIsListening(true);
         };
-        
+
         recognition.onresult = (event: any) => {
-          const transcript = event.results[0][0].transcript.toLowerCase().trim();
-          console.log('Speech recognition result:', transcript);
+          const transcript = event.results[0][0].transcript
+            .toLowerCase()
+            .trim();
+          console.log("Speech recognition result:", transcript);
           setUserAnswer(transcript);
           setIsListening(false);
         };
-        
+
         recognition.onerror = (event: any) => {
-          console.log('Speech recognition error:', event.error);
+          console.log("Speech recognition error:", event.error);
           setIsListening(false);
-          
+
           // Provide browser-specific error messages
-          if (event.error === 'language-not-supported') {
+          if (event.error === "language-not-supported") {
             toast({
               title: "Language Not Supported",
-              description: `Speech recognition language not supported in ${isEdge ? 'Edge' : isSafari ? 'Safari' : 'this browser'}. Try switching to English system language.`,
+              description: `Speech recognition language not supported in ${isEdge ? "Edge" : isSafari ? "Safari" : "this browser"}. Try switching to English system language.`,
               variant: "destructive",
             });
-          } else if (event.error === 'not-allowed') {
+          } else if (event.error === "not-allowed") {
             toast({
               title: "Microphone Access Denied",
-              description: "Please allow microphone access in browser settings.",
+              description:
+                "Please allow microphone access in browser settings.",
               variant: "destructive",
             });
-          } else if (event.error === 'no-speech') {
+          } else if (event.error === "no-speech") {
             toast({
               title: "No Speech Detected",
               description: "Please speak clearly and try again.",
             });
-          } else if (event.error === 'network') {
+          } else if (event.error === "network") {
             toast({
               title: "Network Error",
               description: "Speech recognition requires internet connection.",
@@ -132,21 +161,20 @@ export default function QuizSection({ userId }: QuizSectionProps) {
             });
           }
         };
-        
+
         recognition.onend = () => {
           setIsListening(false);
         };
-        
+
         recognitionRef.current = recognition;
         setSpeechSupported(true);
-        console.log('Speech recognition initialized successfully');
-        
+        console.log("Speech recognition initialized successfully");
       } catch (error) {
-        console.log('Speech recognition initialization failed:', error);
+        console.log("Speech recognition initialization failed:", error);
         setSpeechSupported(false);
       }
     } else {
-      console.log('Speech recognition not available in this browser');
+      console.log("Speech recognition not available in this browser");
       setSpeechSupported(false);
     }
   }, []);
@@ -154,49 +182,61 @@ export default function QuizSection({ userId }: QuizSectionProps) {
   // Local progress update function
   const updateProgress = (letter: string, isCorrect: boolean) => {
     const localProgress = updateUserProgressLocal(letter, isCorrect);
-    
+
     // Update state
-    setUserProgress(prev => {
-      const existing = prev.find(p => p.letter === letter);
+    setUserProgress((prev) => {
+      const existing = prev.find((p) => p.letter === letter);
       if (existing) {
-        return prev.map(p => p.letter === letter ? {
-          ...p,
-          correctCount: localProgress.correctCount,
-          incorrectCount: localProgress.incorrectCount,
-          lastReviewed: new Date(localProgress.lastReview),
-          nextReview: new Date(localProgress.nextReview),
-          difficulty: localProgress.difficulty,
-        } : p);
+        return prev.map((p) =>
+          p.letter === letter
+            ? {
+                ...p,
+                correctCount: localProgress.correctCount,
+                incorrectCount: localProgress.incorrectCount,
+                lastReviewed: new Date(localProgress.lastReview),
+                nextReview: new Date(localProgress.nextReview),
+                difficulty: localProgress.difficulty,
+              }
+            : p,
+        );
       } else {
-        return [...prev, {
-          id: prev.length + 1,
-          userId: userId,
-          letter: localProgress.letter,
-          correctCount: localProgress.correctCount,
-          incorrectCount: localProgress.incorrectCount,
-          lastReviewed: new Date(localProgress.lastReview),
-          nextReview: new Date(localProgress.nextReview),
-          difficulty: localProgress.difficulty,
-        }];
+        return [
+          ...prev,
+          {
+            id: prev.length + 1,
+            userId: userId,
+            letter: localProgress.letter,
+            correctCount: localProgress.correctCount,
+            incorrectCount: localProgress.incorrectCount,
+            lastReviewed: new Date(localProgress.lastReview),
+            nextReview: new Date(localProgress.nextReview),
+            difficulty: localProgress.difficulty,
+          },
+        ];
       }
     });
   };
 
   // Local session save function
   const saveSession = (score: number, totalQuestions: number) => {
-    const accuracy = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
+    const accuracy =
+      totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
     const today = new Date().toDateString();
     const lastSession = localStats.lastSessionDate;
     const isNewDay = lastSession !== today;
-    
+
     const newStats = updateUserStats({
       totalSessions: localStats.totalSessions + 1,
       correctAnswers: localStats.correctAnswers + score,
       totalAnswers: localStats.totalAnswers + totalQuestions,
-      currentStreak: isNewDay ? (accuracy >= 70 ? localStats.currentStreak + 1 : 0) : localStats.currentStreak,
+      currentStreak: isNewDay
+        ? accuracy >= 70
+          ? localStats.currentStreak + 1
+          : 0
+        : localStats.currentStreak,
       lastSessionDate: today,
     });
-    
+
     setLocalStats(newStats);
   };
 
@@ -205,7 +245,7 @@ export default function QuizSection({ userId }: QuizSectionProps) {
     let intervalId: NodeJS.Timeout;
     if (isActive && !showResult) {
       intervalId = setInterval(() => {
-        setHintTimer(timer => {
+        setHintTimer((timer) => {
           if (timer >= 5 && !showHint) {
             setShowHint(true);
           }
@@ -253,7 +293,10 @@ export default function QuizSection({ userId }: QuizSectionProps) {
   }, [showResult, isQuizComplete, currentQuizSet]);
 
   const getCurrentQuestion = (): QuizQuestion | null => {
-    if (!currentQuizSet || currentQuestionIndex >= currentQuizSet.questions.length) {
+    if (
+      !currentQuizSet ||
+      currentQuestionIndex >= currentQuizSet.questions.length
+    ) {
       return null;
     }
     return currentQuizSet.questions[currentQuestionIndex];
@@ -266,15 +309,18 @@ export default function QuizSection({ userId }: QuizSectionProps) {
     setIsActive(false);
     setShowResult(true);
 
-    const isCorrect = checkAnswerVariants(userAnswer, currentQuestion.correctAnswer);
-    
+    const isCorrect = checkAnswerVariants(
+      userAnswer,
+      currentQuestion.correctAnswer,
+    );
+
     // Add to session results
     const newResult = {
       question: currentQuestion,
       userAnswer: userAnswer.trim(),
       isCorrect,
     };
-    setSessionResults(prev => [...prev, newResult]);
+    setSessionResults((prev) => [...prev, newResult]);
 
     if (isCorrect) {
       toast({
@@ -300,7 +346,7 @@ export default function QuizSection({ userId }: QuizSectionProps) {
         setIsActive(false);
       } else {
         // Next question
-        setCurrentQuestionIndex(prev => prev + 1);
+        setCurrentQuestionIndex((prev) => prev + 1);
         setUserAnswer("");
         setShowResult(false);
         setShowHint(false);
@@ -314,21 +360,24 @@ export default function QuizSection({ userId }: QuizSectionProps) {
   const handleSkipQuestion = () => {
     const currentQuestion = getCurrentQuestion();
     if (!currentQuestion) return;
-    
+
     setIsActive(false);
     updateProgress(currentQuestion.letter, false);
 
     // Add skip to results
-    setSessionResults(prev => [...prev, {
-      question: currentQuestion,
-      userAnswer: "(skipped)",
-      isCorrect: false,
-    }]);
-    
+    setSessionResults((prev) => [
+      ...prev,
+      {
+        question: currentQuestion,
+        userAnswer: "(skipped)",
+        isCorrect: false,
+      },
+    ]);
+
     if (currentQuestionIndex + 1 >= (currentQuizSet?.questions.length || 0)) {
       setIsQuizComplete(true);
     } else {
-      setCurrentQuestionIndex(prev => prev + 1);
+      setCurrentQuestionIndex((prev) => prev + 1);
       setUserAnswer("");
       setShowResult(false);
       setShowHint(false);
@@ -339,27 +388,27 @@ export default function QuizSection({ userId }: QuizSectionProps) {
 
   const finishQuizSet = () => {
     if (sessionResults.length > 0) {
-      const score = sessionResults.filter(r => r.isCorrect).length;
+      const score = sessionResults.filter((r) => r.isCorrect).length;
       saveSession(score, sessionResults.length);
     }
-    
+
     // Start new quiz set
     startNewQuizSet();
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !showResult && userAnswer.trim()) {
+    if (e.key === "Enter" && !showResult && userAnswer.trim()) {
       handleSubmitAnswer();
     }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     // Allow Tab and Shift+Tab for accessibility
-    if (e.key === 'Tab') {
+    if (e.key === "Tab") {
       return;
     }
     // Skip with Escape key for better accessibility
-    if (e.key === 'Escape' && !showResult) {
+    if (e.key === "Escape" && !showResult) {
       e.preventDefault();
       handleSkipQuestion();
     }
@@ -381,21 +430,25 @@ export default function QuizSection({ userId }: QuizSectionProps) {
 
   // Calculate stats from localStorage
   const totalSessions = localStats.totalSessions;
-  const averageScore = localStats.totalAnswers > 0 
-    ? Math.round((localStats.correctAnswers / localStats.totalAnswers) * 100)
-    : 0;
+  const averageScore =
+    localStats.totalAnswers > 0
+      ? Math.round((localStats.correctAnswers / localStats.totalAnswers) * 100)
+      : 0;
 
-  const progressStats = userProgress.reduce((acc, progress) => {
-    const total = progress.correctCount + progress.incorrectCount;
-    if (total === 0) return acc;
-    
-    const accuracy = progress.correctCount / total;
-    if (accuracy >= 0.8) acc.mastered++;
-    else if (accuracy >= 0.5) acc.review++;
-    else acc.learning++;
-    
-    return acc;
-  }, { learning: 0, review: 0, mastered: 0 });
+  const progressStats = userProgress.reduce(
+    (acc, progress) => {
+      const total = progress.correctCount + progress.incorrectCount;
+      if (total === 0) return acc;
+
+      const accuracy = progress.correctCount / total;
+      if (accuracy >= 0.8) acc.mastered++;
+      else if (accuracy >= 0.5) acc.review++;
+      else acc.learning++;
+
+      return acc;
+    },
+    { learning: 0, review: 0, mastered: 0 },
+  );
 
   const currentStreak = Math.min(7, totalSessions); // Simplified streak calculation
   const currentQuestion = getCurrentQuestion();
@@ -412,9 +465,9 @@ export default function QuizSection({ userId }: QuizSectionProps) {
   }
 
   if (isQuizComplete) {
-    const score = sessionResults.filter(r => r.isCorrect).length;
+    const score = sessionResults.filter((r) => r.isCorrect).length;
     const accuracy = Math.round((score / sessionResults.length) * 100);
-    
+
     return (
       <div className="p-4 space-y-6">
         {/* Quiz Complete Header */}
@@ -429,12 +482,15 @@ export default function QuizSection({ userId }: QuizSectionProps) {
                 <Target className="h-12 w-12 text-blue-500 mx-auto" />
               )}
             </div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">{translations.sessionComplete}</h2>
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">
+              {translations.sessionComplete}
+            </h2>
             <p className="text-lg text-gray-600 mb-4">
-              {translations.score}: {score} / {sessionResults.length} ({accuracy}%)
+              {translations.score}: {score} / {sessionResults.length} (
+              {accuracy}%)
             </p>
-            <Button 
-              onClick={finishQuizSet} 
+            <Button
+              onClick={finishQuizSet}
               className="px-8"
               autoFocus
               aria-label="Start a new quiz set of 10 questions"
@@ -450,10 +506,12 @@ export default function QuizSection({ userId }: QuizSectionProps) {
             <h3 className="font-semibold text-lg mb-4">Review Your Answers</h3>
             <div className="space-y-3">
               {sessionResults.map((result, index) => (
-                <div 
+                <div
                   key={index}
                   className={`flex items-center justify-between p-3 rounded-lg border ${
-                    result.isCorrect ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'
+                    result.isCorrect
+                      ? "bg-green-50 border-green-200"
+                      : "bg-red-50 border-red-200"
                   }`}
                 >
                   <div className="flex items-center space-x-3">
@@ -461,7 +519,9 @@ export default function QuizSection({ userId }: QuizSectionProps) {
                       {result.question.letter}
                     </span>
                     <div>
-                      <p className="font-medium">{result.question.correctAnswer}</p>
+                      <p className="font-medium">
+                        {result.question.correctAnswer}
+                      </p>
                       {!result.isCorrect && (
                         <p className="text-sm text-gray-600">
                           {translations.yourAnswer}: {result.userAnswer}
@@ -486,7 +546,10 @@ export default function QuizSection({ userId }: QuizSectionProps) {
   return (
     <div className="p-4 space-y-6">
       {/* Progress Header - Clickable to show stats */}
-      <Card className="bg-white shadow-material border border-gray-100 cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setShowStats(!showStats)}>
+      <Card
+        className="bg-white shadow-material border border-gray-100 cursor-pointer hover:shadow-lg transition-shadow"
+        onClick={() => setShowStats(!showStats)}
+      >
         <CardContent className="p-4">
           <div className="flex items-center justify-between mb-3">
             <h2 className="font-semibold text-lg">{translations.quiz}</h2>
@@ -494,20 +557,30 @@ export default function QuizSection({ userId }: QuizSectionProps) {
               {new Date().toLocaleDateString()}
             </span>
           </div>
-          
+
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
-              <span className="text-gray-600">{translations.learningProgress}</span>
+              <span className="text-gray-600">
+                {translations.learningProgress}
+              </span>
               <span className="font-medium">
-                {currentQuestionIndex + 1} of {currentQuizSet?.questions.length || 10}
+                {currentQuestionIndex + 1} of{" "}
+                {currentQuizSet?.questions.length || 10}
               </span>
             </div>
-            <Progress 
-              value={((currentQuestionIndex + (showResult ? 1 : 0)) / (currentQuizSet?.questions.length || 10)) * 100} 
+            <Progress
+              value={
+                ((currentQuestionIndex + (showResult ? 1 : 0)) /
+                  (currentQuizSet?.questions.length || 10)) *
+                100
+              }
               className="w-full h-2"
             />
             <div className="flex justify-between text-xs text-gray-500">
-              <span>{sessionResults.filter(r => r.isCorrect).length} {translations.correct.toLowerCase()}</span>
+              <span>
+                {sessionResults.filter((r) => r.isCorrect).length}{" "}
+                {translations.correct.toLowerCase()}
+              </span>
               <span className="flex items-center gap-1">
                 <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
                 {translations.adaptiveLearning}
@@ -522,19 +595,29 @@ export default function QuizSection({ userId }: QuizSectionProps) {
         <div className="grid grid-cols-2 gap-4">
           <Card className="bg-white shadow-material border border-gray-100">
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-primary mb-1">{totalSessions}</div>
-              <div className="text-sm text-gray-600">{translations.totalSessions}</div>
+              <div className="text-2xl font-bold text-primary mb-1">
+                {totalSessions}
+              </div>
+              <div className="text-sm text-gray-600">
+                {translations.totalSessions}
+              </div>
             </CardContent>
           </Card>
           <Card className="bg-white shadow-material border border-gray-100">
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-green-600 mb-1">{averageScore}%</div>
-              <div className="text-sm text-gray-600">{translations.accuracy}</div>
+              <div className="text-2xl font-bold text-green-600 mb-1">
+                {averageScore}%
+              </div>
+              <div className="text-sm text-gray-600">
+                {translations.accuracy}
+              </div>
             </CardContent>
           </Card>
           <Card className="bg-white shadow-material border border-gray-100 col-span-2">
             <CardContent className="p-4">
-              <h4 className="font-semibold text-gray-800 mb-3">{translations.learningProgress}</h4>
+              <h4 className="font-semibold text-gray-800 mb-3">
+                {translations.learningProgress}
+              </h4>
               <div className="flex items-center justify-between text-sm">
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 bg-red-500 rounded-full"></div>
@@ -558,13 +641,16 @@ export default function QuizSection({ userId }: QuizSectionProps) {
       <Card className="bg-white shadow-material border border-gray-100 overflow-hidden">
         <div className="bg-primary text-primary-foreground p-4">
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold">Question {currentQuestionIndex + 1}</h3>
+            <h3 className="font-semibold">
+              Question {currentQuestionIndex + 1}
+            </h3>
             <div className="text-sm">
-              {currentQuestionIndex + 1} of {currentQuizSet?.questions.length || 10}
+              {currentQuestionIndex + 1} of{" "}
+              {currentQuizSet?.questions.length || 10}
             </div>
           </div>
         </div>
-        
+
         <CardContent className="p-6">
           {/* Question Display */}
           <div className="text-center mb-8">
@@ -579,11 +665,18 @@ export default function QuizSection({ userId }: QuizSectionProps) {
           {/* Text Input */}
           <div className="space-y-4">
             <div>
-              <label htmlFor="answer-input" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="answer-input"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 {translations.enterText}:
               </label>
-              <div id="answer-instructions" className="text-xs text-gray-500 mb-2">
-                {translations.pressEnterToSubmit} • {translations.pressEscapeToSkip} • {translations.exampleAnswers}
+              <div
+                id="answer-instructions"
+                className="text-xs text-gray-500 mb-2"
+              >
+                {translations.pressEnterToSubmit} •{" "}
+                {translations.pressEscapeToSkip} • {translations.exampleAnswers}
               </div>
               <div className="relative">
                 <Input
@@ -607,39 +700,57 @@ export default function QuizSection({ userId }: QuizSectionProps) {
                     variant="ghost"
                     size="sm"
                     className={`absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0 ${
-                      isListening ? 'text-red-500 bg-red-50' : 'text-gray-500'
+                      isListening ? "text-red-500 bg-red-50" : "text-gray-500"
                     }`}
                     onClick={isListening ? stopListening : startListening}
                     disabled={showResult}
-                    aria-label={isListening ? "Stop voice input" : "Start voice input"}
+                    aria-label={
+                      isListening ? "Stop voice input" : "Start voice input"
+                    }
                   >
-                    {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                    {isListening ? (
+                      <MicOff className="h-4 w-4" />
+                    ) : (
+                      <Mic className="h-4 w-4" />
+                    )}
                   </Button>
                 )}
               </div>
             </div>
-            
+
             {/* Hint Display */}
             {showHint && !showResult && currentQuestion && (
               <div className="p-3 rounded-lg bg-yellow-50 border border-yellow-200 text-yellow-800">
                 <div className="flex items-center space-x-2">
                   <Lightbulb className="h-4 w-4" />
                   <p className="text-sm font-medium">
-                    {translations.hint}: {getHintForLetter(currentQuestion.letter, translations.natoHints)}
+                    {translations.hint}:{" "}
+                    {getHintForLetter(
+                      currentQuestion.letter,
+                      translations.natoHints,
+                    )}
                   </p>
                 </div>
               </div>
             )}
 
             {showResult && (
-              <div className={`p-4 rounded-lg border ${
-                checkAnswerVariants(userAnswer, currentQuestion?.correctAnswer || '') 
-                  ? 'bg-green-50 border-green-200 text-green-800' 
-                  : 'bg-red-50 border-red-200 text-red-800'
-              }`}>
+              <div
+                className={`p-4 rounded-lg border ${
+                  checkAnswerVariants(
+                    userAnswer,
+                    currentQuestion?.correctAnswer || "",
+                  )
+                    ? "bg-green-50 border-green-200 text-green-800"
+                    : "bg-red-50 border-red-200 text-red-800"
+                }`}
+              >
                 <p className="font-medium">
-                  {checkAnswerVariants(userAnswer, currentQuestion?.correctAnswer || '') 
-                    ? translations.correct 
+                  {checkAnswerVariants(
+                    userAnswer,
+                    currentQuestion?.correctAnswer || "",
+                  )
+                    ? translations.correct
                     : `${translations.correctAnswer}: ${currentQuestion?.correctAnswer}`}
                 </p>
               </div>
@@ -654,7 +765,7 @@ export default function QuizSection({ userId }: QuizSectionProps) {
               onClick={handleSkipQuestion}
               disabled={showResult}
             >
-              Skip
+              {translations.skipQuestion}
             </Button>
             <Button
               className="flex-1"
@@ -673,18 +784,27 @@ export default function QuizSection({ userId }: QuizSectionProps) {
           <div className="flex items-start space-x-3">
             <Brain className="text-green-600 mt-1 h-5 w-5" />
             <div>
-              <h4 className="font-semibold text-green-800 mb-1">Adaptive Learning</h4>
+              <h4 className="font-semibold text-green-800 mb-1">
+                Adaptive Learning
+              </h4>
               <p className="text-sm text-green-700 mb-2">
-                Each quiz set of 10 questions adapts based on your performance using spaced repetition.
+                Each quiz set of 10 questions adapts based on your performance
+                using spaced repetition.
               </p>
               <div className="flex items-center space-x-4 text-xs">
                 <Badge variant="secondary" className="bg-red-100 text-red-700">
                   Learning ({progressStats.learning})
                 </Badge>
-                <Badge variant="secondary" className="bg-yellow-100 text-yellow-700">
+                <Badge
+                  variant="secondary"
+                  className="bg-yellow-100 text-yellow-700"
+                >
                   Review ({progressStats.review})
                 </Badge>
-                <Badge variant="secondary" className="bg-green-100 text-green-700">
+                <Badge
+                  variant="secondary"
+                  className="bg-green-100 text-green-700"
+                >
                   Mastered ({progressStats.mastered})
                 </Badge>
               </div>
@@ -697,13 +817,19 @@ export default function QuizSection({ userId }: QuizSectionProps) {
       <div className="grid grid-cols-2 gap-4">
         <Card className="bg-white shadow-material border border-gray-100">
           <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-primary mb-1">{totalSessions}</div>
-            <div className="text-sm text-gray-600">{translations.totalSessions}</div>
+            <div className="text-2xl font-bold text-primary mb-1">
+              {totalSessions}
+            </div>
+            <div className="text-sm text-gray-600">
+              {translations.totalSessions}
+            </div>
           </CardContent>
         </Card>
         <Card className="bg-white shadow-material border border-gray-100">
           <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-green-600 mb-1">{averageScore}%</div>
+            <div className="text-2xl font-bold text-green-600 mb-1">
+              {averageScore}%
+            </div>
             <div className="text-sm text-gray-600">{translations.accuracy}</div>
           </CardContent>
         </Card>
