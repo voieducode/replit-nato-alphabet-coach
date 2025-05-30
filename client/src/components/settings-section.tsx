@@ -107,7 +107,7 @@ export default function SettingsSection() {
         <CardContent className="p-4">
           <div className="flex items-center space-x-3 mb-4">
             <Bell className="h-5 w-5 text-primary" />
-            <h3 className="font-semibold text-gray-800">Notifications</h3>
+            <h3 className="font-semibold text-gray-800">{translations.notifications}</h3>
           </div>
           
           <div className="flex items-center justify-between">

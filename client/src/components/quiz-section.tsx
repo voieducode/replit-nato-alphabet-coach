@@ -419,7 +419,7 @@ export default function QuizSection({ userId }: QuizSectionProps) {
           </Card>
           <Card className="bg-white shadow-material border border-gray-100 col-span-2">
             <CardContent className="p-4">
-              <h4 className="font-semibold text-gray-800 mb-3">Learning Progress</h4>
+              <h4 className="font-semibold text-gray-800 mb-3">{translations.learningProgress}</h4>
               <div className="flex items-center justify-between text-sm">
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 bg-red-500 rounded-full"></div>
@@ -453,7 +453,7 @@ export default function QuizSection({ userId }: QuizSectionProps) {
         <CardContent className="p-6">
           {/* Question Display */}
           <div className="text-center mb-8">
-            <p className="text-gray-600 mb-4">What NATO word represents:</p>
+            <p className="text-gray-600 mb-4">{translations.natoAlphabet}:</p>
             <div className="bg-blue-50 rounded-lg p-6 mb-6">
               <span className="text-4xl font-mono font-bold text-primary">
                 {currentQuestion?.letter}
@@ -465,7 +465,7 @@ export default function QuizSection({ userId }: QuizSectionProps) {
           <div className="space-y-4">
             <div>
               <label htmlFor="answer-input" className="block text-sm font-medium text-gray-700 mb-2">
-                Type your answer:
+                {translations.enterText}:
               </label>
               <div id="answer-instructions" className="text-xs text-gray-500 mb-2">
                 Press Enter to submit • Press Escape to skip • Accepts variations like "whisky"
@@ -478,7 +478,7 @@ export default function QuizSection({ userId }: QuizSectionProps) {
                 onChange={(e) => setUserAnswer(e.target.value.toLowerCase())}
                 onKeyPress={handleKeyPress}
                 onKeyDown={handleKeyDown}
-                placeholder="Enter NATO word (e.g., alpha, bravo...)"
+                placeholder={translations.placeholder}
                 className="w-full p-4 text-lg text-center"
                 disabled={showResult}
                 autoFocus
@@ -493,7 +493,7 @@ export default function QuizSection({ userId }: QuizSectionProps) {
                 <div className="flex items-center space-x-2">
                   <Lightbulb className="h-4 w-4" />
                   <p className="text-sm font-medium">
-                    Hint: {getHintForLetter(currentQuestion.letter)}
+                    {translations.hint}: {getHintForLetter(currentQuestion.letter)}
                   </p>
                 </div>
               </div>
@@ -507,8 +507,8 @@ export default function QuizSection({ userId }: QuizSectionProps) {
               }`}>
                 <p className="font-medium">
                   {checkAnswerVariants(userAnswer, currentQuestion?.correctAnswer || '') 
-                    ? 'Correct!' 
-                    : `Correct answer: ${currentQuestion?.correctAnswer}`}
+                    ? translations.correct 
+                    : `${translations.correctAnswer}: ${currentQuestion?.correctAnswer}`}
                 </p>
               </div>
             )}
@@ -529,7 +529,7 @@ export default function QuizSection({ userId }: QuizSectionProps) {
               onClick={handleSubmitAnswer}
               disabled={!userAnswer.trim() || showResult}
             >
-              Submit
+              {translations.submitAnswer}
             </Button>
           </div>
         </CardContent>
@@ -566,13 +566,13 @@ export default function QuizSection({ userId }: QuizSectionProps) {
         <Card className="bg-white shadow-material border border-gray-100">
           <CardContent className="p-4 text-center">
             <div className="text-2xl font-bold text-primary mb-1">{totalSessions}</div>
-            <div className="text-sm text-gray-600">Quiz Sets</div>
+            <div className="text-sm text-gray-600">{translations.totalSessions}</div>
           </CardContent>
         </Card>
         <Card className="bg-white shadow-material border border-gray-100">
           <CardContent className="p-4 text-center">
             <div className="text-2xl font-bold text-green-600 mb-1">{averageScore}%</div>
-            <div className="text-sm text-gray-600">Average Score</div>
+            <div className="text-sm text-gray-600">{translations.accuracy}</div>
           </CardContent>
         </Card>
       </div>
