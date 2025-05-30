@@ -21,12 +21,14 @@ export default function SettingsSection() {
   };
 
   const handleNotificationToggle = async (enabled: boolean) => {
+    // Always update the local state first
+    setNotificationsEnabled(enabled);
+    localStorage.setItem('notifications-enabled', enabled.toString());
+    
     if (enabled) {
       // Check if notifications are supported
       if (!('Notification' in window)) {
-        console.log('Notifications not supported');
-        setNotificationsEnabled(false);
-        localStorage.setItem('notifications-enabled', 'false');
+        console.log('Notifications not supported by browser');
         return;
       }
 
@@ -35,22 +37,20 @@ export default function SettingsSection() {
       
       // If permission is default, request it
       if (permission === 'default') {
-        permission = await Notification.requestPermission();
+        try {
+          permission = await Notification.requestPermission();
+        } catch (error) {
+          console.log('Error requesting notification permission:', error);
+          return;
+        }
       }
       
       if (permission === 'granted') {
-        setNotificationsEnabled(true);
-        localStorage.setItem('notifications-enabled', 'true');
-        console.log('Notifications enabled');
+        console.log('Notifications enabled and permission granted');
       } else {
-        setNotificationsEnabled(false);
-        localStorage.setItem('notifications-enabled', 'false');
-        console.log('Notification permission denied');
+        console.log('Notifications enabled but permission denied - user can still enable manually in browser settings');
       }
     } else {
-      // Disabling notifications
-      setNotificationsEnabled(false);
-      localStorage.setItem('notifications-enabled', 'false');
       console.log('Notifications disabled');
     }
   };
