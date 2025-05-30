@@ -58,7 +58,7 @@ export default function QuizSection({ userId }: QuizSectionProps) {
 
   // Initialize speech recognition
   useEffect(() => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (SpeechRecognition) {
       setSpeechSupported(true);
       const recognition = new SpeechRecognition();
@@ -66,13 +66,13 @@ export default function QuizSection({ userId }: QuizSectionProps) {
       recognition.interimResults = false;
       recognition.lang = 'en-US';
       
-      recognition.onresult = (event) => {
+      recognition.onresult = (event: any) => {
         const transcript = event.results[0][0].transcript.toLowerCase().trim();
         setUserAnswer(transcript);
         setIsListening(false);
       };
       
-      recognition.onerror = (event) => {
+      recognition.onerror = (event: any) => {
         console.log('Speech recognition error:', event.error);
         setIsListening(false);
       };
@@ -516,21 +516,38 @@ export default function QuizSection({ userId }: QuizSectionProps) {
               <div id="answer-instructions" className="text-xs text-gray-500 mb-2">
                 Press Enter to submit • Press Escape to skip • Accepts variations like "whisky"
               </div>
-              <Input
-                ref={inputRef}
-                id="answer-input"
-                type="text"
-                value={userAnswer}
-                onChange={(e) => setUserAnswer(e.target.value.toLowerCase())}
-                onKeyPress={handleKeyPress}
-                onKeyDown={handleKeyDown}
-                placeholder={translations.placeholder}
-                className="w-full p-4 text-lg text-center"
-                disabled={showResult}
-                autoFocus
-                aria-label={`Type the NATO word for letter ${currentQuestion?.letter}`}
-                aria-describedby="answer-instructions"
-              />
+              <div className="relative">
+                <Input
+                  ref={inputRef}
+                  id="answer-input"
+                  type="text"
+                  value={userAnswer}
+                  onChange={(e) => setUserAnswer(e.target.value.toLowerCase())}
+                  onKeyPress={handleKeyPress}
+                  onKeyDown={handleKeyDown}
+                  placeholder={translations.placeholder}
+                  className="w-full p-4 text-lg text-center pr-12"
+                  disabled={showResult}
+                  autoFocus
+                  aria-label={`Type the NATO word for letter ${currentQuestion?.letter}`}
+                  aria-describedby="answer-instructions"
+                />
+                {speechSupported && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className={`absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0 ${
+                      isListening ? 'text-red-500 bg-red-50' : 'text-gray-500'
+                    }`}
+                    onClick={isListening ? stopListening : startListening}
+                    disabled={showResult}
+                    aria-label={isListening ? "Stop voice input" : "Start voice input"}
+                  >
+                    {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                  </Button>
+                )}
+              </div>
             </div>
             
             {/* Hint Display */}

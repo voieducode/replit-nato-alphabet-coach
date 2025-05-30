@@ -47,6 +47,8 @@ export interface Translations {
   maleVoice: string;
   robotVoice: string;
   dailyReminders: string;
+  speakAnswer: string;
+  voiceInputActive: string;
   natoHints: Record<string, string>;
 }
 
@@ -100,6 +102,8 @@ export const translations: Record<string, Translations> = {
     maleVoice: "Male Voice",
     robotVoice: "Robot Voice",
     dailyReminders: "You'll receive daily reminders to practice the NATO alphabet based on your learning progress.",
+    speakAnswer: "Speak your answer",
+    voiceInputActive: "Listening...",
     natoHints: {
       'A': 'First letter of Greek alphabet',
       'B': 'Well done, applause!',
@@ -178,6 +182,8 @@ export const translations: Record<string, Translations> = {
     maleVoice: "Voix Masculine",
     robotVoice: "Voix Robot",
     dailyReminders: "Vous recevrez des rappels quotidiens pour pratiquer l'alphabet OTAN basés sur vos progrès.",
+    speakAnswer: "Parlez votre réponse",
+    voiceInputActive: "Écoute en cours...",
     natoHints: {
       'A': 'Première lettre de l\'alphabet grec',
       'B': 'Bien joué, applaudissements!',
@@ -256,6 +262,8 @@ export const translations: Record<string, Translations> = {
     maleVoice: "Voz Masculina",
     robotVoice: "Voz Robot",
     dailyReminders: "Recibirá recordatorios diarios para practicar el alfabeto OTAN basados en su progreso de aprendizaje.",
+    speakAnswer: "Habla tu respuesta",
+    voiceInputActive: "Escuchando...",
     natoHints: {
       'A': 'Primera letra del alfabeto griego',
       'B': '¡Bien hecho, aplausos!',
