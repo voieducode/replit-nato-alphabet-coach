@@ -56,11 +56,99 @@ export default function QuizSection({ userId }: QuizSectionProps) {
     setUserProgress(apiProgress);
   }, [userId]);
 
-  // Check speech recognition support (disabled for now due to compatibility issues)
+  // Initialize speech recognition with browser-specific handling
   useEffect(() => {
-    // Disable speech recognition due to widespread browser compatibility issues
-    setSpeechSupported(false);
-    console.log('Speech recognition disabled due to browser compatibility issues');
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    
+    if (SpeechRecognition) {
+      try {
+        const recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+        
+        // Detect browser type for optimal configuration
+        const isEdge = /Edg/.test(navigator.userAgent);
+        const isSafari = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
+        const isChrome = /Chrome/.test(navigator.userAgent);
+        
+        console.log('Browser detected:', { isEdge, isSafari, isChrome });
+        
+        // Configure language based on browser
+        if (isSafari) {
+          // Safari works best with English locales
+          recognition.lang = 'en-US';
+        } else if (isEdge) {
+          // Edge might need specific configuration
+          recognition.lang = 'en-US';
+          recognition.serviceURI = undefined; // Remove any service URI
+        } else if (isChrome) {
+          // Chrome generally has good support
+          recognition.lang = 'en-US';
+        } else {
+          // Default for other browsers
+          recognition.lang = 'en-US';
+        }
+        
+        recognition.onstart = () => {
+          console.log('Speech recognition started successfully');
+          setIsListening(true);
+        };
+        
+        recognition.onresult = (event: any) => {
+          const transcript = event.results[0][0].transcript.toLowerCase().trim();
+          console.log('Speech recognition result:', transcript);
+          setUserAnswer(transcript);
+          setIsListening(false);
+        };
+        
+        recognition.onerror = (event: any) => {
+          console.log('Speech recognition error:', event.error);
+          setIsListening(false);
+          
+          // Provide browser-specific error messages
+          if (event.error === 'language-not-supported') {
+            toast({
+              title: "Language Not Supported",
+              description: `Speech recognition language not supported in ${isEdge ? 'Edge' : isSafari ? 'Safari' : 'this browser'}. Try switching to English system language.`,
+              variant: "destructive",
+            });
+          } else if (event.error === 'not-allowed') {
+            toast({
+              title: "Microphone Access Denied",
+              description: "Please allow microphone access in browser settings.",
+              variant: "destructive",
+            });
+          } else if (event.error === 'no-speech') {
+            toast({
+              title: "No Speech Detected",
+              description: "Please speak clearly and try again.",
+            });
+          } else if (event.error === 'network') {
+            toast({
+              title: "Network Error",
+              description: "Speech recognition requires internet connection.",
+              variant: "destructive",
+            });
+          }
+        };
+        
+        recognition.onend = () => {
+          setIsListening(false);
+        };
+        
+        recognitionRef.current = recognition;
+        setSpeechSupported(true);
+        console.log('Speech recognition initialized successfully');
+        
+      } catch (error) {
+        console.log('Speech recognition initialization failed:', error);
+        setSpeechSupported(false);
+      }
+    } else {
+      console.log('Speech recognition not available in this browser');
+      setSpeechSupported(false);
+    }
   }, []);
 
   // Local progress update function
