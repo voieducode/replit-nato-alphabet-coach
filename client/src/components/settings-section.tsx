@@ -112,8 +112,8 @@ export default function SettingsSection() {
           
           <div className="flex items-center justify-between">
             <div>
-              <p className="font-medium text-gray-800">Spaced Repetition Reminders</p>
-              <p className="text-sm text-gray-600">Get daily notifications to practice</p>
+              <p className="font-medium text-gray-800">{translations.spacedRepetitionReminders}</p>
+              <p className="text-sm text-gray-600">{translations.dailyReminders}</p>
             </div>
             <Switch 
               checked={notificationsEnabled}
@@ -124,7 +124,7 @@ export default function SettingsSection() {
           {notificationsEnabled && (
             <div className="mt-3 p-3 bg-green-50 rounded-lg border border-green-200">
               <p className="text-sm text-green-800">
-                You'll receive daily reminders to practice the NATO alphabet based on your learning progress.
+                {translations.notificationDescription}
               </p>
             </div>
           )}
@@ -136,13 +136,13 @@ export default function SettingsSection() {
         <CardContent className="p-4">
           <div className="flex items-center space-x-3 mb-4">
             <Globe className="h-5 w-5 text-primary" />
-            <h3 className="font-semibold text-gray-800">Language</h3>
+            <h3 className="font-semibold text-gray-800">{translations.language}</h3>
           </div>
           
           <div className="space-y-3">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Interface Language
+                {translations.interfaceLanguage}
               </label>
               <Select value={language} onValueChange={handleLanguageChange}>
                 <SelectTrigger>
@@ -180,15 +180,14 @@ export default function SettingsSection() {
       {/* About */}
       <Card className="bg-gray-50 border border-gray-200">
         <CardContent className="p-4">
-          <h3 className="font-semibold text-gray-800 mb-2">About NATO Alphabet Coach</h3>
+          <h3 className="font-semibold text-gray-800 mb-2">{translations.about} {translations.appName}</h3>
           <p className="text-sm text-gray-600 mb-3">
-            Learn the NATO phonetic alphabet through interactive quizzes and spaced repetition. 
-            Perfect for aviation, military, emergency services, and general communication.
+            {translations.aboutDescription}
           </p>
           <div className="flex items-center space-x-4 text-xs text-gray-500">
-            <span>Version 1.0.0</span>
+            <span>{translations.version} 1.0.0</span>
             <span>•</span>
-            <span>Built with modern web technologies</span>
+            <span>{translations.builtWith}</span>
           </div>
         </CardContent>
       </Card>
