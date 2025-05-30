@@ -9,7 +9,10 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function SettingsSection() {
   const [ttsVoice, setTtsVoice] = useState(localStorage.getItem('tts-voice') || 'female');
-  const [notificationsEnabled, setNotificationsEnabled] = useState(localStorage.getItem('notifications-enabled') === 'true');
+  const [notificationsEnabled, setNotificationsEnabled] = useState(() => {
+    const stored = localStorage.getItem('notifications-enabled');
+    return stored === 'true';
+  });
   const { language, translations, setLanguage } = useLanguage();
 
   const handleVoiceChange = (value: string) => {
@@ -17,20 +20,38 @@ export default function SettingsSection() {
     localStorage.setItem('tts-voice', value);
   };
 
-  const handleNotificationToggle = (enabled: boolean) => {
-    if (enabled && 'Notification' in window) {
-      Notification.requestPermission().then(permission => {
-        if (permission === 'granted') {
-          setNotificationsEnabled(true);
-          localStorage.setItem('notifications-enabled', 'true');
-        } else {
-          setNotificationsEnabled(false);
-          localStorage.setItem('notifications-enabled', 'false');
-        }
-      });
+  const handleNotificationToggle = async (enabled: boolean) => {
+    if (enabled) {
+      // Check if notifications are supported
+      if (!('Notification' in window)) {
+        console.log('Notifications not supported');
+        setNotificationsEnabled(false);
+        localStorage.setItem('notifications-enabled', 'false');
+        return;
+      }
+
+      // Check current permission
+      let permission = Notification.permission;
+      
+      // If permission is default, request it
+      if (permission === 'default') {
+        permission = await Notification.requestPermission();
+      }
+      
+      if (permission === 'granted') {
+        setNotificationsEnabled(true);
+        localStorage.setItem('notifications-enabled', 'true');
+        console.log('Notifications enabled');
+      } else {
+        setNotificationsEnabled(false);
+        localStorage.setItem('notifications-enabled', 'false');
+        console.log('Notification permission denied');
+      }
     } else {
-      setNotificationsEnabled(enabled);
-      localStorage.setItem('notifications-enabled', enabled.toString());
+      // Disabling notifications
+      setNotificationsEnabled(false);
+      localStorage.setItem('notifications-enabled', 'false');
+      console.log('Notifications disabled');
     }
   };
 
