@@ -707,7 +707,10 @@ export const translations: Record<string, Translations> = {
       'X': '医学成像',
       'Y': '美国棒球运动员',
       'Z': '非洲战士民族'
-    }
+    },
+    learning: '学习中',
+    review: '复习',
+    mastered: '已掌握'
   }
 };
 
