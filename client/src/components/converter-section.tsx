@@ -18,7 +18,7 @@ export default function ConverterSection() {
   const convertedText = convertToNATO(inputText);
 
   const handleCopy = async () => {
-    const natoText = convertedText.map(item => item.nato).join(" ");
+    const natoText = convertedText.map((item) => item.nato).join(" ");
     try {
       await navigator.clipboard.writeText(natoText);
       toast({
@@ -41,30 +41,40 @@ export default function ConverterSection() {
       return;
     }
 
-    const natoText = convertedText.map(item => item.nato).join(", ");
-    if (natoText && 'speechSynthesis' in window) {
+    const natoText = convertedText.map((item) => item.nato).join(", ");
+    if (natoText && "speechSynthesis" in window) {
       setIsPlaying(true);
       const utterance = new SpeechSynthesisUtterance(natoText);
       utterance.rate = 0.8;
-      
+
       // Get voice preference from localStorage
-      const voiceType = localStorage.getItem('tts-voice') || 'female';
+      const voiceType = localStorage.getItem("tts-voice") || "female";
       const voices = speechSynthesis.getVoices();
-      
-      if (voiceType === 'male') {
-        const maleVoice = voices.find(voice => voice.name.toLowerCase().includes('male') || voice.name.toLowerCase().includes('david') || voice.name.toLowerCase().includes('mark'));
+
+      if (voiceType === "male") {
+        const maleVoice = voices.find(
+          (voice) =>
+            voice.name.toLowerCase().includes("male") ||
+            voice.name.toLowerCase().includes("david") ||
+            voice.name.toLowerCase().includes("mark"),
+        );
         if (maleVoice) utterance.voice = maleVoice;
-      } else if (voiceType === 'female') {
-        const femaleVoice = voices.find(voice => voice.name.toLowerCase().includes('female') || voice.name.toLowerCase().includes('zira') || voice.name.toLowerCase().includes('samantha'));
+      } else if (voiceType === "female") {
+        const femaleVoice = voices.find(
+          (voice) =>
+            voice.name.toLowerCase().includes("female") ||
+            voice.name.toLowerCase().includes("zira") ||
+            voice.name.toLowerCase().includes("samantha"),
+        );
         if (femaleVoice) utterance.voice = femaleVoice;
-      } else if (voiceType === 'robot') {
+      } else if (voiceType === "robot") {
         utterance.pitch = 0.3;
         utterance.rate = 0.6;
       }
-      
+
       utterance.onend = () => setIsPlaying(false);
       utterance.onerror = () => setIsPlaying(false);
-      
+
       speechSynthesis.speak(utterance);
     } else {
       toast({
@@ -75,13 +85,16 @@ export default function ConverterSection() {
     }
   };
 
-  const quickReferenceLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+  const quickReferenceLetters = ["A", "B", "C", "D", "E", "F", "G", "H"];
 
   return (
     <div className="p-4 space-y-6">
       {/* Text Input */}
       <div className="space-y-2">
-        <label htmlFor="textInput" className="block text-sm font-medium text-gray-700">
+        <label
+          htmlFor="textInput"
+          className="block text-sm font-medium text-gray-700"
+        >
           {translations.enterText}
         </label>
         <div className="relative">
@@ -110,7 +123,9 @@ export default function ConverterSection() {
         <Card className="bg-gray-50 border border-gray-200">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="font-semibold text-gray-800">{translations.natoAlphabet}</h3>
+              <h3 className="font-semibold text-gray-800">
+                {translations.natoAlphabet}
+              </h3>
               <Button
                 variant="ghost"
                 size="icon"
@@ -120,20 +135,20 @@ export default function ConverterSection() {
                 <Copy className="h-4 w-4" />
               </Button>
             </div>
-            
+
             {/* NATO Output - Compact Pills */}
             <div className="flex flex-wrap gap-2">
               {convertedText.map((item, index) => (
-                <Badge 
-                  key={index} 
-                  variant="secondary" 
+                <Badge
+                  key={index}
+                  variant="secondary"
                   className="px-3 py-1 text-sm font-medium bg-blue-100 text-blue-800 border border-blue-200"
                 >
                   {item.nato}
                 </Badge>
               ))}
             </div>
-            
+
             {/* Audio Control */}
             <div className="mt-4 pt-4 border-t border-gray-200">
               <Button
@@ -141,9 +156,15 @@ export default function ConverterSection() {
                 className="flex items-center space-x-2 text-primary hover:text-primary/80"
                 onClick={handlePlay}
               >
-                {isPlaying ? <Square className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                {isPlaying ? (
+                  <Square className="h-4 w-4" />
+                ) : (
+                  <Play className="h-4 w-4" />
+                )}
                 <span className="font-medium">
-                  {isPlaying ? translations.stop : translations.playPronunciation}
+                  {isPlaying
+                    ? translations.stop
+                    : translations.playPronunciation}
                 </span>
               </Button>
             </div>
@@ -152,14 +173,20 @@ export default function ConverterSection() {
       )}
 
       {/* Quick Reference */}
-      <Card className="bg-blue-50 border border-blue-100">
+      <Card className="quick-reference-card border-none shadow-material-lg">
         <CardContent className="p-4">
-          <h3 className="font-semibold text-blue-800 mb-3 flex items-center">
+          <h3 className="quick-reference-label mb-3 flex items-center">
             <Info className="mr-2 h-4 w-4" />
             {translations.quickReference}
           </h3>
-          <div className="grid grid-cols-2 gap-2 text-sm">
-            {(showFullReference ? Object.entries(natoAlphabet) : quickReferenceLetters.map(letter => [letter, natoAlphabet[letter]])).map(([letter, nato]) => (
+          <div className="quick-reference-table grid grid-cols-2 gap-2 text-sm">
+            {(showFullReference
+              ? Object.entries(natoAlphabet)
+              : quickReferenceLetters.map((letter) => [
+                  letter,
+                  natoAlphabet[letter],
+                ])
+            ).map(([letter, nato]) => (
               <div key={letter} className="flex justify-between">
                 <span className="font-mono font-semibold">{letter}</span>
                 <span>{nato}</span>
@@ -171,7 +198,9 @@ export default function ConverterSection() {
             className="mt-3 text-primary text-sm font-medium hover:text-primary/80 p-0 h-auto"
             onClick={() => setShowFullReference(!showFullReference)}
           >
-            {showFullReference ? translations.showLess : translations.viewFullAlphabet}
+            {showFullReference
+              ? translations.showLess
+              : translations.viewFullAlphabet}
           </Button>
         </CardContent>
       </Card>

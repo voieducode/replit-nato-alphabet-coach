@@ -5,58 +5,51 @@
 /* Light theme (default) */
 :root,
 .light {
-  --background: 0 0% 100%;
-  --foreground: 20 14.3% 4.1%;
-  --muted: 60 4.8% 95.9%;
-  --muted-foreground: 25 5.3% 44.7%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 20 14.3% 4.1%;
+  --background: 220 20% 98%;
+  --foreground: 220 15% 10%;
+  --primary: 217 91% 60%;
+  /* #2196F3 - Blue primary */
+  --primary-foreground: 0 0% 100%;
   --card: 0 0% 100%;
-  --card-foreground: 20 14.3% 4.1%;
-  --border: 20 5.9% 90%;
-  --input: 20 5.9% 90%;
-  --primary: 207 90% 54%; /* #2196F3 - Blue primary */
-  --primary-foreground: 211 100% 99%;
-  --secondary: 60 4.8% 95.9%;
-  --secondary-foreground: 24 9.8% 10%;
-  --accent: 60 4.8% 95.9%;
-  --accent-foreground: 24 9.8% 10%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 60 9.1% 97.8%;
-  --ring: 20 14.3% 4.1%;
+  --card-foreground: 220 15% 10%;
+  --muted: 220 20% 95%;
+  --muted-foreground: 220 10% 60%;
+  --border: 220 10% 85%;
+  --input: 220 10% 90%;
+  --accent: 217 91% 95%;
+  --accent-foreground: 217 91% 40%;
+  --destructive: 0 80% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --ring: 217 91% 60%;
   --radius: 0.5rem;
-  
+
   /* Custom shadow variables for material design */
-  --shadow-material: 0 2px 4px rgba(0,0,0,0.1), 0 8px 16px rgba(0,0,0,0.1);
-  --shadow-material-lg: 0 4px 8px rgba(0,0,0,0.12), 0 16px 32px rgba(0,0,0,0.12);
+  --shadow-material: 0 2px 4px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.1);
+  --shadow-material-lg: 0 4px 8px rgba(0, 0, 0, 0.12), 0 16px 32px rgba(0, 0, 0, 0.12);
 }
 
 /* Dark theme */
 .dark {
-  --background: 240 10% 8%;
-  --foreground: 0 0% 95%;
-  --muted: 240 4% 20%;
-  --muted-foreground: 240 5% 75%;
-  --popover: 240 10% 12%;
-  --popover-foreground: 0 0% 95%;
-  --card: 240 10% 12%;
-  --card-foreground: 0 0% 95%;
-  --border: 240 4% 25%;
-  --input: 240 4% 18%;
-  --primary: 207 90% 65%;
-  --primary-foreground: 240 10% 8%;
-  --secondary: 240 4% 22%;
-  --secondary-foreground: 0 0% 92%;
-  --accent: 240 4% 22%;
-  --accent-foreground: 0 0% 92%;
-  --destructive: 0 75% 65%;
-  --destructive-foreground: 240 10% 8%;
-  --ring: 240 4.9% 75%;
+  --background: 220 15% 12%;
+  --foreground: 220 20% 98%;
+  --primary: 217 91% 60%;
+  --primary-foreground: 0 0% 100%;
+  --card: 220 15% 16%;
+  --card-foreground: 220 20% 98%;
+  --muted: 220 15% 18%;
+  --muted-foreground: 220 10% 60%;
+  --border: 220 10% 25%;
+  --input: 220 10% 20%;
+  --accent: 217 91% 20%;
+  --accent-foreground: 217 91% 90%;
+  --destructive: 0 80% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --ring: 217 91% 60%;
   --radius: 0.5rem;
-  
+
   /* Dark theme shadows */
-  --shadow-material: 0 2px 4px rgba(0,0,0,0.4), 0 8px 16px rgba(0,0,0,0.3);
-  --shadow-material-lg: 0 4px 8px rgba(0,0,0,0.5), 0 16px 32px rgba(0,0,0,0.4);
+  --shadow-material: 0 2px 4px rgba(0, 0, 0, 0.4), 0 8px 16px rgba(0, 0, 0, 0.3);
+  --shadow-material-lg: 0 4px 8px rgba(0, 0, 0, 0.5), 0 16px 32px rgba(0, 0, 0, 0.4);
 }
 
 /* Rainbow theme */
@@ -71,20 +64,22 @@
   --card-foreground: 0 0% 92%;
   --border: 270 15% 30%;
   --input: 270 15% 20%;
-  --primary: 280 80% 70%; /* More accessible magenta */
+  --primary: 280 80% 70%;
+  /* More accessible magenta */
   --primary-foreground: 270 25% 12%;
   --secondary: 270 15% 25%;
   --secondary-foreground: 0 0% 88%;
-  --accent: 180 60% 65%; /* More accessible cyan */
+  --accent: 180 60% 65%;
+  /* More accessible cyan */
   --accent-foreground: 270 25% 12%;
   --destructive: 0 75% 70%;
   --destructive-foreground: 270 25% 12%;
   --ring: 280 80% 70%;
   --radius: 0.5rem;
-  
+
   /* Rainbow theme shadows with subtle glow */
-  --shadow-material: 0 2px 4px rgba(0,0,0,0.3), 0 8px 16px rgba(139, 69, 190, 0.15);
-  --shadow-material-lg: 0 4px 8px rgba(0,0,0,0.4), 0 16px 32px rgba(139, 69, 190, 0.2);
+  --shadow-material: 0 2px 4px rgba(0, 0, 0, 0.3), 0 8px 16px rgba(139, 69, 190, 0.15);
+  --shadow-material-lg: 0 4px 8px rgba(0, 0, 0, 0.4), 0 16px 32px rgba(139, 69, 190, 0.2);
 }
 
 @layer base {
@@ -98,56 +93,59 @@
     position: relative;
     min-height: 100vh;
   }
-
-  body::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-    opacity: 0.05;
-    background: linear-gradient(135deg, #e0f2fe 0%, #f3e5f5 50%, #fff3e0 100%);
-    background-size: 400% 400%;
-    animation: gradientShift 30s ease infinite;
-  }
-
-  .rainbow body::before {
-    opacity: 0.03;
-    background: linear-gradient(
-      135deg,
-      #fef7ff 0%,
-      #f0f9ff 25%,
-      #ecfeff 50%,
-      #faf5ff 75%,
-      #fef7ff 100%
-    );
-    background-size: 400% 400%;
-    animation: gradientShift 20s ease infinite;
-  }
 }
+
+/* --- THEME REWRITE START --- */
+
+/* Quick Reference Card (light/dark) */
+.quick-reference-card {
+  background: hsl(var(--muted));
+  color: hsl(var(--foreground));
+  border-radius: 1rem;
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.04);
+}
+
+.dark .quick-reference-card {
+  background: hsl(var(--card));
+  color: hsl(var(--foreground));
+}
+
+.quick-reference-label {
+  color: hsl(var(--muted-foreground));
+  font-weight: 600;
+}
+
+.dark .quick-reference-label {
+  color: hsl(var(--muted-foreground));
+}
+
+.quick-reference-table span {
+  color: hsl(var(--foreground));
+  font-weight: 500;
+}
+
+/* --- THEME REWRITE END --- */
 
 @layer utilities {
   .shadow-material {
     box-shadow: var(--shadow-material);
   }
-  
+
   .shadow-material-lg {
     box-shadow: var(--shadow-material-lg);
   }
-  
+
   .cityscape-bg {
     position: relative;
     background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%);
     color: white;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
   }
-  
+
   .cityscape-overlay {
     position: relative;
   }
-  
+
   .cityscape-overlay::before {
     content: '';
     position: absolute;
@@ -159,8 +157,8 @@
     pointer-events: none;
     z-index: 1;
   }
-  
-  .cityscape-overlay > * {
+
+  .cityscape-overlay>* {
     position: relative;
     z-index: 2;
   }
@@ -200,7 +198,7 @@ textarea:focus-visible,
 }
 
 /* Smooth transitions for interactive elements */
-button, 
+button,
 .cursor-pointer {
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -219,9 +217,11 @@ input[type="submit"] {
   0% {
     background-position: 0% 50%;
   }
+
   50% {
     background-position: 100% 50%;
   }
+
   100% {
     background-position: 0% 50%;
   }
@@ -229,40 +229,67 @@ input[type="submit"] {
 
 /* Dark theme text fixes */
 .dark .bg-white,
-.dark .bg-gray-50 {
-  background-color: #1f2937 !important;
+.dark .bg-gray-50,
+.dark .bg-blue-50 {
+  background-color: #23263a !important;
+  color: #f3f4f6 !important;
+}
+
+.dark .border-gray-200,
+.dark .border-blue-100,
+.dark .border-blue-200 {
+  border-color: #374151 !important;
+}
+
+.dark .text-blue-800 {
+  color: #60a5fa !important;
+}
+
+.dark .bg-blue-100 {
+  background-color: #1e293b !important;
+  color: #bae6fd !important;
+}
+
+.dark .text-yellow-700 {
+  color: #fde68a !important;
+}
+
+.dark .bg-yellow-100 {
+  background-color: #3b3a1e !important;
+  color: #fde68a !important;
+}
+
+.dark .text-green-700 {
+  color: #6ee7b7 !important;
+}
+
+.dark .bg-green-100 {
+  background-color: #052e16 !important;
+  color: #6ee7b7 !important;
+}
+
+.dark .text-red-700 {
+  color: #fca5a5 !important;
+}
+
+.dark .bg-red-100 {
+  background-color: #3b1e1e !important;
+  color: #fca5a5 !important;
+}
+
+.dark .text-gray-800 {
+  color: #f3f4f6 !important;
+}
+
+.dark .border {
+  border-color: #374151 !important;
+}
+
+.dark .text-black {
   color: #f9fafb !important;
 }
 
-.dark .bg-white label,
-.dark .bg-white p,
-.dark .bg-white h1,
-.dark .bg-white h2,
-.dark .bg-white h3,
-.dark .bg-white span,
-.dark .bg-white div,
-.dark .bg-gray-50 label,
-.dark .bg-gray-50 p,
-.dark .bg-gray-50 h1,
-.dark .bg-gray-50 h2,
-.dark .bg-gray-50 h3,
-.dark .bg-gray-50 span,
-.dark .bg-gray-50 div {
-  color: #f9fafb !important;
-}
-
-/* For sections without explicit backgrounds in dark mode */
-.dark main > div > div:not([class*="bg-"]) label,
-.dark main > div > div:not([class*="bg-"]) p,
-.dark main > div > div:not([class*="bg-"]) h1,
-.dark main > div > div:not([class*="bg-"]) h2,
-.dark main > div > div:not([class*="bg-"]) h3,
-.dark main > div > div:not([class*="bg-"]) span:not(.text-white):not(.text-primary-foreground),
-.dark main > div > div:not([class*="bg-"]) div:not(.bg-primary) {
-  color: #111827 !important;
-}
-
-.dark .text-gray-500 {
+.dark .text-gray-700 {
   color: #d1d5db !important;
 }
 
@@ -270,8 +297,17 @@ input[type="submit"] {
   color: #9ca3af !important;
 }
 
-.dark .border-gray-200 {
-  border-color: #4b5563 !important;
+.dark .text-gray-500 {
+  color: #d1d5db !important;
+}
+
+.dark .bg-yellow-50 {
+  background-color: #3b3a1e !important;
+  color: #fde68a !important;
+}
+
+.dark .text-blue-900 {
+  color: #93c5fd !important;
 }
 
 /* Rainbow theme text fixes */
@@ -280,61 +316,127 @@ input[type="submit"] {
 .rainbow h1,
 .rainbow h2,
 .rainbow h3,
-.rainbow span:not(.text-white):not(.text-primary-foreground),
-.rainbow div:not(.bg-primary) {
-  color: #111827 !important;
+.rainbow .text-gray-800,
+.rainbow .text-gray-700,
+.rainbow .text-gray-500,
+.rainbow .text-gray-400,
+.rainbow .text-black,
+.rainbow .text-primary-foreground,
+.rainbow .text-card-foreground,
+.rainbow .text-muted-foreground {
+  color: hsl(var(--foreground)) !important;
 }
 
-.rainbow .text-gray-500 {
-  color: #374151 !important;
-  font-weight: 600 !important;
+.rainbow .bg-white,
+.rainbow .bg-gray-50,
+.rainbow .bg-blue-50 {
+  background-color: hsl(var(--card)) !important;
+  color: hsl(var(--foreground)) !important;
 }
 
-.rainbow .text-gray-400 {
-  color: #4b5563 !important;
-  font-weight: 600 !important;
+.rainbow .border-gray-200,
+.rainbow .border-blue-100,
+.rainbow .border-blue-200 {
+  border-color: hsl(var(--border)) !important;
 }
 
-.rainbow .bg-white {
-  background-color: rgba(255, 255, 255, 0.98) !important;
-  color: #111827 !important;
+.rainbow .bg-blue-100 {
+  background-color: #312e81 !important;
+  color: #bae6fd !important;
 }
 
-.rainbow .bg-gray-50 {
-  background-color: rgba(249, 250, 251, 0.95) !important;
-  color: #111827 !important;
+.rainbow .bg-yellow-100,
+.rainbow .bg-yellow-50 {
+  background-color: #3b3a1e !important;
+  color: #fde68a !important;
+}
+
+.rainbow .bg-green-100 {
+  background-color: #052e16 !important;
+  color: #6ee7b7 !important;
+}
+
+.rainbow .bg-red-100 {
+  background-color: #3b1e1e !important;
+  color: #fca5a5 !important;
+}
+
+.rainbow .text-blue-800,
+.rainbow .text-blue-900 {
+  color: #60a5fa !important;
+}
+
+.rainbow .text-yellow-700 {
+  color: #fde68a !important;
+}
+
+.rainbow .text-green-700 {
+  color: #6ee7b7 !important;
+}
+
+.rainbow .text-red-700 {
+  color: #fca5a5 !important;
+}
+
+.rainbow .border {
+  border-color: hsl(var(--border)) !important;
+}
+
+.rainbow .text-black {
+  color: hsl(var(--foreground)) !important;
+}
+
+.rainbow .card,
+.rainbow .bg-card {
+  background: hsl(var(--card)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+.rainbow input,
+.rainbow textarea,
+.rainbow select {
+  background: hsl(var(--input)) !important;
+  color: hsl(var(--foreground)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+}
+
+.rainbow input:focus,
+.rainbow textarea:focus,
+.rainbow select:focus {
+  border-color: hsl(var(--primary)) !important;
+  box-shadow: 0 0 0 2px hsl(var(--primary) / 0.2) !important;
 }
 
 .rainbow .bg-primary {
-  background-color: #2563eb !important;
-  color: white !important;
-}
-
-.rainbow .text-primary-foreground {
-  color: white !important;
+  background-color: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
 }
 
 .rainbow .text-primary {
-  color: #2563eb !important;
+  color: hsl(var(--primary)) !important;
 }
 
-.rainbow .text-white {
-  color: white !important;
+.rainbow .shadow-material,
+.rainbow .shadow-material-lg {
+  box-shadow: var(--shadow-material-lg) !important;
 }
 
-.rainbow .border-gray-200 {
-  border-color: #d1d5db !important;
+.rainbow .badge,
+.rainbow .bg-secondary {
+  background: hsl(var(--muted)) !important;
+  color: hsl(var(--foreground)) !important;
 }
 
-/* Bottom navigation fixes for both themes */
-.dark nav .text-gray-400,
+.rainbow .switch[data-state="checked"] {
+  background: hsl(var(--primary)) !important;
+}
+
 .rainbow nav .text-gray-400 {
-  color: #6b7280 !important;
+  color: hsl(var(--muted-foreground)) !important;
 }
 
-.dark nav .text-primary,
 .rainbow nav .text-primary {
-  color: #2563eb !important;
+  color: hsl(var(--primary)) !important;
 }
 
 /* Rainbow animation */
@@ -342,15 +444,19 @@ input[type="submit"] {
   0% {
     background-position: 0% 50%;
   }
+
   25% {
     background-position: 100% 25%;
   }
+
   50% {
     background-position: 0% 75%;
   }
+
   75% {
     background-position: 100% 50%;
   }
+
   100% {
     background-position: 0% 50%;
   }
@@ -358,17 +464,18 @@ input[type="submit"] {
 
 /* Rainbow theme specific styles */
 .rainbow {
+
   /* Subtle rainbow glow for cards */
   .shadow-material {
-    box-shadow: 
-      0 2px 4px rgba(0,0,0,0.3), 
+    box-shadow:
+      0 2px 4px rgba(0, 0, 0, 0.3),
       0 8px 16px rgba(139, 69, 190, 0.15),
       0 0 20px rgba(139, 69, 190, 0.08);
   }
-  
+
   .shadow-material-lg {
-    box-shadow: 
-      0 4px 8px rgba(0,0,0,0.4), 
+    box-shadow:
+      0 4px 8px rgba(0, 0, 0, 0.4),
       0 16px 32px rgba(139, 69, 190, 0.2),
       0 0 30px rgba(139, 69, 190, 0.12);
   }
@@ -385,7 +492,7 @@ input[type="submit"] {
 
   /* Accessible text shadows */
   .text-primary {
-    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
   }
 
   /* Ensure proper card backgrounds in rainbow theme */
@@ -395,13 +502,17 @@ input[type="submit"] {
   }
 
   /* Improve input contrast */
-  input, textarea, select {
+  input,
+  textarea,
+  select {
     background: hsl(var(--input)) !important;
     color: hsl(var(--foreground)) !important;
     border: 1px solid hsl(var(--border)) !important;
   }
 
-  input:focus, textarea:focus, select:focus {
+  input:focus,
+  textarea:focus,
+  select:focus {
     border-color: hsl(var(--primary)) !important;
     box-shadow: 0 0 0 2px rgba(139, 69, 190, 0.2) !important;
   }
