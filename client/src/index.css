@@ -227,19 +227,68 @@ input[type="submit"] {
   }
 }
 
-/* Ensure good text contrast in all themes */
+/* Dark theme text fixes */
+.dark label,
+.dark p,
+.dark h1,
+.dark h2,
+.dark h3,
+.dark span:not(.text-white):not(.text-primary-foreground),
+.dark div:not(.bg-primary):not(.bg-white) {
+  color: #f9fafb !important;
+}
+
+.dark .text-gray-500 {
+  color: #d1d5db !important;
+}
+
+.dark .text-gray-400 {
+  color: #9ca3af !important;
+}
+
+.dark .bg-white {
+  background-color: #1f2937 !important;
+  color: #f9fafb !important;
+}
+
+.dark .bg-gray-50 {
+  background-color: #374151 !important;
+  color: #f9fafb !important;
+}
+
+.dark .border-gray-200 {
+  border-color: #4b5563 !important;
+}
+
+/* Rainbow theme text fixes */
+.rainbow label,
+.rainbow p,
+.rainbow h1,
+.rainbow h2,
+.rainbow h3,
+.rainbow span:not(.text-white):not(.text-primary-foreground),
+.rainbow div:not(.bg-primary) {
+  color: #111827 !important;
+}
+
 .rainbow .text-gray-500 {
   color: #374151 !important;
-  font-weight: 500 !important;
+  font-weight: 600 !important;
 }
 
 .rainbow .text-gray-400 {
   color: #4b5563 !important;
-  font-weight: 500 !important;
+  font-weight: 600 !important;
 }
 
 .rainbow .bg-white {
   background-color: rgba(255, 255, 255, 0.98) !important;
+  color: #111827 !important;
+}
+
+.rainbow .bg-gray-50 {
+  background-color: rgba(249, 250, 251, 0.95) !important;
+  color: #111827 !important;
 }
 
 .rainbow .bg-primary {
@@ -259,40 +308,19 @@ input[type="submit"] {
   color: white !important;
 }
 
-/* Specific fixes for quiz and reference sections only */
-.rainbow main .grid div,
-.rainbow main .space-y-2 div,
-.rainbow main .font-mono {
-  color: #111827 !important;
-}
-
-.rainbow .bg-gray-50 {
-  background-color: rgba(249, 250, 251, 0.95) !important;
-}
-
 .rainbow .border-gray-200 {
   border-color: #d1d5db !important;
 }
 
-/* Bottom navigation fixes */
+/* Bottom navigation fixes for both themes */
+.dark nav .text-gray-400,
 .rainbow nav .text-gray-400 {
   color: #6b7280 !important;
 }
 
+.dark nav .text-primary,
 .rainbow nav .text-primary {
   color: #2563eb !important;
-}
-
-.rainbow nav .text-xs {
-  color: inherit !important;
-}
-
-/* Settings section fixes */
-.rainbow .space-y-6 h3,
-.rainbow .space-y-6 p,
-.rainbow .space-y-4 label,
-.rainbow .space-y-4 p {
-  color: #111827 !important;
 }
 
 /* Rainbow animation */
