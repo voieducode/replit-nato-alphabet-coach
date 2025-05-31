@@ -17,8 +17,6 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { queryClient } from "@/lib/queryClient";
-import { natoAlphabet } from "@/lib/nato-alphabet";
 import {
   generateQuizSet,
   checkAnswerVariants,
@@ -32,7 +30,7 @@ import {
   getUserProgressLocal,
   updateUserProgressLocal,
 } from "@/lib/storage";
-import type { UserProgress, QuizSession } from "@shared/schema";
+import type { UserProgress } from "@shared/schema";
 
 interface QuizSectionProps {
   userId: string;
@@ -582,7 +580,7 @@ export default function QuizSection({ userId }: QuizSectionProps) {
                 {translations.correct.toLowerCase()}
               </span>
               <span className="flex items-center gap-1">
-                <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                <span className="w-2 h-2 bg-green-600 rounded-full animate-pulse"></span>
                 {translations.adaptiveLearning}
               </span>
             </div>
@@ -660,7 +658,7 @@ export default function QuizSection({ userId }: QuizSectionProps) {
         <CardContent className="p-6">
           {/* Question Display */}
           <div className="text-center mb-8">
-            <p className="text-gray-600 mb-4">{translations.natoAlphabet}:</p>
+            <p className="text-gray-400 mb-4">{translations.natoAlphabet}:</p>
             <div className="bg-blue-50 rounded-lg p-6 mb-6">
               <span className="text-4xl font-mono font-bold text-primary">
                 {currentQuestion?.letter}
@@ -785,7 +783,7 @@ export default function QuizSection({ userId }: QuizSectionProps) {
       </Card>
 
       {/* Spaced Repetition Info */}
-      <Card className="bg-green-50 border border-green-100">
+      <Card className="border border-green-100">
         <CardContent className="p-4">
           <div className="flex items-start space-x-3">
             <Brain className="text-green-600 mt-1 h-5 w-5" />
@@ -793,7 +791,7 @@ export default function QuizSection({ userId }: QuizSectionProps) {
               <h4 className="font-semibold text-green-800 mb-1">
                 {translations.adaptiveLearning}
               </h4>
-              <p className="text-sm text-green-700 mb-2">
+              <p className="text-sm text-green-600 mb-2">
                 {translations.spacedRepetitionDescription}
               </p>
               <div className="flex items-center space-x-4 text-xs">
