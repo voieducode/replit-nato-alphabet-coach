@@ -1,14 +1,21 @@
 {
   "name": "rest-express",
-  "version": "1.0.0",
   "type": "module",
+  "version": "1.0.0",
   "license": "MIT",
   "scripts": {
     "dev": "NODE_ENV=development tsx server/index.ts",
     "build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
     "start": "NODE_ENV=production node dist/index.js",
     "check": "tsc",
-    "db:push": "drizzle-kit push"
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -50,8 +57,6 @@
     "cmdk": "^1.1.1",
     "connect-pg-simple": "^10.0.0",
     "date-fns": "^3.6.0",
-    "drizzle-orm": "^0.39.1",
-    "drizzle-zod": "^0.7.0",
     "embla-carousel-react": "^8.6.0",
     "express": "^4.21.2",
     "express-session": "^1.18.1",
@@ -80,7 +85,12 @@
     "zod": "^3.24.2",
     "zod-validation-error": "^3.4.0"
   },
+  "optionalDependencies": {
+    "bufferutil": "^4.0.8"
+  },
   "devDependencies": {
+    "@antfu/eslint-config": "^4.13.2",
+    "@eslint-react/eslint-plugin": "^1.50.0",
     "@replit/vite-plugin-cartographer": "^0.2.5",
     "@replit/vite-plugin-runtime-error-modal": "^0.0.3",
     "@tailwindcss/typography": "^0.5.15",
@@ -95,16 +105,20 @@
     "@types/react-dom": "^18.3.1",
     "@types/ws": "^8.5.13",
     "@vitejs/plugin-react": "^4.3.2",
+    "@vitest/browser": "^3.1.4",
     "autoprefixer": "^10.4.20",
-    "drizzle-kit": "^0.30.4",
+    "chromium": "^3.0.3",
     "esbuild": "^0.25.0",
+    "eslint": "^9.28.0",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "playwright": "^1.52.0",
     "postcss": "^8.4.47",
+    "prettier": "^3.5.3",
     "tailwindcss": "^3.4.17",
     "tsx": "^4.19.1",
     "typescript": "5.6.3",
     "vite": "^5.4.14"
-  },
-  "optionalDependencies": {
-    "bufferutil": "^4.0.8"
   }
 }

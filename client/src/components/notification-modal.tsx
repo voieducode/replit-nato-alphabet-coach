@@ -1,11 +1,11 @@
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { X, Bell, Trophy, TrendingUp } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { queryClient } from "@/lib/queryClient";
-import { useLanguage } from "@/contexts/LanguageContext";
-import type { Notification } from "@shared/schema";
+import type { Notification } from '@shared/schema';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { Bell, TrendingUp, Trophy, X } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { queryClient } from '@/lib/queryClient';
 
 interface NotificationModalProps {
   isOpen: boolean;
@@ -13,7 +13,11 @@ interface NotificationModalProps {
   userId: string;
 }
 
-export default function NotificationModal({ isOpen, onClose, userId }: NotificationModalProps) {
+export default function NotificationModal({
+  isOpen,
+  onClose,
+  userId,
+}: NotificationModalProps) {
   const { translations } = useLanguage();
   const { data: notifications = [] } = useQuery<Notification[]>({
     queryKey: [`/api/notifications/${userId}`],
@@ -22,25 +26,34 @@ export default function NotificationModal({ isOpen, onClose, userId }: Notificat
 
   const markReadMutation = useMutation({
     mutationFn: async (notificationId: number) => {
-      const response = await fetch(`/api/notifications/${notificationId}/read`, {
-        method: "PATCH",
-      });
-      if (!response.ok) throw new Error("Failed to mark notification as read");
+      const response = await fetch(
+        `/api/notifications/${notificationId}/read`,
+        {
+          method: 'PATCH',
+        }
+      );
+      if (!response.ok) {
+        throw new Error('Failed to mark notification as read');
+      }
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/notifications/${userId}`] });
-      queryClient.invalidateQueries({ queryKey: [`/api/notifications/${userId}/unread-count`] });
+      queryClient.invalidateQueries({
+        queryKey: [`/api/notifications/${userId}`],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [`/api/notifications/${userId}/unread-count`],
+      });
     },
   });
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
-      case "daily_reminder":
+      case 'daily_reminder':
         return <Bell className="text-orange-500 h-5 w-5" />;
-      case "achievement":
+      case 'achievement':
         return <Trophy className="text-yellow-500 h-5 w-5" />;
-      case "progress":
+      case 'progress':
         return <TrendingUp className="text-blue-500 h-5 w-5" />;
       default:
         return <Bell className="text-gray-500 h-5 w-5" />;
@@ -49,27 +62,37 @@ export default function NotificationModal({ isOpen, onClose, userId }: Notificat
 
   const getNotificationBgColor = (type: string) => {
     switch (type) {
-      case "daily_reminder":
-        return "bg-orange-50 border-orange-100";
-      case "achievement":
-        return "bg-yellow-50 border-yellow-100";
-      case "progress":
-        return "bg-blue-50 border-blue-100";
+      case 'daily_reminder':
+        return 'bg-orange-50 border-orange-100';
+      case 'achievement':
+        return 'bg-yellow-50 border-yellow-100';
+      case 'progress':
+        return 'bg-blue-50 border-blue-100';
       default:
-        return "bg-gray-50 border-gray-100";
+        return 'bg-gray-50 border-gray-100';
     }
   };
 
   const getTimeAgo = (date: Date) => {
     const now = new Date();
-    const diffInHours = Math.floor((now.getTime() - new Date(date).getTime()) / (1000 * 60 * 60));
-    
-    if (diffInHours < 1) return "Just now";
-    if (diffInHours === 1) return "1 hour ago";
-    if (diffInHours < 24) return `${diffInHours} hours ago`;
-    
+    const diffInHours = Math.floor(
+      (now.getTime() - new Date(date).getTime()) / (1000 * 60 * 60)
+    );
+
+    if (diffInHours < 1) {
+      return 'Just now';
+    }
+    if (diffInHours === 1) {
+      return '1 hour ago';
+    }
+    if (diffInHours < 24) {
+      return `${diffInHours} hours ago`;
+    }
+
     const diffInDays = Math.floor(diffInHours / 24);
-    if (diffInDays === 1) return "1 day ago";
+    if (diffInDays === 1) {
+      return '1 day ago';
+    }
     return `${diffInDays} days ago`;
   };
 
@@ -79,22 +102,26 @@ export default function NotificationModal({ isOpen, onClose, userId }: Notificat
     }
   };
 
-  if (!isOpen) return null;
+  if (!isOpen) {
+    return null;
+  }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end">
       <div className="bg-white w-full rounded-t-lg p-4 transform transition-transform max-h-[80vh] overflow-hidden flex flex-col">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold text-lg">{translations.notificationsPanelTitle}</h3>
+          <h3 className="font-semibold text-lg">
+            {translations.notificationsPanelTitle}
+          </h3>
           <div className="flex items-center gap-2">
-            {notifications.some(n => !n.isRead) && (
+            {notifications.some((n) => !n.isRead) && (
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => {
                   notifications
-                    .filter(n => !n.isRead)
-                    .forEach(n => markReadMutation.mutate(n.id));
+                    .filter((n) => !n.isRead)
+                    .forEach((n) => markReadMutation.mutate(n.id));
                 }}
               >
                 {translations.markAllAsRead}
@@ -110,7 +137,7 @@ export default function NotificationModal({ isOpen, onClose, userId }: Notificat
             </Button>
           </div>
         </div>
-        
+
         <div className="space-y-3 overflow-y-auto flex-1">
           {notifications.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
@@ -122,7 +149,7 @@ export default function NotificationModal({ isOpen, onClose, userId }: Notificat
               <Card
                 key={notification.id}
                 className={`cursor-pointer transition-all hover:shadow-md ${getNotificationBgColor(notification.type)} ${
-                  !notification.isRead ? "border-l-4 border-l-primary" : ""
+                  !notification.isRead ? 'border-l-4 border-l-primary' : ''
                 }`}
                 onClick={() => handleNotificationClick(notification)}
               >

@@ -1,19 +1,19 @@
-import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { Bell } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { ThemeSelector } from "@/components/theme-selector";
-import ConverterSection from "@/components/converter-section";
-import QuizSection from "@/components/quiz-section";
-import SettingsSection from "@/components/settings-section";
-import NotificationModal from "@/components/notification-modal";
+import { Bell } from 'lucide-react';
+import { useState } from 'react';
+import ConverterSection from '@/components/converter-section';
+import NotificationModal from '@/components/notification-modal';
+import QuizSection from '@/components/quiz-section';
+import SettingsSection from '@/components/settings-section';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<"converter" | "quiz" | "settings">("converter");
+  const [activeTab, setActiveTab] = useState<'converter' | 'quiz' | 'settings'>(
+    'converter'
+  );
   const [showNotifications, setShowNotifications] = useState(false);
-  const [userId] = useState("user-1"); // In a real app, this would come from auth
+  const [userId] = useState('user-1'); // In a real app, this would come from auth
   const { translations } = useLanguage();
 
   // Use localStorage for notification management to avoid API dependencies
@@ -24,7 +24,9 @@ export default function Home() {
       {/* Header */}
       <header className="bg-primary text-primary-foreground p-4 shadow-material relative cityscape-bg">
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-semibold text-white drop-shadow-sm">{translations.appName}</h1>
+          <h1 className="text-xl font-semibold text-white drop-shadow-sm">
+            {translations.appName}
+          </h1>
           <div className="relative">
             <Button
               variant="ghost"
@@ -46,22 +48,24 @@ export default function Home() {
         <nav className="mt-4">
           <div className="flex space-x-1 bg-primary/80 rounded-lg p-1">
             <button
+              type="button"
               className={`flex-1 py-2 px-4 rounded-md font-medium transition-colors ${
-                activeTab === "converter"
-                  ? "bg-white text-primary"
-                  : "text-primary-foreground hover:bg-primary/60"
+                activeTab === 'converter'
+                  ? 'bg-white text-primary'
+                  : 'text-primary-foreground hover:bg-primary/60'
               }`}
-              onClick={() => setActiveTab("converter")}
+              onClick={() => setActiveTab('converter')}
             >
               {translations.converter}
             </button>
             <button
+              type="button"
               className={`flex-1 py-2 px-4 rounded-md font-medium transition-colors ${
-                activeTab === "quiz"
-                  ? "bg-white text-primary"
-                  : "text-primary-foreground hover:bg-primary/60"
+                activeTab === 'quiz'
+                  ? 'bg-white text-primary'
+                  : 'text-primary-foreground hover:bg-primary/60'
               }`}
-              onClick={() => setActiveTab("quiz")}
+              onClick={() => setActiveTab('quiz')}
             >
               {translations.quiz}
             </button>
@@ -71,9 +75,9 @@ export default function Home() {
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto">
-        {activeTab === "converter" ? (
+        {activeTab === 'converter' ? (
           <ConverterSection />
-        ) : activeTab === "quiz" ? (
+        ) : activeTab === 'quiz' ? (
           <QuizSection userId={userId} />
         ) : (
           <SettingsSection />
@@ -84,28 +88,33 @@ export default function Home() {
       <nav className="bg-white border-t border-gray-200 p-4 sticky bottom-0">
         <div className="flex justify-around">
           <button
+            type="button"
             className={`flex flex-col items-center space-y-1 ${
-              activeTab === "converter" ? "text-primary" : "text-gray-400"
+              activeTab === 'converter' ? 'text-primary' : 'text-gray-400'
             }`}
-            onClick={() => setActiveTab("converter")}
+            onClick={() => setActiveTab('converter')}
           >
             <div className="text-lg">⇄</div>
-            <span className="text-xs font-medium">{translations.converter}</span>
+            <span className="text-xs font-medium">
+              {translations.converter}
+            </span>
           </button>
           <button
+            type="button"
             className={`flex flex-col items-center space-y-1 ${
-              activeTab === "quiz" ? "text-primary" : "text-gray-400"
+              activeTab === 'quiz' ? 'text-primary' : 'text-gray-400'
             }`}
-            onClick={() => setActiveTab("quiz")}
+            onClick={() => setActiveTab('quiz')}
           >
             <div className="text-lg">🎓</div>
             <span className="text-xs font-medium">{translations.quiz}</span>
           </button>
           <button
+            type="button"
             className={`flex flex-col items-center space-y-1 ${
-              activeTab === "settings" ? "text-primary" : "text-gray-400"
+              activeTab === 'settings' ? 'text-primary' : 'text-gray-400'
             }`}
-            onClick={() => setActiveTab("settings")}
+            onClick={() => setActiveTab('settings')}
           >
             <div className="text-lg">⚙️</div>
             <span className="text-xs font-medium">{translations.settings}</span>

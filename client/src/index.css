@@ -24,8 +24,10 @@
   --radius: 0.5rem;
 
   /* Custom shadow variables for material design */
-  --shadow-material: 0 2px 4px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.1);
-  --shadow-material-lg: 0 4px 8px rgba(0, 0, 0, 0.12), 0 16px 32px rgba(0, 0, 0, 0.12);
+  --shadow-material:
+    0 2px 4px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.1);
+  --shadow-material-lg:
+    0 4px 8px rgba(0, 0, 0, 0.12), 0 16px 32px rgba(0, 0, 0, 0.12);
 }
 
 /* Dark theme */
@@ -48,8 +50,10 @@
   --radius: 0.5rem;
 
   /* Dark theme shadows */
-  --shadow-material: 0 2px 4px rgba(0, 0, 0, 0.4), 0 8px 16px rgba(0, 0, 0, 0.3);
-  --shadow-material-lg: 0 4px 8px rgba(0, 0, 0, 0.5), 0 16px 32px rgba(0, 0, 0, 0.4);
+  --shadow-material:
+    0 2px 4px rgba(0, 0, 0, 0.4), 0 8px 16px rgba(0, 0, 0, 0.3);
+  --shadow-material-lg:
+    0 4px 8px rgba(0, 0, 0, 0.5), 0 16px 32px rgba(0, 0, 0, 0.4);
 }
 
 /* Rainbow theme */
@@ -78,8 +82,10 @@
   --radius: 0.5rem;
 
   /* Rainbow theme shadows with subtle glow */
-  --shadow-material: 0 2px 4px rgba(0, 0, 0, 0.3), 0 8px 16px rgba(139, 69, 190, 0.15);
-  --shadow-material-lg: 0 4px 8px rgba(0, 0, 0, 0.4), 0 16px 32px rgba(139, 69, 190, 0.2);
+  --shadow-material:
+    0 2px 4px rgba(0, 0, 0, 0.3), 0 8px 16px rgba(139, 69, 190, 0.15);
+  --shadow-material-lg:
+    0 4px 8px rgba(0, 0, 0, 0.4), 0 16px 32px rgba(139, 69, 190, 0.2);
 }
 
 /* NATO Military theme */
@@ -125,8 +131,10 @@
   --radius: 0.5rem;
 
   /* NATO theme shadows with military feel */
-  --shadow-material: 0 2px 4px rgba(0, 0, 0, 0.4), 0 8px 16px rgba(34, 51, 34, 0.2);
-  --shadow-material-lg: 0 4px 8px rgba(0, 0, 0, 0.5), 0 16px 32px rgba(34, 51, 34, 0.3);
+  --shadow-material:
+    0 2px 4px rgba(0, 0, 0, 0.4), 0 8px 16px rgba(34, 51, 34, 0.2);
+  --shadow-material-lg:
+    0 4px 8px rgba(0, 0, 0, 0.5), 0 16px 32px rgba(34, 51, 34, 0.3);
 }
 
 @layer base {
@@ -205,7 +213,7 @@
     z-index: 1;
   }
 
-  .cityscape-overlay>* {
+  .cityscape-overlay > * {
     position: relative;
     z-index: 2;
   }
@@ -252,9 +260,9 @@ button,
 
 /* Touch-friendly tap targets */
 button,
-[role="button"],
-input[type="button"],
-input[type="submit"] {
+[role='button'],
+input[type='button'],
+input[type='submit'] {
   min-height: 44px;
   min-width: 44px;
 }
@@ -474,7 +482,7 @@ input[type="submit"] {
   color: hsl(var(--foreground)) !important;
 }
 
-.rainbow .switch[data-state="checked"] {
+.rainbow .switch[data-state='checked'] {
   background: hsl(var(--primary)) !important;
 }
 
@@ -511,7 +519,6 @@ input[type="submit"] {
 
 /* Rainbow theme specific styles */
 .rainbow {
-
   /* Subtle rainbow glow for cards */
   .shadow-material {
     box-shadow:
@@ -528,12 +535,12 @@ input[type="submit"] {
   }
 
   /* Accessible rainbow border for primary elements */
-  button[class*="bg-primary"]:not(:disabled) {
+  button[class*='bg-primary']:not(:disabled) {
     position: relative;
     border: 1px solid hsl(280 80% 70%);
   }
 
-  button[class*="bg-primary"]:not(:disabled):hover {
+  button[class*='bg-primary']:not(:disabled):hover {
     box-shadow: 0 0 15px rgba(139, 69, 190, 0.3);
   }
 
@@ -567,7 +574,6 @@ input[type="submit"] {
 
 /* NATO Military theme specific styles */
 .nato {
-
   /* Military-style shadows */
   .shadow-material {
     box-shadow:
@@ -584,15 +590,23 @@ input[type="submit"] {
   }
 
   /* Military primary button styling */
-  button[class*="bg-primary"]:not(:disabled) {
+  button[class*='bg-primary']:not(:disabled) {
     position: relative;
     border: 1px solid hsl(120 30% 50%);
-    background: linear-gradient(135deg, hsl(120 30% 50%) 0%, hsl(120 35% 45%) 100%);
+    background: linear-gradient(
+      135deg,
+      hsl(120 30% 50%) 0%,
+      hsl(120 35% 45%) 100%
+    );
   }
 
-  button[class*="bg-primary"]:not(:disabled):hover {
+  button[class*='bg-primary']:not(:disabled):hover {
     box-shadow: 0 0 15px rgba(34, 51, 34, 0.4);
-    background: linear-gradient(135deg, hsl(120 35% 55%) 0%, hsl(120 40% 50%) 100%);
+    background: linear-gradient(
+      135deg,
+      hsl(120 35% 55%) 0%,
+      hsl(120 40% 50%) 100%
+    );
   }
 
   /* Military text styling with improved contrast */
@@ -733,7 +747,7 @@ input[type="submit"] {
   color: hsl(var(--foreground)) !important;
 }
 
-.nato .switch[data-state="checked"] {
+.nato .switch[data-state='checked'] {
   background: hsl(var(--primary)) !important;
 }
 
