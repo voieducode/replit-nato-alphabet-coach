@@ -18,9 +18,9 @@ export interface LocalUserProgress {
 }
 
 const STORAGE_KEYS = {
-  USER_STATS: "userStats",
-  USER_PROGRESS: "userProgress",
-  SETTINGS: "appSettings",
+  USER_STATS: 'userStats',
+  USER_PROGRESS: 'userProgress',
+  SETTINGS: 'appSettings',
 } as const;
 
 // Stats management
@@ -29,8 +29,8 @@ export function getUserStats(): UserStats {
   if (stored) {
     try {
       return JSON.parse(stored);
-    } catch (e) {
-      console.warn("Failed to parse stored stats");
+    } catch {
+      console.warn('Failed to parse stored stats');
     }
   }
   return {
@@ -54,8 +54,8 @@ export function getUserProgressLocal(): LocalUserProgress[] {
   if (stored) {
     try {
       return JSON.parse(stored);
-    } catch (e) {
-      console.warn("Failed to parse stored progress");
+    } catch {
+      console.warn('Failed to parse stored progress');
     }
   }
   return [];
@@ -100,30 +100,30 @@ export function updateUserProgressLocal(
 
 // Settings management
 export interface AppSettings {
-  ttsVoice: "female" | "male" | "robot";
+  ttsVoice: 'female' | 'male' | 'robot';
   notificationsEnabled: boolean;
   language: string;
 }
 
 export function getAppSettings(): AppSettings {
   try {
-    const stored = localStorage.getItem("appSettings");
+    const stored = localStorage.getItem('appSettings');
     if (stored) {
       const parsed = JSON.parse(stored);
       return {
-        ttsVoice: parsed.ttsVoice || "female",
+        ttsVoice: parsed.ttsVoice || 'female',
         notificationsEnabled: parsed.notificationsEnabled || false,
-        language: parsed.language || "en",
+        language: parsed.language || 'en',
       };
     }
-  } catch (error) {
+  } catch {
     // Fall through to defaults
   }
-  
+
   return {
-    ttsVoice: "female",
+    ttsVoice: 'female',
     notificationsEnabled: false,
-    language: "en",
+    language: 'en',
   };
 }
 
@@ -131,8 +131,8 @@ export function updateAppSettings(settings: Partial<AppSettings>): void {
   try {
     const current = getAppSettings();
     const updated = { ...current, ...settings };
-    localStorage.setItem("appSettings", JSON.stringify(updated));
-  } catch (error) {
+    localStorage.setItem('appSettings', JSON.stringify(updated));
+  } catch {
     // Silently fail if localStorage is not available
   }
 }

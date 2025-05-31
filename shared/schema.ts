@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 // Base schemas for validation
 export const insertQuizSessionSchema = z.object({
@@ -25,16 +25,16 @@ export const insertNotificationSchema = z.object({
 
 // TypeScript types
 export type InsertQuizSession = z.infer<typeof insertQuizSessionSchema>;
-export type QuizSession = {
+export interface QuizSession {
   id: number;
   userId: string;
   score: number;
   totalQuestions: number;
   completedAt: Date;
-};
+}
 
 export type InsertUserProgress = z.infer<typeof insertUserProgressSchema>;
-export type UserProgress = {
+export interface UserProgress {
   id: number;
   userId: string;
   letter: string;
@@ -43,10 +43,10 @@ export type UserProgress = {
   lastReviewed: Date;
   nextReview: Date;
   difficulty: number;
-};
+}
 
 export type InsertNotification = z.infer<typeof insertNotificationSchema>;
-export type Notification = {
+export interface Notification {
   id: number;
   userId: string;
   type: string;
@@ -54,4 +54,4 @@ export type Notification = {
   message: string;
   isRead: boolean;
   createdAt: Date;
-};
+}

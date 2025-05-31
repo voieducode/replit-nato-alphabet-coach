@@ -1,5 +1,5 @@
-import { natoAlphabet, getAllLetters, getNATOWord } from "./nato-alphabet";
-import type { UserProgress } from "@shared/schema";
+import type { UserProgress } from '@shared/schema';
+import { getAllLetters, getNATOWord } from './nato-alphabet';
 
 export interface QuizQuestion {
   letter: string;
@@ -21,10 +21,10 @@ export function calculateNextReviewDate(
 
   if (isCorrect) {
     // Successful recall - increase interval
-    intervalDays = Math.pow(2, Math.max(0, 4 - difficulty));
+    intervalDays = 2 ** Math.max(0, 4 - difficulty);
   } else {
     // Failed recall - shorter interval
-    intervalDays = Math.max(1, Math.pow(2, Math.max(0, 2 - difficulty)));
+    intervalDays = Math.max(1, 2 ** Math.max(0, 2 - difficulty));
   }
 
   return new Date(Date.now() + intervalDays * 24 * 60 * 60 * 1000);
@@ -53,7 +53,9 @@ export function selectLetterForReview(userProgress: UserProgress[]): string {
     // Sort by priority: higher difficulty and older review dates first
     needReview.sort((a, b) => {
       const difficultyDiff = b.difficulty - a.difficulty;
-      if (Math.abs(difficultyDiff) > 0.5) return difficultyDiff;
+      if (Math.abs(difficultyDiff) > 0.5) {
+        return difficultyDiff;
+      }
 
       return (
         new Date(a.lastReviewed).getTime() - new Date(b.lastReviewed).getTime()
@@ -66,7 +68,9 @@ export function selectLetterForReview(userProgress: UserProgress[]): string {
   // If no letters need review, select from letters with poor performance
   const poorPerformance = userProgress.filter((progress) => {
     const total = progress.correctCount + progress.incorrectCount;
-    if (total === 0) return false;
+    if (total === 0) {
+      return false;
+    }
     return progress.correctCount / total < 0.7;
   });
 
@@ -110,19 +114,23 @@ export function checkAnswerVariants(
   const normalizedCorrect = correctAnswer.toLowerCase();
 
   // Direct match
-  if (normalizedUser === normalizedCorrect) return true;
+  if (normalizedUser === normalizedCorrect) {
+    return true;
+  }
 
   // Common alternate spellings
   const alternates: Record<string, string[]> = {
-    whiskey: ["whisky"],
-    juliet: ["juliett", "juliette"],
-    "x-ray": ["xray", "x ray"],
-    alfa: ["alpha"], // NATO officially uses "Alfa" but "Alpha" is common
+    whiskey: ['whisky'],
+    juliet: ['juliett', 'juliette'],
+    'x-ray': ['xray', 'x ray'],
+    alfa: ['alpha'], // NATO officially uses "Alfa" but "Alpha" is common
   };
 
   // Check if correct answer has alternates and user provided one
   const correctAlternates = alternates[normalizedCorrect] || [];
-  if (correctAlternates.includes(normalizedUser)) return true;
+  if (correctAlternates.includes(normalizedUser)) {
+    return true;
+  }
 
   // Check reverse - if user typed standard spelling but correct is alternate
   for (const [standard, alts] of Object.entries(alternates)) {
@@ -141,36 +149,36 @@ export function getHintForLetter(
 ): string {
   // Default English hints for fallback
   const defaultHints: Record<string, string> = {
-    A: "First letter of Greek alphabet",
-    B: "Well done, applause!",
-    C: "Phonetic C, like the name",
-    D: "River formation triangle",
-    E: "Sound reflection",
-    F: "Ballroom dance",
-    G: "Sport with clubs and holes",
-    H: "Place to stay overnight",
-    I: "Large Asian country",
-    J: "Shakespeare heroine",
-    K: "Unit of weight (1000 grams)",
-    L: "Capital of Peru",
-    M: "Short for microphone",
-    N: "Autumn month",
-    O: "Academy Award",
-    P: "Father, informal",
-    Q: "Canadian province",
-    R: "Shakespeare character",
-    S: "Mountain range",
-    T: "Argentine dance",
-    U: "Same clothing for all",
-    V: "Winner, champion",
-    W: "Strong alcoholic drink",
-    X: "Medical imaging",
-    Y: "American baseball player",
-    Z: "African warrior nation",
+    A: 'First letter of Greek alphabet',
+    B: 'Well done, applause!',
+    C: 'Phonetic C, like the name',
+    D: 'River formation triangle',
+    E: 'Sound reflection',
+    F: 'Ballroom dance',
+    G: 'Sport with clubs and holes',
+    H: 'Place to stay overnight',
+    I: 'Large Asian country',
+    J: 'Shakespeare heroine',
+    K: 'Unit of weight (1000 grams)',
+    L: 'Capital of Peru',
+    M: 'Short for microphone',
+    N: 'Autumn month',
+    O: 'Academy Award',
+    P: 'Father, informal',
+    Q: 'Canadian province',
+    R: 'Shakespeare character',
+    S: 'Mountain range',
+    T: 'Argentine dance',
+    U: 'Same clothing for all',
+    V: 'Winner, champion',
+    W: 'Strong alcoholic drink',
+    X: 'Medical imaging',
+    Y: 'American baseball player',
+    Z: 'African warrior nation',
   };
 
   const hints = natoHints || defaultHints;
-  return hints[letter.toUpperCase()] || "No hint available";
+  return hints[letter.toUpperCase()] || 'No hint available';
 }
 
 export function generateQuizQuestion(
@@ -226,7 +234,7 @@ export function getProgressStats(userProgress: UserProgress[]) {
       const total = progress.correctCount + progress.incorrectCount;
       acc.totalAnswers += total;
       acc.correctAnswers += progress.correctCount;
-      
+
       if (total === 0) {
         acc.unpracticed++;
         return acc;
@@ -255,9 +263,10 @@ export function getProgressStats(userProgress: UserProgress[]) {
   );
 
   // Calculate overall accuracy
-  stats.accuracy = stats.totalAnswers > 0 
-    ? Math.round((stats.correctAnswers / stats.totalAnswers) * 100)
-    : 0;
+  stats.accuracy =
+    stats.totalAnswers > 0
+      ? Math.round((stats.correctAnswers / stats.totalAnswers) * 100)
+      : 0;
 
   return stats;
 }

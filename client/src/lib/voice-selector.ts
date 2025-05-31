@@ -1,11 +1,11 @@
-import voicesData from "./voices.json";
+import voicesData from './voices.json';
 
 export interface VoiceInfo {
   label: string;
   name: string;
   altNames?: string[];
   language: string;
-  gender: "female" | "male";
+  gender: 'female' | 'male';
   quality: string[];
   rate: number;
   pitch?: number;
@@ -18,7 +18,7 @@ export interface VoiceInfo {
   nativeID?: string[];
 }
 
-export type VoiceType = "female" | "male" | "robot";
+export type VoiceType = 'female' | 'male' | 'robot';
 
 class VoiceSelector {
   private voicesDatabase: VoiceInfo[];
@@ -97,7 +97,7 @@ class VoiceSelector {
     return null;
   }
 
-  private filterByGender(gender: "female" | "male"): VoiceInfo[] {
+  private filterByGender(gender: 'female' | 'male'): VoiceInfo[] {
     return this.voicesDatabase.filter((voice) => voice.gender === gender);
   }
 
@@ -106,32 +106,38 @@ class VoiceSelector {
       // Prioritize by quality
       const qualityDiff =
         this.getQualityScore(b.quality) - this.getQualityScore(a.quality);
-      if (qualityDiff !== 0) return qualityDiff;
+      if (qualityDiff !== 0) {
+        return qualityDiff;
+      }
 
       // Prefer preloaded voices
       const aPreloaded = a.preloaded ? 1 : 0;
       const bPreloaded = b.preloaded ? 1 : 0;
       const preloadedDiff = bPreloaded - aPreloaded;
-      if (preloadedDiff !== 0) return preloadedDiff;
+      if (preloadedDiff !== 0) {
+        return preloadedDiff;
+      }
 
       // Prefer non-children voices for NATO alphabet
       const aChildren = a.children ? 0 : 1;
       const bChildren = b.children ? 0 : 1;
       const childrenDiff = bChildren - aChildren;
-      if (childrenDiff !== 0) return childrenDiff;
+      if (childrenDiff !== 0) {
+        return childrenDiff;
+      }
 
       // Prefer US English for consistency
-      const aUSEnglish = a.language === "en-US" ? 1 : 0;
-      const bUSEnglish = b.language === "en-US" ? 1 : 0;
+      const aUSEnglish = a.language === 'en-US' ? 1 : 0;
+      const bUSEnglish = b.language === 'en-US' ? 1 : 0;
       return bUSEnglish - aUSEnglish;
     });
   }
 
   public selectVoice(voiceType: VoiceType): SpeechSynthesisVoice | null {
-    if (voiceType === "robot") {
+    if (voiceType === 'robot') {
       // For robot voice, try to find a male voice that can be modified
       // or fall back to any available voice
-      const robotVoice = this.selectVoice("male") || this.selectVoice("female");
+      const robotVoice = this.selectVoice('male') || this.selectVoice('female');
       return robotVoice;
     }
 
@@ -152,25 +158,25 @@ class VoiceSelector {
     // Fallback: use simple gender matching on system voices
     const fallbackVoice = this.systemVoices.find((voice) => {
       const nameLower = voice.name.toLowerCase();
-      if (voiceType === "female") {
+      if (voiceType === 'female') {
         return (
-          nameLower.includes("female") ||
-          nameLower.includes("woman") ||
-          nameLower.includes("zira") ||
-          nameLower.includes("samantha") ||
-          nameLower.includes("emma") ||
-          nameLower.includes("jenny") ||
-          nameLower.includes("aria")
+          nameLower.includes('female') ||
+          nameLower.includes('woman') ||
+          nameLower.includes('zira') ||
+          nameLower.includes('samantha') ||
+          nameLower.includes('emma') ||
+          nameLower.includes('jenny') ||
+          nameLower.includes('aria')
         );
       } else {
         return (
-          nameLower.includes("male") ||
-          nameLower.includes("man") ||
-          nameLower.includes("david") ||
-          nameLower.includes("mark") ||
-          nameLower.includes("brian") ||
-          nameLower.includes("andrew") ||
-          nameLower.includes("guy")
+          nameLower.includes('male') ||
+          nameLower.includes('man') ||
+          nameLower.includes('david') ||
+          nameLower.includes('mark') ||
+          nameLower.includes('brian') ||
+          nameLower.includes('andrew') ||
+          nameLower.includes('guy')
         );
       }
     });
@@ -190,7 +196,7 @@ class VoiceSelector {
     for (const voiceInfo of this.voicesDatabase) {
       const systemVoice = this.matchSystemVoice(voiceInfo);
       if (systemVoice) {
-        if (voiceInfo.gender === "female") {
+        if (voiceInfo.gender === 'female') {
           femaleVoices.push(systemVoice);
         } else {
           maleVoices.push(systemVoice);
@@ -217,19 +223,19 @@ class VoiceSelector {
       volume: 1.0,
     };
 
-    if (voiceType === "robot") {
+    if (voiceType === 'robot') {
       settings = {
         rate: 0.6,
         pitch: 0.3,
         volume: 1.0,
       };
-    } else if (voiceType === "male") {
+    } else if (voiceType === 'male') {
       settings = {
         rate: 0.8,
         pitch: 0.9,
         volume: 1.0,
       };
-    } else if (voiceType === "female") {
+    } else if (voiceType === 'female') {
       settings = {
         rate: 0.8,
         pitch: 1.1,

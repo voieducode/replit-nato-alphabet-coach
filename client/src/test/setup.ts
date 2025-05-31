@@ -1,6 +1,6 @@
-import { expect, afterEach, beforeEach } from "vitest";
-import { cleanup } from "@testing-library/react";
-import "@testing-library/jest-dom";
+import { cleanup } from '@testing-library/react';
+import { afterEach, beforeEach } from 'vitest';
+import '@testing-library/jest-dom';
 
 // Clear localStorage before each test
 beforeEach(() => {
@@ -13,39 +13,46 @@ afterEach(() => {
 });
 
 // Mock Web Speech API for tests
-Object.defineProperty(window, "SpeechRecognition", {
+Object.defineProperty(window, 'SpeechRecognition', {
   writable: true,
   value: class MockSpeechRecognition {
     continuous = false;
     interimResults = false;
     maxAlternatives = 1;
-    lang = "en-US";
+    lang = 'en-US';
     onstart: ((event: any) => void) | null = null;
     onresult: ((event: any) => void) | null = null;
     onerror: ((event: any) => void) | null = null;
     onend: ((event: any) => void) | null = null;
 
     start() {
-      if (this.onstart) this.onstart({});
+      if (this.onstart) {
+        this.onstart({});
+      }
     }
 
     stop() {
-      if (this.onend) this.onend({});
+      if (this.onend) {
+        this.onend({});
+      }
     }
 
     abort() {
-      if (this.onend) this.onend({});
+      if (this.onend) {
+        this.onend({});
+      }
     }
   },
 });
 
-Object.defineProperty(window, "webkitSpeechRecognition", {
+// Set up webkit prefix for browsers that use it
+Object.defineProperty(window, 'webkitSpeechRecognition', {
   writable: true,
-  value: window.SpeechRecognition,
+  value: (window as any).SpeechRecognition,
 });
 
 // Mock speechSynthesis for voice testing
-Object.defineProperty(window, "speechSynthesis", {
+Object.defineProperty(window, 'speechSynthesis', {
   writable: true,
   value: {
     getVoices: () => [],
@@ -61,11 +68,11 @@ Object.defineProperty(window, "speechSynthesis", {
 });
 
 // Mock SpeechSynthesisUtterance
-Object.defineProperty(window, "SpeechSynthesisUtterance", {
+Object.defineProperty(window, 'SpeechSynthesisUtterance', {
   writable: true,
   value: class MockSpeechSynthesisUtterance {
-    text = "";
-    lang = "en-US";
+    text = '';
+    lang = 'en-US';
     voice: SpeechSynthesisVoice | null = null;
     volume = 1;
     rate = 1;
@@ -79,13 +86,13 @@ Object.defineProperty(window, "SpeechSynthesisUtterance", {
     onboundary: ((event: any) => void) | null = null;
 
     constructor(text?: string) {
-      this.text = text || "";
+      this.text = text || '';
     }
   },
 });
 
 // Mock localStorage
-Object.defineProperty(window, "localStorage", {
+Object.defineProperty(window, 'localStorage', {
   value: (() => {
     const store: Record<string, string> = {};
     return {

@@ -1,43 +1,42 @@
-import React from "react";
-import { Monitor, Moon, Sun, Palette, Shield } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Monitor, Moon, Palette, Shield, Sun } from 'lucide-react';
+import React from 'react';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { useTheme } from "@/contexts/ThemeContext";
-import { useLanguage } from "@/contexts/LanguageContext";
+} from '@/components/ui/dropdown-menu';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export function ThemeSelector() {
   const { theme, setTheme } = useTheme();
-  const { translations } = useLanguage();
+  const { translations: _translations } = useLanguage();
 
   const themes = [
     {
-      value: "light" as const,
-      label: "Light",
+      value: 'light' as const,
+      label: 'Light',
       icon: Sun,
     },
     {
-      value: "dark" as const,
-      label: "Dark",
+      value: 'dark' as const,
+      label: 'Dark',
       icon: Moon,
     },
     {
-      value: "rainbow" as const,
-      label: "Rainbow",
+      value: 'rainbow' as const,
+      label: 'Rainbow',
       icon: Palette,
     },
     {
-      value: "nato" as const,
-      label: "NATO",
+      value: 'nato' as const,
+      label: 'NATO',
       icon: Shield,
     },
     {
-      value: "system" as const,
-      label: "System",
+      value: 'system' as const,
+      label: 'System',
       icon: Monitor,
     },
   ];
@@ -67,7 +66,7 @@ export function ThemeSelector() {
               key={themeOption.value}
               onClick={() => setTheme(themeOption.value)}
               className={`flex items-center space-x-2 ${
-                theme === themeOption.value ? "bg-accent" : ""
+                theme === themeOption.value ? 'bg-accent' : ''
               }`}
             >
               <Icon className="h-4 w-4" />

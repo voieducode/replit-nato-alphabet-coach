@@ -1,16 +1,17 @@
-import { useState } from "react";
-import { Copy, X, Play, Square, Info } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/hooks/use-toast";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { natoAlphabet, convertToNATO } from "@/lib/nato-alphabet";
-import { getVoiceSettings, type VoiceType } from "@/lib/voice-selector";
+import type { VoiceType } from '@/lib/voice-selector';
+import { Copy, Info, Play, Square, X } from 'lucide-react';
+import { useState } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Textarea } from '@/components/ui/textarea';
+import { useLanguage } from '@/hooks/use-language';
+import { useToast } from '@/hooks/use-toast';
+import { convertToNATO, natoAlphabet } from '@/lib/nato-alphabet';
+import { getVoiceSettings } from '@/lib/voice-selector';
 
 export default function ConverterSection() {
-  const [inputText, setInputText] = useState("");
+  const [inputText, setInputText] = useState('');
   const [showFullReference, setShowFullReference] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const { toast } = useToast();
@@ -19,18 +20,19 @@ export default function ConverterSection() {
   const convertedText = convertToNATO(inputText);
 
   const handleCopy = async () => {
-    const natoText = convertedText.map((item) => item.nato).join(" ");
+    const natoText = convertedText.map((item) => item.nato).join(' ');
     try {
       await navigator.clipboard.writeText(natoText);
       toast({
         title: translations.copied,
-        description: "NATO alphabet text copied to clipboard",
+        description: 'NATO alphabet text copied to clipboard',
       });
-    } catch (error) {
+    } catch (_error) {
+      console.error('Failed to copy text: ', _error);
       toast({
         title: translations.copyFailed,
-        description: "Unable to copy to clipboard",
-        variant: "destructive",
+        description: 'Unable to copy to clipboard',
+        variant: 'destructive',
       });
     }
   };
@@ -42,14 +44,14 @@ export default function ConverterSection() {
       return;
     }
 
-    const natoText = convertedText.map((item) => item.nato).join(", ");
-    if (natoText && "speechSynthesis" in window) {
+    const natoText = convertedText.map((item) => item.nato).join(', ');
+    if (natoText && 'speechSynthesis' in window) {
       setIsPlaying(true);
       const utterance = new SpeechSynthesisUtterance(natoText);
 
       // Get voice preference from localStorage
-      const voiceType = (localStorage.getItem("tts-voice") ||
-        "female") as VoiceType;
+      const voiceType = (localStorage.getItem('tts-voice') ||
+        'female') as VoiceType;
 
       // Use the improved voice selection system
       const voiceSettings = getVoiceSettings(voiceType);
@@ -69,13 +71,13 @@ export default function ConverterSection() {
     } else {
       toast({
         title: translations.speechNotAvailable,
-        description: "Text-to-speech is not supported in your browser",
-        variant: "destructive",
+        description: 'Text-to-speech is not supported in your browser',
+        variant: 'destructive',
       });
     }
   };
 
-  const quickReferenceLetters = ["A", "B", "C", "D", "E", "F", "G", "H"];
+  const quickReferenceLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 
   return (
     <div className="p-4 space-y-6">
@@ -100,7 +102,7 @@ export default function ConverterSection() {
               variant="ghost"
               size="icon"
               className="absolute bottom-3 right-3 p-2 text-gray-400 hover:text-gray-600"
-              onClick={() => setInputText("")}
+              onClick={() => setInputText('')}
             >
               <X className="h-4 w-4" />
             </Button>
@@ -132,21 +134,23 @@ export default function ConverterSection() {
               {/* Display converted NATO letters */}
               {convertedText.map((item, index) => (
                 <Badge
-                  key={`converted-${index}`}
+                  // eslint-disable-next-line react/no-array-index-key
+                  key={`${item.char}-${index}`}
                   variant="secondary"
                   className="px-3 py-1 text-sm font-medium bg-blue-100 text-blue-800 border border-blue-200"
                 >
                   {item.nato}
                 </Badge>
               ))}
-              
+
               {/* Display numbers and special characters that were filtered out */}
-              {inputText.split("").map((char, index) => {
+              {inputText.split('').map((char, index) => {
                 const upperChar = char.toUpperCase();
                 // Only show characters that were filtered out (not letters or spaces)
                 if (!/[A-Z ]/.test(upperChar)) {
                   return (
                     <Badge
+                      // eslint-disable-next-line react/no-array-index-key
                       key={`special-${index}`}
                       variant="secondary"
                       className="px-3 py-1 text-sm font-medium bg-blue-100 text-blue-800 border border-blue-200"

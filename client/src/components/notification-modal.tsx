@@ -1,11 +1,11 @@
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { X, Bell, Trophy, TrendingUp } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { queryClient } from "@/lib/queryClient";
-import { useLanguage } from "@/contexts/LanguageContext";
-import type { Notification } from "@shared/schema";
+import type { Notification } from '@shared/schema';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { Bell, TrendingUp, Trophy, X } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { queryClient } from '@/lib/queryClient';
 
 interface NotificationModalProps {
   isOpen: boolean;
@@ -29,10 +29,12 @@ export default function NotificationModal({
       const response = await fetch(
         `/api/notifications/${notificationId}/read`,
         {
-          method: "PATCH",
+          method: 'PATCH',
         }
       );
-      if (!response.ok) throw new Error("Failed to mark notification as read");
+      if (!response.ok) {
+        throw new Error('Failed to mark notification as read');
+      }
       return response.json();
     },
     onSuccess: () => {
@@ -47,11 +49,11 @@ export default function NotificationModal({
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
-      case "daily_reminder":
+      case 'daily_reminder':
         return <Bell className="text-orange-500 h-5 w-5" />;
-      case "achievement":
+      case 'achievement':
         return <Trophy className="text-yellow-500 h-5 w-5" />;
-      case "progress":
+      case 'progress':
         return <TrendingUp className="text-blue-500 h-5 w-5" />;
       default:
         return <Bell className="text-gray-500 h-5 w-5" />;
@@ -60,14 +62,14 @@ export default function NotificationModal({
 
   const getNotificationBgColor = (type: string) => {
     switch (type) {
-      case "daily_reminder":
-        return "bg-orange-50 border-orange-100";
-      case "achievement":
-        return "bg-yellow-50 border-yellow-100";
-      case "progress":
-        return "bg-blue-50 border-blue-100";
+      case 'daily_reminder':
+        return 'bg-orange-50 border-orange-100';
+      case 'achievement':
+        return 'bg-yellow-50 border-yellow-100';
+      case 'progress':
+        return 'bg-blue-50 border-blue-100';
       default:
-        return "bg-gray-50 border-gray-100";
+        return 'bg-gray-50 border-gray-100';
     }
   };
 
@@ -77,12 +79,20 @@ export default function NotificationModal({
       (now.getTime() - new Date(date).getTime()) / (1000 * 60 * 60)
     );
 
-    if (diffInHours < 1) return "Just now";
-    if (diffInHours === 1) return "1 hour ago";
-    if (diffInHours < 24) return `${diffInHours} hours ago`;
+    if (diffInHours < 1) {
+      return 'Just now';
+    }
+    if (diffInHours === 1) {
+      return '1 hour ago';
+    }
+    if (diffInHours < 24) {
+      return `${diffInHours} hours ago`;
+    }
 
     const diffInDays = Math.floor(diffInHours / 24);
-    if (diffInDays === 1) return "1 day ago";
+    if (diffInDays === 1) {
+      return '1 day ago';
+    }
     return `${diffInDays} days ago`;
   };
 
@@ -92,7 +102,9 @@ export default function NotificationModal({
     }
   };
 
-  if (!isOpen) return null;
+  if (!isOpen) {
+    return null;
+  }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end">
@@ -137,7 +149,7 @@ export default function NotificationModal({
               <Card
                 key={notification.id}
                 className={`cursor-pointer transition-all hover:shadow-md ${getNotificationBgColor(notification.type)} ${
-                  !notification.isRead ? "border-l-4 border-l-primary" : ""
+                  !notification.isRead ? 'border-l-4 border-l-primary' : ''
                 }`}
                 onClick={() => handleNotificationClick(notification)}
               >

@@ -1,30 +1,30 @@
 export const natoAlphabet: Record<string, string> = {
-  A: "Alpha",
-  B: "Bravo",
-  C: "Charlie",
-  D: "Delta",
-  E: "Echo",
-  F: "Foxtrot",
-  G: "Golf",
-  H: "Hotel",
-  I: "India",
-  J: "Juliet",
-  K: "Kilo",
-  L: "Lima",
-  M: "Mike",
-  N: "November",
-  O: "Oscar",
-  P: "Papa",
-  Q: "Quebec",
-  R: "Romeo",
-  S: "Sierra",
-  T: "Tango",
-  U: "Uniform",
-  V: "Victor",
-  W: "Whiskey",
-  X: "X-ray",
-  Y: "Yankee",
-  Z: "Zulu",
+  A: 'Alpha',
+  B: 'Bravo',
+  C: 'Charlie',
+  D: 'Delta',
+  E: 'Echo',
+  F: 'Foxtrot',
+  G: 'Golf',
+  H: 'Hotel',
+  I: 'India',
+  J: 'Juliet',
+  K: 'Kilo',
+  L: 'Lima',
+  M: 'Mike',
+  N: 'November',
+  O: 'Oscar',
+  P: 'Papa',
+  Q: 'Quebec',
+  R: 'Romeo',
+  S: 'Sierra',
+  T: 'Tango',
+  U: 'Uniform',
+  V: 'Victor',
+  W: 'Whiskey',
+  X: 'X-ray',
+  Y: 'Yankee',
+  Z: 'Zulu',
 };
 
 export interface ConvertedLetter {
@@ -35,12 +35,12 @@ export interface ConvertedLetter {
 export function convertToNATO(text: string): ConvertedLetter[] {
   return text
     .toUpperCase()
-    .split("")
+    .split('')
     .map((char) => {
       if (natoAlphabet[char]) {
         return { char, nato: natoAlphabet[char] };
-      } else if (char === " ") {
-        return { char: " ", nato: "SPACE" };
+      } else if (char === ' ') {
+        return { char: ' ', nato: 'SPACE' };
       } else {
         // Filter out numbers and special characters
         return null;

@@ -1,45 +1,45 @@
-import { useState } from "react";
-import { Settings, Volume2, Bell, Globe } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import type { VoiceType } from '@/lib/voice-selector';
+import { Bell, Globe, Palette, Settings, Volume2 } from 'lucide-react';
+import { useState } from 'react';
+import { ThemeSelector } from '@/components/theme-selector';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import { Badge } from "@/components/ui/badge";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { Palette } from "lucide-react";
-import { ThemeSelector } from "@/components/theme-selector";
-import { getVoiceSettings, type VoiceType } from "@/lib/voice-selector";
+} from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { getVoiceSettings } from '@/lib/voice-selector';
 
 export default function SettingsSection() {
   const [ttsVoice, setTtsVoice] = useState(
-    localStorage.getItem("tts-voice") || "female"
+    localStorage.getItem('tts-voice') || 'female'
   );
   const [notificationsEnabled, setNotificationsEnabled] = useState(() => {
-    const stored = localStorage.getItem("notifications-enabled");
-    return stored === "true";
+    const stored = localStorage.getItem('notifications-enabled');
+    return stored === 'true';
   });
   const { language, translations, setLanguage } = useLanguage();
 
   const handleVoiceChange = (value: string) => {
     setTtsVoice(value);
-    localStorage.setItem("tts-voice", value);
+    localStorage.setItem('tts-voice', value);
   };
 
   const handleNotificationToggle = async (enabled: boolean) => {
     // Always update the local state first
     setNotificationsEnabled(enabled);
-    localStorage.setItem("notifications-enabled", enabled.toString());
+    localStorage.setItem('notifications-enabled', enabled.toString());
 
     if (enabled) {
       // Check if notifications are supported
-      if (!("Notification" in window)) {
-        console.log("Notifications not supported by browser");
+      if (!('Notification' in window)) {
+        console.error('Notifications not supported by browser');
         return;
       }
 
@@ -47,24 +47,24 @@ export default function SettingsSection() {
       let permission = Notification.permission;
 
       // If permission is default, request it
-      if (permission === "default") {
+      if (permission === 'default') {
         try {
           permission = await Notification.requestPermission();
         } catch (error) {
-          console.log("Error requesting notification permission:", error);
+          console.error('Error requesting notification permission:', error);
           return;
         }
       }
 
-      if (permission === "granted") {
-        console.log("Notifications enabled and permission granted");
+      if (permission === 'granted') {
+        console.warn('Notifications enabled and permission granted');
       } else {
-        console.log(
-          "Notifications enabled but permission denied - user can still enable manually in browser settings"
+        console.warn(
+          'Notifications enabled but permission denied - user can still enable manually in browser settings'
         );
       }
     } else {
-      console.log("Notifications disabled");
+      console.warn('Notifications disabled');
     }
   };
 
@@ -73,13 +73,13 @@ export default function SettingsSection() {
   };
 
   const languages = [
-    { code: "en", name: "English", flag: "🇺🇸" },
-    { code: "fr", name: "Français", flag: "🇫🇷" },
-    { code: "es", name: "Español", flag: "🇪🇸" },
-    { code: "de", name: "Deutsch", flag: "🇩🇪" },
-    { code: "ar", name: "العربية", flag: "🇸🇦" },
-    { code: "sw", name: "Kiswahili", flag: "🇰🇪" },
-    { code: "zh", name: "中文", flag: "🇨🇳" },
+    { code: 'en', name: 'English', flag: '🇺🇸' },
+    { code: 'fr', name: 'Français', flag: '🇫🇷' },
+    { code: 'es', name: 'Español', flag: '🇪🇸' },
+    { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
+    { code: 'ar', name: 'العربية', flag: '🇸🇦' },
+    { code: 'sw', name: 'Kiswahili', flag: '🇰🇪' },
+    { code: 'zh', name: '中文', flag: '🇨🇳' },
   ];
 
   return (
@@ -128,7 +128,7 @@ export default function SettingsSection() {
               size="sm"
               onClick={() => {
                 const utterance = new SpeechSynthesisUtterance(
-                  "Alpha Bravo Charlie"
+                  'Alpha Bravo Charlie'
                 );
 
                 // Use the improved voice selection system
@@ -191,17 +191,17 @@ export default function SettingsSection() {
           <div className="flex items-center space-x-3 mb-4">
             <Palette className="h-5 w-5 text-primary" />
             <h3 className="font-semibold text-gray-800">
-              {translations.theme || "Theme"}
+              {translations.theme || 'Theme'}
             </h3>
           </div>
 
           <div className="flex items-center justify-between">
             <div>
               <p className="font-medium text-gray-800">
-                {translations.appearance || "Appearance"}
+                {translations.appearance || 'Appearance'}
               </p>
               <p className="text-sm text-gray-600">
-                {translations.chooseTheme || "Choose your preferred theme"}
+                {translations.chooseTheme || 'Choose your preferred theme'}
               </p>
             </div>
             <ThemeSelector />
@@ -245,7 +245,7 @@ export default function SettingsSection() {
               {languages.map((lang) => (
                 <Badge
                   key={lang.code}
-                  variant={language === lang.code ? "default" : "outline"}
+                  variant={language === lang.code ? 'default' : 'outline'}
                   className="cursor-pointer"
                   onClick={() => handleLanguageChange(lang.code)}
                 >
