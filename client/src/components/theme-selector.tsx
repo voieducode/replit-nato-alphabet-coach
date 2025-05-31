@@ -7,7 +7,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { useLanguage } from '@/hooks/use-language';
+import { useTheme } from '@/contexts/theme-context';
 
 export function ThemeSelector() {
   const { theme, setTheme } = useTheme();
