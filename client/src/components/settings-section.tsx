@@ -6,6 +6,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Palette } from "lucide-react";
+import { ThemeSelector } from "@/components/theme-selector";
 
 export default function SettingsSection() {
   const [ttsVoice, setTtsVoice] = useState(localStorage.getItem('tts-voice') || 'female');
@@ -24,7 +26,7 @@ export default function SettingsSection() {
     // Always update the local state first
     setNotificationsEnabled(enabled);
     localStorage.setItem('notifications-enabled', enabled.toString());
-    
+
     if (enabled) {
       // Check if notifications are supported
       if (!('Notification' in window)) {
@@ -34,7 +36,7 @@ export default function SettingsSection() {
 
       // Check current permission
       let permission = Notification.permission;
-      
+
       // If permission is default, request it
       if (permission === 'default') {
         try {
@@ -44,7 +46,7 @@ export default function SettingsSection() {
           return;
         }
       }
-      
+
       if (permission === 'granted') {
         console.log('Notifications enabled and permission granted');
       } else {
@@ -84,7 +86,7 @@ export default function SettingsSection() {
             <Volume2 className="h-5 w-5 text-primary" />
             <h3 className="font-semibold text-gray-800">{translations.voiceSettings}</h3>
           </div>
-          
+
           <div className="space-y-3">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -101,19 +103,19 @@ export default function SettingsSection() {
                 </SelectContent>
               </Select>
             </div>
-            
+
             <Button 
               variant="outline" 
               size="sm"
               onClick={() => {
                 const utterance = new SpeechSynthesisUtterance("Alpha Bravo Charlie");
                 utterance.rate = 0.8;
-                
+
                 if (ttsVoice === 'robot') {
                   utterance.pitch = 0.3;
                   utterance.rate = 0.6;
                 }
-                
+
                 speechSynthesis.speak(utterance);
               }}
             >
@@ -130,7 +132,7 @@ export default function SettingsSection() {
             <Bell className="h-5 w-5 text-primary" />
             <h3 className="font-semibold text-gray-800">{translations.notifications}</h3>
           </div>
-          
+
           <div className="flex items-center justify-between">
             <div>
               <p className="font-medium text-gray-800">{translations.spacedRepetitionReminders}</p>
@@ -141,7 +143,7 @@ export default function SettingsSection() {
               onCheckedChange={handleNotificationToggle}
             />
           </div>
-          
+
           {notificationsEnabled && (
             <div className="mt-3 p-3 bg-green-50 rounded-lg border border-green-200">
               <p className="text-sm text-green-800">
@@ -151,6 +153,25 @@ export default function SettingsSection() {
           )}
         </CardContent>
       </Card>
+       {/* Theme Settings */}
+       <Card className="bg-white shadow-material border border-gray-100">
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-3 mb-4">
+              <Palette className="h-5 w-5 text-primary" />
+              <h3 className="font-semibold text-gray-800">{translations.theme || 'Theme'}</h3>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium text-gray-800">{translations.appearance || 'Appearance'}</p>
+                <p className="text-sm text-gray-600">
+                  {translations.chooseTheme || 'Choose your preferred theme'}
+                </p>
+              </div>
+              <ThemeSelector />
+            </div>
+          </CardContent>
+        </Card>
 
       {/* Language Settings */}
       <Card className="bg-white shadow-material border border-gray-100">
@@ -159,7 +180,7 @@ export default function SettingsSection() {
             <Globe className="h-5 w-5 text-primary" />
             <h3 className="font-semibold text-gray-800">{translations.language}</h3>
           </div>
-          
+
           <div className="space-y-3">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -181,7 +202,7 @@ export default function SettingsSection() {
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div className="flex flex-wrap gap-2">
               {languages.map((lang) => (
                 <Badge 

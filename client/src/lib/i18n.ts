@@ -159,6 +159,8 @@ export const translations: Record<string, Translations> = {
     darkTheme: 'Dark',
     rainbowTheme: 'Rainbow',
     systemTheme: 'System',
+    appearance: 'Appearance',
+    chooseTheme: 'Choose your preferred theme',
   },
   fr: {
     appName: "Entraîneur Alphabet OTAN",
@@ -257,6 +259,8 @@ export const translations: Record<string, Translations> = {
     darkTheme: 'Sombre',
     rainbowTheme: 'Arc-en-ciel',
     systemTheme: 'Système',
+     appearance: 'Apparence',
+  chooseTheme: 'Choisissez votre thème préféré',
   },
   es: {
     appName: "Entrenador Alfabeto OTAN",
@@ -356,6 +360,8 @@ export const translations: Record<string, Translations> = {
     darkTheme: 'Oscuro',
     rainbowTheme: 'Arcoíris',
     systemTheme: 'Sistema',
+     appearance: 'Apariencia',
+  chooseTheme: 'Elige tu tema preferido',
   },
   de: {
     appName: "NATO-Alphabet Trainer",
@@ -448,6 +454,14 @@ export const translations: Record<string, Translations> = {
     learning: 'Lernen',
     review: 'Wiederholen',
     mastered: 'Beherrscht',
+     // Settings
+    theme: 'Thema',
+    lightTheme: 'Hell',
+    darkTheme: 'Dunkel',
+    rainbowTheme: 'Regenbogen',
+    systemTheme: 'System',
+  appearance: 'Erscheinungsbild',
+  chooseTheme: 'Wählen Sie Ihr bevorzugtes Thema',
   },
   ar: {
     appName: "مدرب الأبجدية العسكرية",

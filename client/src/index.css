@@ -290,4 +290,9 @@ input[type="submit"] {
   .text-primary {
     text-shadow: 0 0 10px rgba(255,0,255,0.5);
   }
+
+  /* Fix card backgrounds in rainbow theme */
+  .bg-white {
+    background: hsl(var(--card)) !important;
+  }
 }
