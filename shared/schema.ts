@@ -1,57 +1,58 @@
-import { pgTable, text, serial, integer, boolean, timestamp } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
+
 import { z } from "zod";
 
-export const quizSessions = pgTable("quiz_sessions", {
-  id: serial("id").primaryKey(),
-  userId: text("user_id").notNull(),
-  score: integer("score").notNull(),
-  totalQuestions: integer("total_questions").notNull(),
-  completedAt: timestamp("completed_at").defaultNow().notNull(),
+// Base schemas for validation
+export const insertQuizSessionSchema = z.object({
+  userId: z.string(),
+  score: z.number().int().min(0),
+  totalQuestions: z.number().int().min(1),
 });
 
-export const userProgress = pgTable("user_progress", {
-  id: serial("id").primaryKey(),
-  userId: text("user_id").notNull(),
-  letter: text("letter").notNull(),
-  correctCount: integer("correct_count").notNull().default(0),
-  incorrectCount: integer("incorrect_count").notNull().default(0),
-  lastReviewed: timestamp("last_reviewed").defaultNow().notNull(),
-  nextReview: timestamp("next_review").defaultNow().notNull(),
-  difficulty: integer("difficulty").notNull().default(1), // 1-5 scale for spaced repetition
+export const insertUserProgressSchema = z.object({
+  userId: z.string(),
+  letter: z.string().length(1),
+  correctCount: z.number().int().min(0).default(0),
+  incorrectCount: z.number().int().min(0).default(0),
+  difficulty: z.number().int().min(1).max(5).default(1),
 });
 
-export const notifications = pgTable("notifications", {
-  id: serial("id").primaryKey(),
-  userId: text("user_id").notNull(),
-  type: text("type").notNull(), // 'daily_reminder', 'achievement', 'progress'
-  title: text("title").notNull(),
-  message: text("message").notNull(),
-  isRead: boolean("is_read").notNull().default(false),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+export const insertNotificationSchema = z.object({
+  userId: z.string(),
+  type: z.string(),
+  title: z.string(),
+  message: z.string(),
+  isRead: z.boolean().default(false),
 });
 
-export const insertQuizSessionSchema = createInsertSchema(quizSessions).omit({
-  id: true,
-  completedAt: true,
-});
-
-export const insertUserProgressSchema = createInsertSchema(userProgress).omit({
-  id: true,
-  lastReviewed: true,
-  nextReview: true,
-});
-
-export const insertNotificationSchema = createInsertSchema(notifications).omit({
-  id: true,
-  createdAt: true,
-});
-
+// TypeScript types
 export type InsertQuizSession = z.infer<typeof insertQuizSessionSchema>;
-export type QuizSession = typeof quizSessions.$inferSelect;
+export type QuizSession = {
+  id: number;
+  userId: string;
+  score: number;
+  totalQuestions: number;
+  completedAt: Date;
+};
 
 export type InsertUserProgress = z.infer<typeof insertUserProgressSchema>;
-export type UserProgress = typeof userProgress.$inferSelect;
+export type UserProgress = {
+  id: number;
+  userId: string;
+  letter: string;
+  correctCount: number;
+  incorrectCount: number;
+  lastReviewed: Date;
+  nextReview: Date;
+  difficulty: number;
+};
 
 export type InsertNotification = z.infer<typeof insertNotificationSchema>;
-export type Notification = typeof notifications.$inferSelect;
+export type Notification = {
+  id: number;
+  userId: string;
+  type: string;
+  title: string;
+  message: string;
+  isRead: boolean;
+  createdAt: Date;
+};
