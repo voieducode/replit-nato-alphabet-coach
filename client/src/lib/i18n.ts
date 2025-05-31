@@ -50,7 +50,6 @@ export interface Translations {
   speakAnswer: string;
   voiceInputActive: string;
   adaptiveLearning: string;
-  spacedRepetitionDescription: string;
   skipQuestion: string;
   pressEnterToSubmit: string;
   pressEscapeToSkip: string;
@@ -58,9 +57,6 @@ export interface Translations {
   notificationsPanelTitle: string;
   markAllAsRead: string;
   noNotifications: string;
-  learning: string;
-  review: string;
-  mastered: string;
   natoHints: Record<string, string>;
 }
 
@@ -125,9 +121,6 @@ export const translations: Record<string, Translations> = {
     notificationsPanelTitle: "Notifications",
     markAllAsRead: "Mark all as read",
     noNotifications: "No notifications",
-    learning: "Learning",
-    review: "Review",
-    mastered: "Mastered",
     natoHints: {
       'A': 'First letter of Greek alphabet',
       'B': 'Well done, applause!',
@@ -155,7 +148,11 @@ export const translations: Record<string, Translations> = {
       'X': 'Medical imaging',
       'Y': 'American baseball player',
       'Z': 'African warrior nation'
-    }
+    },
+    // Quiz specific
+    learning: 'Learning',
+    review: 'Review',
+    mastered: 'Mastered',
   },
   fr: {
     appName: "Entraîneur Alphabet OTAN",
@@ -209,7 +206,6 @@ export const translations: Record<string, Translations> = {
     speakAnswer: "Parlez votre réponse",
     voiceInputActive: "Écoute en cours...",
     adaptiveLearning: "Apprentissage Adaptatif",
-    spacedRepetitionDescription: "Chaque série de 10 questions s'adapte selon vos performances en utilisant la répétition espacée.",
     skipQuestion: "Passer",
     pressEnterToSubmit: "Appuyez sur Entrée pour soumettre",
     pressEscapeToSkip: "Appuyez sur Échap pour passer",
@@ -395,7 +391,6 @@ export const translations: Record<string, Translations> = {
     speakAnswer: "Sprechen Sie Ihre Antwort",
     voiceInputActive: "Zuhören...",
     adaptiveLearning: "Adaptives Lernen",
-    spacedRepetitionDescription: "Jedes Quiz-Set von 10 Fragen passt sich basierend auf Ihrer Leistung mit wiederholtem Lernen an.",
     skipQuestion: "Überspringen",
     pressEnterToSubmit: "Drücken Sie Enter zum Senden",
     pressEscapeToSkip: "Drücken Sie Escape zum Überspringen",
@@ -488,7 +483,6 @@ export const translations: Record<string, Translations> = {
     speakAnswer: "تحدث بإجابتك",
     voiceInputActive: "الاستماع...",
     adaptiveLearning: "التعلم التكيفي",
-    spacedRepetitionDescription: "كل مجموعة من 10 أسئلة تتكيف بناءً على أدائك باستخدام التكرار المتباعد.",
     skipQuestion: "تخطي",
     pressEnterToSubmit: "اضغط Enter للإرسال",
     pressEscapeToSkip: "اضغط Escape للتخطي",
@@ -523,10 +517,7 @@ export const translations: Record<string, Translations> = {
       'X': 'التصوير الطبي',
       'Y': 'لاعب بيسبول أمريكي',
       'Z': 'أمة محاربة أفريقية'
-    },
-    learning: 'تعلم',
-    review: 'مراجعة',
-    mastered: 'إتقان'
+    }
   },
   sw: {
     appName: "Mwalimu wa Herufi za NATO",
@@ -580,7 +571,6 @@ export const translations: Record<string, Translations> = {
     speakAnswer: "Sema jibu lako",
     voiceInputActive: "Inasikiliza...",
     adaptiveLearning: "Kujifunza Kinachojipatanisha",
-    spacedRepetitionDescription: "Kila seti ya maswali 10 inajipatanisha kulingana na utendaji wako kwa kutumia marudio ya nafasi.",
     skipQuestion: "Ruka",
     pressEnterToSubmit: "Bonyeza Enter kutuma",
     pressEscapeToSkip: "Bonyeza Escape kuruka",
@@ -615,10 +605,7 @@ export const translations: Record<string, Translations> = {
       'X': 'Upigaji picha wa kimatibabu',
       'Y': 'Mchezaji wa besiboli wa Marekani',
       'Z': 'Taifa la vita la Afrika'
-    },
-    learning: 'Kujifunza',
-    review: 'Kukagua',
-    mastered: 'Umeeleweka'
+    }
   },
   zh: {
     appName: "北约字母教练",
@@ -672,7 +659,6 @@ export const translations: Record<string, Translations> = {
     speakAnswer: "说出您的答案",
     voiceInputActive: "正在听...",
     adaptiveLearning: "自适应学习",
-    spacedRepetitionDescription: "每组10个问题根据您的表现使用间隔重复进行调整。",
     skipQuestion: "跳过",
     pressEnterToSubmit: "按Enter提交",
     pressEscapeToSkip: "按Escape跳过",
@@ -707,10 +693,7 @@ export const translations: Record<string, Translations> = {
       'X': '医学成像',
       'Y': '美国棒球运动员',
       'Z': '非洲战士民族'
-    },
-    learning: '学习中',
-    review: '复习',
-    mastered: '已掌握'
+    }
   }
 };
 
