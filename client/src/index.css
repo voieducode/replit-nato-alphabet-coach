@@ -82,6 +82,53 @@
   --shadow-material-lg: 0 4px 8px rgba(0, 0, 0, 0.4), 0 16px 32px rgba(139, 69, 190, 0.2);
 }
 
+/* NATO Military theme */
+.nato {
+  --background: 60 8% 12%;
+  /* Dark olive background */
+  --foreground: 60 15% 92%;
+  /* Light tan text */
+  --muted: 60 12% 18%;
+  /* Darker olive */
+  --muted-foreground: 60 12% 75%;
+  /* Muted tan */
+  --popover: 60 12% 16%;
+  /* Dark olive popover */
+  --popover-foreground: 60 15% 92%;
+  /* Light tan */
+  --card: 60 12% 16%;
+  /* Card background */
+  --card-foreground: 60 15% 92%;
+  /* Card text */
+  --border: 60 15% 25%;
+  /* Olive border */
+  --input: 60 12% 20%;
+  /* Input background */
+  --primary: 120 25% 45%;
+  /* Military green primary */
+  --primary-foreground: 60 15% 92%;
+  /* Light text on primary */
+  --secondary: 60 12% 22%;
+  /* Secondary olive */
+  --secondary-foreground: 60 15% 88%;
+  /* Secondary text */
+  --accent: 45 85% 50%;
+  /* Gold accent for NATO */
+  --accent-foreground: 60 8% 12%;
+  /* Dark text on accent */
+  --destructive: 0 70% 55%;
+  /* Military red */
+  --destructive-foreground: 60 15% 92%;
+  /* Light text */
+  --ring: 120 25% 45%;
+  /* Ring color matches primary */
+  --radius: 0.5rem;
+
+  /* NATO theme shadows with military feel */
+  --shadow-material: 0 2px 4px rgba(0, 0, 0, 0.4), 0 8px 16px rgba(34, 51, 34, 0.2);
+  --shadow-material-lg: 0 4px 8px rgba(0, 0, 0, 0.5), 0 16px 32px rgba(34, 51, 34, 0.3);
+}
+
 @layer base {
   * {
     @apply border-border;
@@ -516,4 +563,154 @@ input[type="submit"] {
     border-color: hsl(var(--primary)) !important;
     box-shadow: 0 0 0 2px rgba(139, 69, 190, 0.2) !important;
   }
+}
+
+/* NATO Military theme specific styles */
+.nato {
+
+  /* Military-style shadows */
+  .shadow-material {
+    box-shadow:
+      0 2px 4px rgba(0, 0, 0, 0.4),
+      0 8px 16px rgba(34, 51, 34, 0.2),
+      0 0 20px rgba(34, 51, 34, 0.1);
+  }
+
+  .shadow-material-lg {
+    box-shadow:
+      0 4px 8px rgba(0, 0, 0, 0.5),
+      0 16px 32px rgba(34, 51, 34, 0.3),
+      0 0 30px rgba(34, 51, 34, 0.15);
+  }
+
+  /* Military primary button styling */
+  button[class*="bg-primary"]:not(:disabled) {
+    position: relative;
+    border: 1px solid hsl(120 25% 45%);
+    background: linear-gradient(135deg, hsl(120 25% 45%) 0%, hsl(120 30% 40%) 100%);
+  }
+
+  button[class*="bg-primary"]:not(:disabled):hover {
+    box-shadow: 0 0 15px rgba(34, 51, 34, 0.4);
+    background: linear-gradient(135deg, hsl(120 30% 50%) 0%, hsl(120 35% 45%) 100%);
+  }
+
+  /* Military text styling */
+  .text-primary {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+    color: hsl(120 25% 45%) !important;
+  }
+
+  /* Card backgrounds in NATO theme */
+  .bg-white {
+    background: hsl(var(--card)) !important;
+    color: hsl(var(--card-foreground)) !important;
+  }
+
+  /* Input styling for military feel */
+  input,
+  textarea,
+  select {
+    background: hsl(var(--input)) !important;
+    color: hsl(var(--foreground)) !important;
+    border: 1px solid hsl(var(--border)) !important;
+  }
+
+  input:focus,
+  textarea:focus,
+  select:focus {
+    border-color: hsl(var(--primary)) !important;
+    box-shadow: 0 0 0 2px rgba(34, 51, 34, 0.3) !important;
+  }
+}
+
+/* NATO theme color overrides */
+.nato .bg-white,
+.nato .bg-gray-50,
+.nato .bg-blue-50 {
+  background-color: hsl(var(--card)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+.nato .border-gray-200,
+.nato .border-blue-100,
+.nato .border-blue-200 {
+  border-color: hsl(var(--border)) !important;
+}
+
+.nato .text-gray-800,
+.nato .text-gray-700,
+.nato .text-gray-500,
+.nato .text-gray-400,
+.nato .text-black,
+.nato .text-primary-foreground,
+.nato .text-card-foreground,
+.nato .text-muted-foreground {
+  color: hsl(var(--foreground)) !important;
+}
+
+.nato .bg-blue-100 {
+  background-color: #2d3b2d !important;
+  color: #a7b3a7 !important;
+}
+
+.nato .bg-yellow-100,
+.nato .bg-yellow-50 {
+  background-color: #3b3b2d !important;
+  color: #d4c078 !important;
+}
+
+.nato .bg-green-100 {
+  background-color: #1f3b1f !important;
+  color: #7fb37f !important;
+}
+
+.nato .bg-red-100 {
+  background-color: #3b2d2d !important;
+  color: #c78181 !important;
+}
+
+.nato .text-blue-800,
+.nato .text-blue-900 {
+  color: #a7b3a7 !important;
+}
+
+.nato .text-yellow-700 {
+  color: #d4c078 !important;
+}
+
+.nato .text-green-700 {
+  color: #7fb37f !important;
+}
+
+.nato .text-red-700 {
+  color: #c78181 !important;
+}
+
+.nato .bg-primary {
+  background-color: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+}
+
+.nato .bg-card {
+  background: hsl(var(--card)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+.nato .badge,
+.nato .bg-secondary {
+  background: hsl(var(--muted)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+.nato .switch[data-state="checked"] {
+  background: hsl(var(--primary)) !important;
+}
+
+.nato nav .text-gray-400 {
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+.nato nav .text-primary {
+  color: hsl(var(--primary)) !important;
 }

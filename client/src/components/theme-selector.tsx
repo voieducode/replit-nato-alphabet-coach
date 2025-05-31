@@ -1,15 +1,14 @@
-
-import React from 'react';
-import { Monitor, Moon, Sun, Palette } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import React from "react";
+import { Monitor, Moon, Sun, Palette, Shield } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useLanguage } from '@/contexts/LanguageContext';
+} from "@/components/ui/dropdown-menu";
+import { useTheme } from "@/contexts/ThemeContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export function ThemeSelector() {
   const { theme, setTheme } = useTheme();
@@ -17,28 +16,33 @@ export function ThemeSelector() {
 
   const themes = [
     {
-      value: 'light' as const,
-      label: translations.lightTheme || 'Light',
+      value: "light" as const,
+      label: "Light",
       icon: Sun,
     },
     {
-      value: 'dark' as const,
-      label: translations.darkTheme || 'Dark',
+      value: "dark" as const,
+      label: "Dark",
       icon: Moon,
     },
     {
-      value: 'rainbow' as const,
-      label: translations.rainbowTheme || 'Rainbow',
+      value: "rainbow" as const,
+      label: "Rainbow",
       icon: Palette,
     },
     {
-      value: 'system' as const,
-      label: translations.systemTheme || 'System',
+      value: "nato" as const,
+      label: "NATO",
+      icon: Shield,
+    },
+    {
+      value: "system" as const,
+      label: "System",
       icon: Monitor,
     },
   ];
 
-  const currentTheme = themes.find(t => t.value === theme);
+  const currentTheme = themes.find((t) => t.value === theme);
   const CurrentIcon = currentTheme?.icon || Monitor;
 
   return (
@@ -63,7 +67,7 @@ export function ThemeSelector() {
               key={themeOption.value}
               onClick={() => setTheme(themeOption.value)}
               className={`flex items-center space-x-2 ${
-                theme === themeOption.value ? 'bg-accent' : ''
+                theme === themeOption.value ? "bg-accent" : ""
               }`}
             >
               <Icon className="h-4 w-4" />
