@@ -228,14 +228,38 @@ input[type="submit"] {
 }
 
 /* Dark theme text fixes */
-.dark label,
-.dark p,
-.dark h1,
-.dark h2,
-.dark h3,
-.dark span:not(.text-white):not(.text-primary-foreground),
-.dark div:not(.bg-primary):not(.bg-white) {
+.dark .bg-white,
+.dark .bg-gray-50 {
+  background-color: #1f2937 !important;
   color: #f9fafb !important;
+}
+
+.dark .bg-white label,
+.dark .bg-white p,
+.dark .bg-white h1,
+.dark .bg-white h2,
+.dark .bg-white h3,
+.dark .bg-white span,
+.dark .bg-white div,
+.dark .bg-gray-50 label,
+.dark .bg-gray-50 p,
+.dark .bg-gray-50 h1,
+.dark .bg-gray-50 h2,
+.dark .bg-gray-50 h3,
+.dark .bg-gray-50 span,
+.dark .bg-gray-50 div {
+  color: #f9fafb !important;
+}
+
+/* For sections without explicit backgrounds in dark mode */
+.dark main > div > div:not([class*="bg-"]) label,
+.dark main > div > div:not([class*="bg-"]) p,
+.dark main > div > div:not([class*="bg-"]) h1,
+.dark main > div > div:not([class*="bg-"]) h2,
+.dark main > div > div:not([class*="bg-"]) h3,
+.dark main > div > div:not([class*="bg-"]) span:not(.text-white):not(.text-primary-foreground),
+.dark main > div > div:not([class*="bg-"]) div:not(.bg-primary) {
+  color: #111827 !important;
 }
 
 .dark .text-gray-500 {
@@ -244,16 +268,6 @@ input[type="submit"] {
 
 .dark .text-gray-400 {
   color: #9ca3af !important;
-}
-
-.dark .bg-white {
-  background-color: #1f2937 !important;
-  color: #f9fafb !important;
-}
-
-.dark .bg-gray-50 {
-  background-color: #374151 !important;
-  color: #f9fafb !important;
 }
 
 .dark .border-gray-200 {
