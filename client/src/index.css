@@ -228,20 +228,21 @@ input[type="submit"] {
 }
 
 /* Ensure good text contrast in all themes */
-.rainbow * {
-  color: inherit !important;
-}
-
-.rainbow .text-gray-500 {
-  color: #4b5563 !important;
+.rainbow .text-gray-500,
+.rainbow .text-gray-600,
+.rainbow .text-gray-700 {
+  color: #1f2937 !important;
+  font-weight: 500 !important;
 }
 
 .rainbow .text-gray-400 {
-  color: #6b7280 !important;
+  color: #374151 !important;
+  font-weight: 500 !important;
 }
 
 .rainbow .bg-white {
   background-color: rgba(255, 255, 255, 0.98) !important;
+  color: #111827 !important;
 }
 
 .rainbow .bg-primary {
@@ -251,6 +252,56 @@ input[type="submit"] {
 
 .rainbow .text-primary-foreground {
   color: white !important;
+}
+
+.rainbow .text-black {
+  color: #111827 !important;
+}
+
+.rainbow .text-muted-foreground {
+  color: #374151 !important;
+  font-weight: 500 !important;
+}
+
+.rainbow p,
+.rainbow span,
+.rainbow div {
+  color: #111827 !important;
+}
+
+.rainbow .text-white {
+  color: white !important;
+}
+
+/* Specific fixes for quiz and reference sections */
+.rainbow .grid div,
+.rainbow .space-y-2 div,
+.rainbow .space-y-3 div,
+.rainbow .flex div,
+.rainbow .text-center p,
+.rainbow .font-mono,
+.rainbow .font-semibold,
+.rainbow .font-medium {
+  color: #111827 !important;
+}
+
+.rainbow button span,
+.rainbow .relative span {
+  color: inherit !important;
+}
+
+.rainbow .text-xs {
+  color: #374151 !important;
+  font-weight: 600 !important;
+}
+
+.rainbow .bg-gray-50 {
+  background-color: rgba(249, 250, 251, 0.95) !important;
+  color: #111827 !important;
+}
+
+.rainbow .border-gray-200 {
+  border-color: #d1d5db !important;
 }
 
 /* Rainbow animation */
