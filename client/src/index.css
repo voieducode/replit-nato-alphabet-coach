@@ -2,7 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
+/* Light theme (default) */
+:root,
+.light {
   --background: 0 0% 100%;
   --foreground: 20 14.3% 4.1%;
   --muted: 60 4.8% 95.9%;
@@ -29,6 +31,7 @@
   --shadow-material-lg: 0 4px 8px rgba(0,0,0,0.12), 0 16px 32px rgba(0,0,0,0.12);
 }
 
+/* Dark theme */
 .dark {
   --background: 240 10% 3.9%;
   --foreground: 0 0% 98%;
@@ -50,6 +53,38 @@
   --destructive-foreground: 0 0% 98%;
   --ring: 240 4.9% 83.9%;
   --radius: 0.5rem;
+  
+  /* Dark theme shadows */
+  --shadow-material: 0 2px 4px rgba(0,0,0,0.3), 0 8px 16px rgba(0,0,0,0.3);
+  --shadow-material-lg: 0 4px 8px rgba(0,0,0,0.4), 0 16px 32px rgba(0,0,0,0.4);
+}
+
+/* Rainbow theme */
+.rainbow {
+  --background: 270 100% 5%;
+  --foreground: 0 0% 95%;
+  --muted: 270 50% 12%;
+  --muted-foreground: 270 30% 70%;
+  --popover: 270 100% 8%;
+  --popover-foreground: 0 0% 95%;
+  --card: 270 100% 8%;
+  --card-foreground: 0 0% 95%;
+  --border: 270 50% 20%;
+  --input: 270 50% 15%;
+  --primary: 300 100% 60%; /* Vibrant magenta */
+  --primary-foreground: 0 0% 100%;
+  --secondary: 270 50% 15%;
+  --secondary-foreground: 0 0% 95%;
+  --accent: 180 100% 50%; /* Cyan accent */
+  --accent-foreground: 0 0% 10%;
+  --destructive: 0 100% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --ring: 300 100% 60%;
+  --radius: 0.5rem;
+  
+  /* Rainbow theme shadows with glow */
+  --shadow-material: 0 2px 4px rgba(255,0,255,0.2), 0 8px 16px rgba(0,255,255,0.1);
+  --shadow-material-lg: 0 4px 8px rgba(255,0,255,0.3), 0 16px 32px rgba(0,255,255,0.2);
 }
 
 @layer base {
@@ -76,6 +111,24 @@
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     background-size: 400% 400%;
     animation: gradientShift 15s ease infinite;
+  }
+
+  .rainbow body::before {
+    opacity: 0.3;
+    background: linear-gradient(
+      45deg,
+      #ff0080 0%,
+      #ff8c00 12.5%,
+      #40e0d0 25%,
+      #9370db 37.5%,
+      #00ff7f 50%,
+      #ff6347 62.5%,
+      #4169e1 75%,
+      #ff1493 87.5%,
+      #ff0080 100%
+    );
+    background-size: 800% 800%;
+    animation: rainbowShift 8s ease infinite;
   }
 }
 
@@ -174,5 +227,67 @@ input[type="submit"] {
   }
   100% {
     background-position: 0% 50%;
+  }
+}
+
+/* Rainbow animation */
+@keyframes rainbowShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  25% {
+    background-position: 100% 25%;
+  }
+  50% {
+    background-position: 0% 75%;
+  }
+  75% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Rainbow theme specific styles */
+.rainbow {
+  /* Rainbow glow for cards */
+  .shadow-material {
+    box-shadow: 
+      0 2px 4px rgba(255,0,255,0.2), 
+      0 8px 16px rgba(0,255,255,0.1),
+      0 0 20px rgba(255,0,255,0.1);
+  }
+  
+  .shadow-material-lg {
+    box-shadow: 
+      0 4px 8px rgba(255,0,255,0.3), 
+      0 16px 32px rgba(0,255,255,0.2),
+      0 0 30px rgba(255,0,255,0.15);
+  }
+
+  /* Rainbow border animation for primary elements */
+  button[class*="bg-primary"]:not(:disabled) {
+    position: relative;
+    overflow: hidden;
+  }
+
+  button[class*="bg-primary"]:not(:disabled)::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #ff0080, #ff8c00, #40e0d0, #9370db, #00ff7f, #ff6347, #4169e1, #ff1493);
+    background-size: 400% 400%;
+    border-radius: inherit;
+    z-index: -1;
+    animation: rainbowShift 3s ease infinite;
+  }
+
+  /* Glowing text for rainbow theme */
+  .text-primary {
+    text-shadow: 0 0 10px rgba(255,0,255,0.5);
   }
 }

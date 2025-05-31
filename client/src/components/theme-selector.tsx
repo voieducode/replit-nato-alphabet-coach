@@ -1,0 +1,77 @@
+
+import React from 'react';
+import { Monitor, Moon, Sun, Palette } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useLanguage } from '@/contexts/LanguageContext';
+
+export function ThemeSelector() {
+  const { theme, setTheme } = useTheme();
+  const { translations } = useLanguage();
+
+  const themes = [
+    {
+      value: 'light' as const,
+      label: translations.lightTheme || 'Light',
+      icon: Sun,
+    },
+    {
+      value: 'dark' as const,
+      label: translations.darkTheme || 'Dark',
+      icon: Moon,
+    },
+    {
+      value: 'rainbow' as const,
+      label: translations.rainbowTheme || 'Rainbow',
+      icon: Palette,
+    },
+    {
+      value: 'system' as const,
+      label: translations.systemTheme || 'System',
+      icon: Monitor,
+    },
+  ];
+
+  const currentTheme = themes.find(t => t.value === theme);
+  const CurrentIcon = currentTheme?.icon || Monitor;
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-9 px-3"
+          aria-label="Select theme"
+        >
+          <CurrentIcon className="h-4 w-4 mr-2" />
+          <span className="hidden sm:inline">{currentTheme?.label}</span>
+          <span className="sm:hidden">Theme</span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-36">
+        {themes.map((themeOption) => {
+          const Icon = themeOption.icon;
+          return (
+            <DropdownMenuItem
+              key={themeOption.value}
+              onClick={() => setTheme(themeOption.value)}
+              className={`flex items-center space-x-2 ${
+                theme === themeOption.value ? 'bg-accent' : ''
+              }`}
+            >
+              <Icon className="h-4 w-4" />
+              <span>{themeOption.label}</span>
+            </DropdownMenuItem>
+          );
+        })}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}

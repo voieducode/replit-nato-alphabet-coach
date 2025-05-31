@@ -4,6 +4,7 @@ import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { ThemeSelector } from "@/components/theme-selector";
 import ConverterSection from "@/components/converter-section";
 import QuizSection from "@/components/quiz-section";
 import SettingsSection from "@/components/settings-section";

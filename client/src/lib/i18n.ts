@@ -153,6 +153,12 @@ export const translations: Record<string, Translations> = {
     learning: 'Learning',
     review: 'Review',
     mastered: 'Mastered',
+    // Settings
+    theme: 'Theme',
+    lightTheme: 'Light',
+    darkTheme: 'Dark',
+    rainbowTheme: 'Rainbow',
+    systemTheme: 'System',
   },
   fr: {
     appName: "Entraîneur Alphabet OTAN",
@@ -245,6 +251,12 @@ export const translations: Record<string, Translations> = {
     learning: 'Apprentissage',
     review: 'Révision',
     mastered: 'Maîtrisé',
+    // Settings
+    theme: 'Thème',
+    lightTheme: 'Clair',
+    darkTheme: 'Sombre',
+    rainbowTheme: 'Arc-en-ciel',
+    systemTheme: 'Système',
   },
   es: {
     appName: "Entrenador Alfabeto OTAN",
@@ -338,6 +350,12 @@ export const translations: Record<string, Translations> = {
     learning: 'Aprendiendo',
     review: 'Repaso',
     mastered: 'Dominado',
+     // Settings
+    theme: 'Tema',
+    lightTheme: 'Claro',
+    darkTheme: 'Oscuro',
+    rainbowTheme: 'Arcoíris',
+    systemTheme: 'Sistema',
   },
   de: {
     appName: "NATO-Alphabet Trainer",
