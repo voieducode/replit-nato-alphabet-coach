@@ -33,58 +33,58 @@
 
 /* Dark theme */
 .dark {
-  --background: 240 10% 3.9%;
-  --foreground: 0 0% 98%;
-  --muted: 240 3.7% 15.9%;
-  --muted-foreground: 240 5% 64.9%;
-  --popover: 240 10% 3.9%;
-  --popover-foreground: 0 0% 98%;
-  --card: 240 10% 3.9%;
-  --card-foreground: 0 0% 98%;
-  --border: 240 3.7% 15.9%;
-  --input: 240 3.7% 15.9%;
-  --primary: 207 90% 54%;
-  --primary-foreground: 211 100% 99%;
-  --secondary: 240 3.7% 15.9%;
-  --secondary-foreground: 0 0% 98%;
-  --accent: 240 3.7% 15.9%;
-  --accent-foreground: 0 0% 98%;
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 0 0% 98%;
-  --ring: 240 4.9% 83.9%;
+  --background: 240 10% 8%;
+  --foreground: 0 0% 95%;
+  --muted: 240 4% 20%;
+  --muted-foreground: 240 5% 75%;
+  --popover: 240 10% 12%;
+  --popover-foreground: 0 0% 95%;
+  --card: 240 10% 12%;
+  --card-foreground: 0 0% 95%;
+  --border: 240 4% 25%;
+  --input: 240 4% 18%;
+  --primary: 207 90% 65%;
+  --primary-foreground: 240 10% 8%;
+  --secondary: 240 4% 22%;
+  --secondary-foreground: 0 0% 92%;
+  --accent: 240 4% 22%;
+  --accent-foreground: 0 0% 92%;
+  --destructive: 0 75% 65%;
+  --destructive-foreground: 240 10% 8%;
+  --ring: 240 4.9% 75%;
   --radius: 0.5rem;
   
   /* Dark theme shadows */
-  --shadow-material: 0 2px 4px rgba(0,0,0,0.3), 0 8px 16px rgba(0,0,0,0.3);
-  --shadow-material-lg: 0 4px 8px rgba(0,0,0,0.4), 0 16px 32px rgba(0,0,0,0.4);
+  --shadow-material: 0 2px 4px rgba(0,0,0,0.4), 0 8px 16px rgba(0,0,0,0.3);
+  --shadow-material-lg: 0 4px 8px rgba(0,0,0,0.5), 0 16px 32px rgba(0,0,0,0.4);
 }
 
 /* Rainbow theme */
 .rainbow {
-  --background: 270 100% 5%;
-  --foreground: 0 0% 95%;
-  --muted: 270 50% 12%;
-  --muted-foreground: 270 30% 70%;
-  --popover: 270 100% 8%;
-  --popover-foreground: 0 0% 95%;
-  --card: 270 100% 8%;
-  --card-foreground: 0 0% 95%;
-  --border: 270 50% 20%;
-  --input: 270 50% 15%;
-  --primary: 300 100% 60%; /* Vibrant magenta */
-  --primary-foreground: 0 0% 100%;
-  --secondary: 270 50% 15%;
-  --secondary-foreground: 0 0% 95%;
-  --accent: 180 100% 50%; /* Cyan accent */
-  --accent-foreground: 0 0% 10%;
-  --destructive: 0 100% 60%;
-  --destructive-foreground: 0 0% 100%;
-  --ring: 300 100% 60%;
+  --background: 270 25% 12%;
+  --foreground: 0 0% 92%;
+  --muted: 270 15% 22%;
+  --muted-foreground: 270 15% 78%;
+  --popover: 270 20% 16%;
+  --popover-foreground: 0 0% 92%;
+  --card: 270 20% 16%;
+  --card-foreground: 0 0% 92%;
+  --border: 270 15% 30%;
+  --input: 270 15% 20%;
+  --primary: 280 80% 70%; /* More accessible magenta */
+  --primary-foreground: 270 25% 12%;
+  --secondary: 270 15% 25%;
+  --secondary-foreground: 0 0% 88%;
+  --accent: 180 60% 65%; /* More accessible cyan */
+  --accent-foreground: 270 25% 12%;
+  --destructive: 0 75% 70%;
+  --destructive-foreground: 270 25% 12%;
+  --ring: 280 80% 70%;
   --radius: 0.5rem;
   
-  /* Rainbow theme shadows with glow */
-  --shadow-material: 0 2px 4px rgba(255,0,255,0.2), 0 8px 16px rgba(0,255,255,0.1);
-  --shadow-material-lg: 0 4px 8px rgba(255,0,255,0.3), 0 16px 32px rgba(0,255,255,0.2);
+  /* Rainbow theme shadows with subtle glow */
+  --shadow-material: 0 2px 4px rgba(0,0,0,0.3), 0 8px 16px rgba(139, 69, 190, 0.15);
+  --shadow-material-lg: 0 4px 8px rgba(0,0,0,0.4), 0 16px 32px rgba(139, 69, 190, 0.2);
 }
 
 @layer base {
@@ -114,21 +114,17 @@
   }
 
   .rainbow body::before {
-    opacity: 0.3;
+    opacity: 0.08;
     background: linear-gradient(
-      45deg,
-      #ff0080 0%,
-      #ff8c00 12.5%,
-      #40e0d0 25%,
-      #9370db 37.5%,
-      #00ff7f 50%,
-      #ff6347 62.5%,
-      #4169e1 75%,
-      #ff1493 87.5%,
-      #ff0080 100%
+      135deg,
+      #8b45be 0%,
+      #6366f1 25%,
+      #06b6d4 50%,
+      #8b5cf6 75%,
+      #8b45be 100%
     );
-    background-size: 800% 800%;
-    animation: rainbowShift 8s ease infinite;
+    background-size: 400% 400%;
+    animation: gradientShift 20s ease infinite;
   }
 }
 
@@ -251,48 +247,51 @@ input[type="submit"] {
 
 /* Rainbow theme specific styles */
 .rainbow {
-  /* Rainbow glow for cards */
+  /* Subtle rainbow glow for cards */
   .shadow-material {
     box-shadow: 
-      0 2px 4px rgba(255,0,255,0.2), 
-      0 8px 16px rgba(0,255,255,0.1),
-      0 0 20px rgba(255,0,255,0.1);
+      0 2px 4px rgba(0,0,0,0.3), 
+      0 8px 16px rgba(139, 69, 190, 0.15),
+      0 0 20px rgba(139, 69, 190, 0.08);
   }
   
   .shadow-material-lg {
     box-shadow: 
-      0 4px 8px rgba(255,0,255,0.3), 
-      0 16px 32px rgba(0,255,255,0.2),
-      0 0 30px rgba(255,0,255,0.15);
+      0 4px 8px rgba(0,0,0,0.4), 
+      0 16px 32px rgba(139, 69, 190, 0.2),
+      0 0 30px rgba(139, 69, 190, 0.12);
   }
 
-  /* Rainbow border animation for primary elements */
+  /* Accessible rainbow border for primary elements */
   button[class*="bg-primary"]:not(:disabled) {
     position: relative;
-    overflow: hidden;
+    border: 1px solid hsl(280 80% 70%);
   }
 
-  button[class*="bg-primary"]:not(:disabled)::before {
-    content: '';
-    position: absolute;
-    top: -2px;
-    left: -2px;
-    right: -2px;
-    bottom: -2px;
-    background: linear-gradient(45deg, #ff0080, #ff8c00, #40e0d0, #9370db, #00ff7f, #ff6347, #4169e1, #ff1493);
-    background-size: 400% 400%;
-    border-radius: inherit;
-    z-index: -1;
-    animation: rainbowShift 3s ease infinite;
+  button[class*="bg-primary"]:not(:disabled):hover {
+    box-shadow: 0 0 15px rgba(139, 69, 190, 0.3);
   }
 
-  /* Glowing text for rainbow theme */
+  /* Accessible text shadows */
   .text-primary {
-    text-shadow: 0 0 10px rgba(255,0,255,0.5);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
   }
 
-  /* Fix card backgrounds in rainbow theme */
+  /* Ensure proper card backgrounds in rainbow theme */
   .bg-white {
     background: hsl(var(--card)) !important;
+    color: hsl(var(--card-foreground)) !important;
+  }
+
+  /* Improve input contrast */
+  input, textarea, select {
+    background: hsl(var(--input)) !important;
+    color: hsl(var(--foreground)) !important;
+    border: 1px solid hsl(var(--border)) !important;
+  }
+
+  input:focus, textarea:focus, select:focus {
+    border-color: hsl(var(--primary)) !important;
+    box-shadow: 0 0 0 2px rgba(139, 69, 190, 0.2) !important;
   }
 }
