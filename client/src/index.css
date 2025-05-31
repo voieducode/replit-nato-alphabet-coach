@@ -228,21 +228,18 @@ input[type="submit"] {
 }
 
 /* Ensure good text contrast in all themes */
-.rainbow .text-gray-500,
-.rainbow .text-gray-600,
-.rainbow .text-gray-700 {
-  color: #1f2937 !important;
+.rainbow .text-gray-500 {
+  color: #374151 !important;
   font-weight: 500 !important;
 }
 
 .rainbow .text-gray-400 {
-  color: #374151 !important;
+  color: #4b5563 !important;
   font-weight: 500 !important;
 }
 
 .rainbow .bg-white {
   background-color: rgba(255, 255, 255, 0.98) !important;
-  color: #111827 !important;
 }
 
 .rainbow .bg-primary {
@@ -254,54 +251,48 @@ input[type="submit"] {
   color: white !important;
 }
 
-.rainbow .text-black {
-  color: #111827 !important;
-}
-
-.rainbow .text-muted-foreground {
-  color: #374151 !important;
-  font-weight: 500 !important;
-}
-
-.rainbow p,
-.rainbow span,
-.rainbow div {
-  color: #111827 !important;
+.rainbow .text-primary {
+  color: #2563eb !important;
 }
 
 .rainbow .text-white {
   color: white !important;
 }
 
-/* Specific fixes for quiz and reference sections */
-.rainbow .grid div,
-.rainbow .space-y-2 div,
-.rainbow .space-y-3 div,
-.rainbow .flex div,
-.rainbow .text-center p,
-.rainbow .font-mono,
-.rainbow .font-semibold,
-.rainbow .font-medium {
+/* Specific fixes for quiz and reference sections only */
+.rainbow main .grid div,
+.rainbow main .space-y-2 div,
+.rainbow main .font-mono {
   color: #111827 !important;
-}
-
-.rainbow button span,
-.rainbow .relative span {
-  color: inherit !important;
-}
-
-.rainbow .text-xs {
-  color: #374151 !important;
-  font-weight: 600 !important;
 }
 
 .rainbow .bg-gray-50 {
   background-color: rgba(249, 250, 251, 0.95) !important;
-  color: #111827 !important;
 }
 
 .rainbow .border-gray-200 {
   border-color: #d1d5db !important;
+}
+
+/* Bottom navigation fixes */
+.rainbow nav .text-gray-400 {
+  color: #6b7280 !important;
+}
+
+.rainbow nav .text-primary {
+  color: #2563eb !important;
+}
+
+.rainbow nav .text-xs {
+  color: inherit !important;
+}
+
+/* Settings section fixes */
+.rainbow .space-y-6 h3,
+.rainbow .space-y-6 p,
+.rainbow .space-y-4 label,
+.rainbow .space-y-4 p {
+  color: #111827 !important;
 }
 
 /* Rainbow animation */
