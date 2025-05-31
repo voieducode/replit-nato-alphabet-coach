@@ -553,14 +553,14 @@ export default function QuizSection({ userId }: QuizSectionProps) {
         <CardContent className="p-4">
           <div className="flex items-center justify-between mb-3">
             <h2 className="font-semibold text-lg">{translations.quiz}</h2>
-            <span className="text-sm text-gray-600">
+            <span className="text-sm text-gray-400">
               {new Date().toLocaleDateString()}
             </span>
           </div>
 
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
-              <span className="text-gray-600">
+              <span className="text-gray-400">
                 {translations.learningProgress}
               </span>
               <span className="font-medium">
@@ -598,7 +598,7 @@ export default function QuizSection({ userId }: QuizSectionProps) {
               <div className="text-2xl font-bold text-primary mb-1">
                 {totalSessions}
               </div>
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-gray-400">
                 {translations.totalSessions}
               </div>
             </CardContent>
@@ -608,7 +608,7 @@ export default function QuizSection({ userId }: QuizSectionProps) {
               <div className="text-2xl font-bold text-green-600 mb-1">
                 {averageScore}%
               </div>
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-gray-400">
                 {translations.accuracy}
               </div>
             </CardContent>

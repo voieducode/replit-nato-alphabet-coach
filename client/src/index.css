@@ -86,41 +86,41 @@
 .nato {
   --background: 60 8% 12%;
   /* Dark olive background */
-  --foreground: 60 15% 92%;
-  /* Light tan text */
+  --foreground: 60 10% 96%;
+  /* High contrast light tan text */
   --muted: 60 12% 18%;
   /* Darker olive */
-  --muted-foreground: 60 12% 75%;
-  /* Muted tan */
+  --muted-foreground: 60 8% 82%;
+  /* Higher contrast muted tan */
   --popover: 60 12% 16%;
   /* Dark olive popover */
-  --popover-foreground: 60 15% 92%;
-  /* Light tan */
+  --popover-foreground: 60 10% 96%;
+  /* High contrast light tan */
   --card: 60 12% 16%;
   /* Card background */
-  --card-foreground: 60 15% 92%;
-  /* Card text */
-  --border: 60 15% 25%;
-  /* Olive border */
+  --card-foreground: 60 10% 96%;
+  /* High contrast card text */
+  --border: 60 15% 30%;
+  /* Slightly lighter olive border */
   --input: 60 12% 20%;
   /* Input background */
-  --primary: 120 25% 45%;
-  /* Military green primary */
-  --primary-foreground: 60 15% 92%;
-  /* Light text on primary */
+  --primary: 120 30% 50%;
+  /* Brighter military green primary */
+  --primary-foreground: 0 0% 100%;
+  /* Pure white text on primary */
   --secondary: 60 12% 22%;
   /* Secondary olive */
-  --secondary-foreground: 60 15% 88%;
-  /* Secondary text */
-  --accent: 45 85% 50%;
-  /* Gold accent for NATO */
+  --secondary-foreground: 60 10% 94%;
+  /* High contrast secondary text */
+  --accent: 45 90% 55%;
+  /* Brighter gold accent for NATO */
   --accent-foreground: 60 8% 12%;
   /* Dark text on accent */
-  --destructive: 0 70% 55%;
-  /* Military red */
-  --destructive-foreground: 60 15% 92%;
-  /* Light text */
-  --ring: 120 25% 45%;
+  --destructive: 0 75% 60%;
+  /* Brighter military red */
+  --destructive-foreground: 0 0% 100%;
+  /* Pure white text */
+  --ring: 120 30% 50%;
   /* Ring color matches primary */
   --radius: 0.5rem;
 
@@ -586,19 +586,19 @@ input[type="submit"] {
   /* Military primary button styling */
   button[class*="bg-primary"]:not(:disabled) {
     position: relative;
-    border: 1px solid hsl(120 25% 45%);
-    background: linear-gradient(135deg, hsl(120 25% 45%) 0%, hsl(120 30% 40%) 100%);
+    border: 1px solid hsl(120 30% 50%);
+    background: linear-gradient(135deg, hsl(120 30% 50%) 0%, hsl(120 35% 45%) 100%);
   }
 
   button[class*="bg-primary"]:not(:disabled):hover {
     box-shadow: 0 0 15px rgba(34, 51, 34, 0.4);
-    background: linear-gradient(135deg, hsl(120 30% 50%) 0%, hsl(120 35% 45%) 100%);
+    background: linear-gradient(135deg, hsl(120 35% 55%) 0%, hsl(120 40% 50%) 100%);
   }
 
-  /* Military text styling */
+  /* Military text styling with improved contrast */
   .text-primary {
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
-    color: hsl(120 25% 45%) !important;
+    color: hsl(120 30% 50%) !important;
   }
 
   /* Card backgrounds in NATO theme */
@@ -607,7 +607,7 @@ input[type="submit"] {
     color: hsl(var(--card-foreground)) !important;
   }
 
-  /* Input styling for military feel */
+  /* Input styling for military feel with improved contrast */
   input,
   textarea,
   select {
@@ -621,6 +621,28 @@ input[type="submit"] {
   select:focus {
     border-color: hsl(var(--primary)) !important;
     box-shadow: 0 0 0 2px rgba(34, 51, 34, 0.3) !important;
+  }
+
+  /* Improved text contrast for better readability */
+  .text-sm,
+  .text-xs {
+    color: hsl(var(--foreground)) !important;
+    font-weight: 500;
+    /* Slightly bolder for small text */
+  }
+
+  /* Ensure proper contrast for muted text */
+  .text-muted-foreground {
+    color: hsl(var(--muted-foreground)) !important;
+    font-weight: 500;
+  }
+
+  /* Enhanced contrast for navigation and interactive elements */
+  nav .text-gray-400,
+  .text-gray-500,
+  .text-gray-600 {
+    color: hsl(var(--muted-foreground)) !important;
+    font-weight: 500;
   }
 }
 
@@ -651,40 +673,48 @@ input[type="submit"] {
 
 .nato .bg-blue-100 {
   background-color: #2d3b2d !important;
-  color: #a7b3a7 !important;
+  color: #b8c5b8 !important;
+  /* Improved contrast */
 }
 
 .nato .bg-yellow-100,
 .nato .bg-yellow-50 {
   background-color: #3b3b2d !important;
-  color: #d4c078 !important;
+  color: #e6d088 !important;
+  /* Improved contrast */
 }
 
 .nato .bg-green-100 {
   background-color: #1f3b1f !important;
-  color: #7fb37f !important;
+  color: #8fc38f !important;
+  /* Improved contrast */
 }
 
 .nato .bg-red-100 {
   background-color: #3b2d2d !important;
-  color: #c78181 !important;
+  color: #d79191 !important;
+  /* Improved contrast */
 }
 
 .nato .text-blue-800,
 .nato .text-blue-900 {
-  color: #a7b3a7 !important;
+  color: #b8c5b8 !important;
+  /* Improved contrast */
 }
 
 .nato .text-yellow-700 {
-  color: #d4c078 !important;
+  color: #e6d088 !important;
+  /* Improved contrast */
 }
 
 .nato .text-green-700 {
-  color: #7fb37f !important;
+  color: #8fc38f !important;
+  /* Improved contrast */
 }
 
 .nato .text-red-700 {
-  color: #c78181 !important;
+  color: #d79191 !important;
+  /* Improved contrast */
 }
 
 .nato .bg-primary {
