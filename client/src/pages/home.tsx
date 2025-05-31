@@ -21,7 +21,7 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col max-w-md mx-auto bg-white shadow-lg relative">
       {/* Header */}
-      <header className="bg-primary text-primary-foreground p-4 shadow-material relative cityscape-bg">
+      <header className="bg-primary text-primary-foreground p-4 shadow-material relative cityscape-bg animate-[rotateCityscape_20s_infinite_linear]">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-semibold">{translations.appName}</h1>
           <div className="relative">
