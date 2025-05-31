@@ -18,9 +18,9 @@ export interface LocalUserProgress {
 }
 
 const STORAGE_KEYS = {
-  USER_STATS: 'nato-coach-stats',
-  USER_PROGRESS: 'nato-coach-progress',
-  SETTINGS: 'nato-coach-settings',
+  USER_STATS: "userStats",
+  USER_PROGRESS: "userProgress",
+  SETTINGS: "appSettings",
 } as const;
 
 // Stats management
@@ -30,7 +30,7 @@ export function getUserStats(): UserStats {
     try {
       return JSON.parse(stored);
     } catch (e) {
-      console.warn('Failed to parse stored stats');
+      console.warn("Failed to parse stored stats");
     }
   }
   return {
@@ -55,19 +55,24 @@ export function getUserProgressLocal(): LocalUserProgress[] {
     try {
       return JSON.parse(stored);
     } catch (e) {
-      console.warn('Failed to parse stored progress');
+      console.warn("Failed to parse stored progress");
     }
   }
   return [];
 }
 
-export function updateUserProgressLocal(letter: string, isCorrect: boolean): LocalUserProgress {
+export function updateUserProgressLocal(
+  letter: string,
+  isCorrect: boolean
+): LocalUserProgress {
   const progress = getUserProgressLocal();
-  const existing = progress.find(p => p.letter === letter);
-  
+  const existing = progress.find((p) => p.letter === letter);
+
   const now = new Date().toISOString();
-  const nextReview = new Date(Date.now() + (isCorrect ? 24 * 60 * 60 * 1000 : 4 * 60 * 60 * 1000)).toISOString();
-  
+  const nextReview = new Date(
+    Date.now() + (isCorrect ? 24 * 60 * 60 * 1000 : 4 * 60 * 60 * 1000)
+  ).toISOString();
+
   if (existing) {
     if (isCorrect) {
       existing.correctCount++;
@@ -88,34 +93,46 @@ export function updateUserProgressLocal(letter: string, isCorrect: boolean): Loc
       difficulty: isCorrect ? 2 : 1,
     });
   }
-  
+
   localStorage.setItem(STORAGE_KEYS.USER_PROGRESS, JSON.stringify(progress));
   return existing || progress[progress.length - 1];
 }
 
 // Settings management
 export interface AppSettings {
-  ttsVoice: 'female' | 'male' | 'robot';
+  ttsVoice: "female" | "male" | "robot";
   notificationsEnabled: boolean;
   language: string;
 }
 
 export function getAppSettings(): AppSettings {
+  try {
+    const stored = localStorage.getItem("appSettings");
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      return {
+        ttsVoice: parsed.ttsVoice || "female",
+        notificationsEnabled: parsed.notificationsEnabled || false,
+        language: parsed.language || "en",
+      };
+    }
+  } catch (error) {
+    // Fall through to defaults
+  }
+  
   return {
-    ttsVoice: (localStorage.getItem('tts-voice') as AppSettings['ttsVoice']) || 'female',
-    notificationsEnabled: localStorage.getItem('notifications-enabled') === 'true',
-    language: localStorage.getItem('app-language') || 'en',
+    ttsVoice: "female",
+    notificationsEnabled: false,
+    language: "en",
   };
 }
 
 export function updateAppSettings(settings: Partial<AppSettings>): void {
-  if (settings.ttsVoice) {
-    localStorage.setItem('tts-voice', settings.ttsVoice);
-  }
-  if (settings.notificationsEnabled !== undefined) {
-    localStorage.setItem('notifications-enabled', settings.notificationsEnabled.toString());
-  }
-  if (settings.language) {
-    localStorage.setItem('app-language', settings.language);
+  try {
+    const current = getAppSettings();
+    const updated = { ...current, ...settings };
+    localStorage.setItem("appSettings", JSON.stringify(updated));
+  } catch (error) {
+    // Silently fail if localStorage is not available
   }
 }

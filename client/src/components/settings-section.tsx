@@ -2,35 +2,44 @@ import { useState } from "react";
 import { Settings, Volume2, Bell, Globe } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Palette } from "lucide-react";
 import { ThemeSelector } from "@/components/theme-selector";
+import { getVoiceSettings, type VoiceType } from "@/lib/voice-selector";
 
 export default function SettingsSection() {
-  const [ttsVoice, setTtsVoice] = useState(localStorage.getItem('tts-voice') || 'female');
+  const [ttsVoice, setTtsVoice] = useState(
+    localStorage.getItem("tts-voice") || "female"
+  );
   const [notificationsEnabled, setNotificationsEnabled] = useState(() => {
-    const stored = localStorage.getItem('notifications-enabled');
-    return stored === 'true';
+    const stored = localStorage.getItem("notifications-enabled");
+    return stored === "true";
   });
   const { language, translations, setLanguage } = useLanguage();
 
   const handleVoiceChange = (value: string) => {
     setTtsVoice(value);
-    localStorage.setItem('tts-voice', value);
+    localStorage.setItem("tts-voice", value);
   };
 
   const handleNotificationToggle = async (enabled: boolean) => {
     // Always update the local state first
     setNotificationsEnabled(enabled);
-    localStorage.setItem('notifications-enabled', enabled.toString());
+    localStorage.setItem("notifications-enabled", enabled.toString());
 
     if (enabled) {
       // Check if notifications are supported
-      if (!('Notification' in window)) {
-        console.log('Notifications not supported by browser');
+      if (!("Notification" in window)) {
+        console.log("Notifications not supported by browser");
         return;
       }
 
@@ -38,22 +47,24 @@ export default function SettingsSection() {
       let permission = Notification.permission;
 
       // If permission is default, request it
-      if (permission === 'default') {
+      if (permission === "default") {
         try {
           permission = await Notification.requestPermission();
         } catch (error) {
-          console.log('Error requesting notification permission:', error);
+          console.log("Error requesting notification permission:", error);
           return;
         }
       }
 
-      if (permission === 'granted') {
-        console.log('Notifications enabled and permission granted');
+      if (permission === "granted") {
+        console.log("Notifications enabled and permission granted");
       } else {
-        console.log('Notifications enabled but permission denied - user can still enable manually in browser settings');
+        console.log(
+          "Notifications enabled but permission denied - user can still enable manually in browser settings"
+        );
       }
     } else {
-      console.log('Notifications disabled');
+      console.log("Notifications disabled");
     }
   };
 
@@ -62,13 +73,13 @@ export default function SettingsSection() {
   };
 
   const languages = [
-    { code: 'en', name: 'English', flag: '🇺🇸' },
-    { code: 'fr', name: 'Français', flag: '🇫🇷' },
-    { code: 'es', name: 'Español', flag: '🇪🇸' },
-    { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
-    { code: 'ar', name: 'العربية', flag: '🇸🇦' },
-    { code: 'sw', name: 'Kiswahili', flag: '🇰🇪' },
-    { code: 'zh', name: '中文', flag: '🇨🇳' },
+    { code: "en", name: "English", flag: "🇺🇸" },
+    { code: "fr", name: "Français", flag: "🇫🇷" },
+    { code: "es", name: "Español", flag: "🇪🇸" },
+    { code: "de", name: "Deutsch", flag: "🇩🇪" },
+    { code: "ar", name: "العربية", flag: "🇸🇦" },
+    { code: "sw", name: "Kiswahili", flag: "🇰🇪" },
+    { code: "zh", name: "中文", flag: "🇨🇳" },
   ];
 
   return (
@@ -76,7 +87,9 @@ export default function SettingsSection() {
       {/* Header */}
       <div className="flex items-center space-x-3 mb-6">
         <Settings className="h-6 w-6 text-primary" />
-        <h2 className="text-xl font-semibold text-gray-800">{translations.settings}</h2>
+        <h2 className="text-xl font-semibold text-gray-800">
+          {translations.settings}
+        </h2>
       </div>
 
       {/* Voice Settings */}
@@ -84,7 +97,9 @@ export default function SettingsSection() {
         <CardContent className="p-4">
           <div className="flex items-center space-x-3 mb-4">
             <Volume2 className="h-5 w-5 text-primary" />
-            <h3 className="font-semibold text-gray-800">{translations.voiceSettings}</h3>
+            <h3 className="font-semibold text-gray-800">
+              {translations.voiceSettings}
+            </h3>
           </div>
 
           <div className="space-y-3">
@@ -97,24 +112,35 @@ export default function SettingsSection() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="female">{translations.femaleVoice}</SelectItem>
+                  <SelectItem value="female">
+                    {translations.femaleVoice}
+                  </SelectItem>
                   <SelectItem value="male">{translations.maleVoice}</SelectItem>
-                  <SelectItem value="robot">{translations.robotVoice}</SelectItem>
+                  <SelectItem value="robot">
+                    {translations.robotVoice}
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               size="sm"
               onClick={() => {
-                const utterance = new SpeechSynthesisUtterance("Alpha Bravo Charlie");
-                utterance.rate = 0.8;
+                const utterance = new SpeechSynthesisUtterance(
+                  "Alpha Bravo Charlie"
+                );
 
-                if (ttsVoice === 'robot') {
-                  utterance.pitch = 0.3;
-                  utterance.rate = 0.6;
+                // Use the improved voice selection system
+                const voiceSettings = getVoiceSettings(ttsVoice as VoiceType);
+
+                // Apply voice and settings
+                if (voiceSettings.voice) {
+                  utterance.voice = voiceSettings.voice;
                 }
+                utterance.rate = voiceSettings.rate;
+                utterance.pitch = voiceSettings.pitch;
+                utterance.volume = voiceSettings.volume;
 
                 speechSynthesis.speak(utterance);
               }}
@@ -130,15 +156,21 @@ export default function SettingsSection() {
         <CardContent className="p-4">
           <div className="flex items-center space-x-3 mb-4">
             <Bell className="h-5 w-5 text-primary" />
-            <h3 className="font-semibold text-gray-800">{translations.notifications}</h3>
+            <h3 className="font-semibold text-gray-800">
+              {translations.notifications}
+            </h3>
           </div>
 
           <div className="flex items-center justify-between">
             <div>
-              <p className="font-medium text-gray-800">{translations.spacedRepetitionReminders}</p>
-              <p className="text-sm text-gray-600">{translations.dailyReminders}</p>
+              <p className="font-medium text-gray-800">
+                {translations.spacedRepetitionReminders}
+              </p>
+              <p className="text-sm text-gray-600">
+                {translations.dailyReminders}
+              </p>
             </div>
-            <Switch 
+            <Switch
               checked={notificationsEnabled}
               onCheckedChange={handleNotificationToggle}
             />
@@ -153,32 +185,38 @@ export default function SettingsSection() {
           )}
         </CardContent>
       </Card>
-       {/* Theme Settings */}
-       <Card className="bg-white shadow-material border border-gray-100">
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-3 mb-4">
-              <Palette className="h-5 w-5 text-primary" />
-              <h3 className="font-semibold text-gray-800">{translations.theme || 'Theme'}</h3>
-            </div>
+      {/* Theme Settings */}
+      <Card className="bg-white shadow-material border border-gray-100">
+        <CardContent className="p-4">
+          <div className="flex items-center space-x-3 mb-4">
+            <Palette className="h-5 w-5 text-primary" />
+            <h3 className="font-semibold text-gray-800">
+              {translations.theme || "Theme"}
+            </h3>
+          </div>
 
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium text-gray-800">{translations.appearance || 'Appearance'}</p>
-                <p className="text-sm text-gray-600">
-                  {translations.chooseTheme || 'Choose your preferred theme'}
-                </p>
-              </div>
-              <ThemeSelector />
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium text-gray-800">
+                {translations.appearance || "Appearance"}
+              </p>
+              <p className="text-sm text-gray-600">
+                {translations.chooseTheme || "Choose your preferred theme"}
+              </p>
             </div>
-          </CardContent>
-        </Card>
+            <ThemeSelector />
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Language Settings */}
       <Card className="bg-white shadow-material border border-gray-100">
         <CardContent className="p-4">
           <div className="flex items-center space-x-3 mb-4">
             <Globe className="h-5 w-5 text-primary" />
-            <h3 className="font-semibold text-gray-800">{translations.language}</h3>
+            <h3 className="font-semibold text-gray-800">
+              {translations.language}
+            </h3>
           </div>
 
           <div className="space-y-3">
@@ -205,7 +243,7 @@ export default function SettingsSection() {
 
             <div className="flex flex-wrap gap-2">
               {languages.map((lang) => (
-                <Badge 
+                <Badge
                   key={lang.code}
                   variant={language === lang.code ? "default" : "outline"}
                   className="cursor-pointer"
@@ -222,7 +260,9 @@ export default function SettingsSection() {
       {/* About */}
       <Card className="bg-gray-50 border border-gray-200">
         <CardContent className="p-4">
-          <h3 className="font-semibold text-gray-800 mb-2">{translations.about} {translations.appName}</h3>
+          <h3 className="font-semibold text-gray-800 mb-2">
+            {translations.about}
+          </h3>
           <p className="text-sm text-gray-600 mb-3">
             {translations.aboutDescription}
           </p>

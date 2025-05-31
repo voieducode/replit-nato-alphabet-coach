@@ -15,7 +15,7 @@ export interface QuizSet {
 
 export function calculateNextReviewDate(
   difficulty: number,
-  isCorrect: boolean,
+  isCorrect: boolean
 ): Date {
   let intervalDays: number;
 
@@ -32,12 +32,12 @@ export function calculateNextReviewDate(
 
 export function updateDifficulty(
   currentDifficulty: number,
-  isCorrect: boolean,
+  isCorrect: boolean
 ): number {
   if (isCorrect) {
-    return Math.max(1, currentDifficulty - 0.1);
-  } else {
     return Math.min(5, currentDifficulty + 0.3);
+  } else {
+    return Math.max(1, currentDifficulty - 0.1);
   }
 }
 
@@ -46,7 +46,7 @@ export function selectLetterForReview(userProgress: UserProgress[]): string {
 
   // Get letters that need review (past their next review date)
   const needReview = userProgress.filter(
-    (progress) => new Date(progress.nextReview) <= now,
+    (progress) => new Date(progress.nextReview) <= now
   );
 
   if (needReview.length > 0) {
@@ -83,7 +83,7 @@ export function selectLetterForReview(userProgress: UserProgress[]): string {
   const allLetters = getAllLetters();
   const practicedLetters = new Set(userProgress.map((p) => p.letter));
   const unpracticedLetters = allLetters.filter(
-    (letter) => !practicedLetters.has(letter),
+    (letter) => !practicedLetters.has(letter)
   );
 
   if (unpracticedLetters.length > 0) {
@@ -104,7 +104,7 @@ export function selectLetterForReview(userProgress: UserProgress[]): string {
 
 export function checkAnswerVariants(
   userAnswer: string,
-  correctAnswer: string,
+  correctAnswer: string
 ): boolean {
   const normalizedUser = userAnswer.toLowerCase().trim();
   const normalizedCorrect = correctAnswer.toLowerCase();
@@ -137,7 +137,7 @@ export function checkAnswerVariants(
 // Hints for NATO alphabet words
 export function getHintForLetter(
   letter: string,
-  natoHints?: Record<string, string>,
+  natoHints?: Record<string, string>
 ): string {
   // Default English hints for fallback
   const defaultHints: Record<string, string> = {
@@ -170,11 +170,11 @@ export function getHintForLetter(
   };
 
   const hints = natoHints || defaultHints;
-  return hints[letter.toUpperCase()] || "";
+  return hints[letter.toUpperCase()] || "No hint available";
 }
 
 export function generateQuizQuestion(
-  userProgress: UserProgress[],
+  userProgress: UserProgress[]
 ): QuizQuestion {
   const letter = selectLetterForReview(userProgress);
   const correctAnswer = getNATOWord(letter)!;
@@ -187,7 +187,7 @@ export function generateQuizQuestion(
 
 export function generateQuizSet(
   userProgress: UserProgress[],
-  setSize: number = 10,
+  setSize: number = 10
 ): QuizSet {
   const questions: QuizQuestion[] = [];
   const usedLetters = new Set<string>();
@@ -221,30 +221,43 @@ export function generateQuizSet(
 }
 
 export function getProgressStats(userProgress: UserProgress[]) {
-  return userProgress.reduce(
-    (stats, progress) => {
+  const stats = userProgress.reduce(
+    (acc, progress) => {
       const total = progress.correctCount + progress.incorrectCount;
+      acc.totalAnswers += total;
+      acc.correctAnswers += progress.correctCount;
+      
       if (total === 0) {
-        stats.unpracticed++;
-        return stats;
+        acc.unpracticed++;
+        return acc;
       }
 
       const accuracy = progress.correctCount / total;
       if (accuracy >= 0.8 && total >= 3) {
-        stats.mastered++;
+        acc.mastered++;
       } else if (accuracy >= 0.5) {
-        stats.review++;
+        acc.review++;
       } else {
-        stats.learning++;
+        acc.learning++;
       }
 
-      return stats;
+      return acc;
     },
     {
       learning: 0,
       review: 0,
       mastered: 0,
       unpracticed: 0,
-    },
+      totalAnswers: 0,
+      correctAnswers: 0,
+      accuracy: 0,
+    }
   );
+
+  // Calculate overall accuracy
+  stats.accuracy = stats.totalAnswers > 0 
+    ? Math.round((stats.correctAnswers / stats.totalAnswers) * 100)
+    : 0;
+
+  return stats;
 }

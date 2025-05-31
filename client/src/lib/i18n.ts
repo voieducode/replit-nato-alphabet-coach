@@ -30,6 +30,9 @@ export interface Translations {
   totalSessions: string;
   accuracy: string;
   learningProgress: string;
+  learning: string;
+  review: string;
+  mastered: string;
   startQuiz: string;
   nextQuestion: string;
   submitAnswer: string;
@@ -51,6 +54,7 @@ export interface Translations {
   voiceInputActive: string;
   adaptiveLearning: string;
   skipQuestion: string;
+  spacedRepetitionDescription: string;
   pressEnterToSubmit: string;
   pressEscapeToSkip: string;
   exampleAnswers: string;
@@ -58,6 +62,13 @@ export interface Translations {
   markAllAsRead: string;
   noNotifications: string;
   natoHints: Record<string, string>;
+  theme: string;
+  lightTheme: string;
+  darkTheme: string;
+  rainbowTheme: string;
+  systemTheme: string;
+  appearance: string;
+  chooseTheme: string;
 }
 
 export const translations: Record<string, Translations> = {
@@ -83,7 +94,7 @@ export const translations: Record<string, Translations> = {
     notifications: "Notifications",
     spacedRepetitionReminders: "Spaced Repetition Reminders",
     notificationDescription: "Get daily notifications to practice",
-    language: "Language",
+    language: "English",
     interfaceLanguage: "Interface Language",
     about: "About NATO Alphabet Coach",
     aboutDescription:
@@ -267,6 +278,8 @@ export const translations: Record<string, Translations> = {
     systemTheme: "Système",
     appearance: "Apparence",
     chooseTheme: "Choisissez votre thème préféré",
+    spacedRepetitionDescription:
+      "Chaque série de 10 questions s'adapte selon vos performances en utilisant la répétition espacée.",
   },
   es: {
     appName: "Entrenador Alfabeto OTAN",
@@ -473,6 +486,8 @@ export const translations: Record<string, Translations> = {
     systemTheme: "System",
     appearance: "Erscheinungsbild",
     chooseTheme: "Wählen Sie Ihr bevorzugtes Thema",
+    spacedRepetitionDescription:
+      "Jeder Satz von 10 Fragen passt sich basierend auf Ihrer Leistung mit verteilter Wiederholung an.",
   },
   ar: {
     appName: "مدرب الأبجدية العسكرية",
@@ -563,6 +578,18 @@ export const translations: Record<string, Translations> = {
       Y: "لاعب بيسبول أمريكي",
       Z: "أمة محاربة أفريقية",
     },
+    learning: "التعلم",
+    review: "المراجعة",
+    mastered: "متقن",
+    spacedRepetitionDescription:
+      "كل مجموعة من 10 أسئلة تتكيف حسب أداءك باستخدام التكرار المتباعد.",
+    theme: "السمة",
+    lightTheme: "فاتح",
+    darkTheme: "داكن",
+    rainbowTheme: "قوس قزح",
+    systemTheme: "النظام",
+    appearance: "المظهر",
+    chooseTheme: "اختر السمة المفضلة لديك",
   },
   sw: {
     appName: "Mwalimu wa Herufi za NATO",
@@ -653,6 +680,18 @@ export const translations: Record<string, Translations> = {
       Y: "Mchezaji wa besiboli wa Marekani",
       Z: "Taifa la vita la Afrika",
     },
+    learning: "Kujifunza",
+    review: "Kukagua",
+    mastered: "Umejifunza",
+    spacedRepetitionDescription:
+      "Kila seti ya maswali 10 hubadilika kulingana na utendaji wako kwa kutumia rudia kwa nafasi.",
+    theme: "Mandhari",
+    lightTheme: "Mwanga",
+    darkTheme: "Giza",
+    rainbowTheme: "Upinde wa mvua",
+    systemTheme: "Mfumo",
+    appearance: "Muonekano",
+    chooseTheme: "Chagua mandhari unayopendelea",
   },
   zh: {
     appName: "北约字母教练",
@@ -741,6 +780,18 @@ export const translations: Record<string, Translations> = {
       Y: "美国棒球运动员",
       Z: "非洲战士民族",
     },
+    learning: "学习中",
+    review: "复习",
+    mastered: "已掌握",
+    spacedRepetitionDescription:
+      "每组10道题会根据您的表现使用间隔重复进行调整。",
+    theme: "主题",
+    lightTheme: "浅色",
+    darkTheme: "深色",
+    rainbowTheme: "彩虹",
+    systemTheme: "系统",
+    appearance: "外观",
+    chooseTheme: "选择您偏好的主题",
   },
 };
 
@@ -749,9 +800,21 @@ export function getTranslations(lang: string): Translations {
 }
 
 export function getCurrentLanguage(): string {
-  return localStorage.getItem("app-language") || "en";
+  try {
+    const storedLang = localStorage.getItem("app-language");
+    if (storedLang && translations[storedLang]) {
+      return storedLang;
+    }
+    return "en";
+  } catch (error) {
+    return "en";
+  }
 }
 
 export function setCurrentLanguage(lang: string): void {
-  localStorage.setItem("app-language", lang);
+  try {
+    localStorage.setItem("app-language", lang);
+  } catch (error) {
+    // Silently fail if localStorage is not available
+  }
 }

@@ -13,7 +13,11 @@ interface NotificationModalProps {
   userId: string;
 }
 
-export default function NotificationModal({ isOpen, onClose, userId }: NotificationModalProps) {
+export default function NotificationModal({
+  isOpen,
+  onClose,
+  userId,
+}: NotificationModalProps) {
   const { translations } = useLanguage();
   const { data: notifications = [] } = useQuery<Notification[]>({
     queryKey: [`/api/notifications/${userId}`],
@@ -22,15 +26,22 @@ export default function NotificationModal({ isOpen, onClose, userId }: Notificat
 
   const markReadMutation = useMutation({
     mutationFn: async (notificationId: number) => {
-      const response = await fetch(`/api/notifications/${notificationId}/read`, {
-        method: "PATCH",
-      });
+      const response = await fetch(
+        `/api/notifications/${notificationId}/read`,
+        {
+          method: "PATCH",
+        }
+      );
       if (!response.ok) throw new Error("Failed to mark notification as read");
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/notifications/${userId}`] });
-      queryClient.invalidateQueries({ queryKey: [`/api/notifications/${userId}/unread-count`] });
+      queryClient.invalidateQueries({
+        queryKey: [`/api/notifications/${userId}`],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [`/api/notifications/${userId}/unread-count`],
+      });
     },
   });
 
@@ -62,12 +73,14 @@ export default function NotificationModal({ isOpen, onClose, userId }: Notificat
 
   const getTimeAgo = (date: Date) => {
     const now = new Date();
-    const diffInHours = Math.floor((now.getTime() - new Date(date).getTime()) / (1000 * 60 * 60));
-    
+    const diffInHours = Math.floor(
+      (now.getTime() - new Date(date).getTime()) / (1000 * 60 * 60)
+    );
+
     if (diffInHours < 1) return "Just now";
     if (diffInHours === 1) return "1 hour ago";
     if (diffInHours < 24) return `${diffInHours} hours ago`;
-    
+
     const diffInDays = Math.floor(diffInHours / 24);
     if (diffInDays === 1) return "1 day ago";
     return `${diffInDays} days ago`;
@@ -85,16 +98,18 @@ export default function NotificationModal({ isOpen, onClose, userId }: Notificat
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end">
       <div className="bg-white w-full rounded-t-lg p-4 transform transition-transform max-h-[80vh] overflow-hidden flex flex-col">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold text-lg">{translations.notificationsPanelTitle}</h3>
+          <h3 className="font-semibold text-lg">
+            {translations.notificationsPanelTitle}
+          </h3>
           <div className="flex items-center gap-2">
-            {notifications.some(n => !n.isRead) && (
+            {notifications.some((n) => !n.isRead) && (
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => {
                   notifications
-                    .filter(n => !n.isRead)
-                    .forEach(n => markReadMutation.mutate(n.id));
+                    .filter((n) => !n.isRead)
+                    .forEach((n) => markReadMutation.mutate(n.id));
                 }}
               >
                 {translations.markAllAsRead}
@@ -110,7 +125,7 @@ export default function NotificationModal({ isOpen, onClose, userId }: Notificat
             </Button>
           </div>
         </div>
-        
+
         <div className="space-y-3 overflow-y-auto flex-1">
           {notifications.length === 0 ? (
             <div className="text-center py-8 text-gray-500">

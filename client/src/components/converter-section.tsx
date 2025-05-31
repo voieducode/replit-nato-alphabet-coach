@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { natoAlphabet, convertToNATO } from "@/lib/nato-alphabet";
+import { getVoiceSettings, type VoiceType } from "@/lib/voice-selector";
 
 export default function ConverterSection() {
   const [inputText, setInputText] = useState("");
@@ -45,32 +46,21 @@ export default function ConverterSection() {
     if (natoText && "speechSynthesis" in window) {
       setIsPlaying(true);
       const utterance = new SpeechSynthesisUtterance(natoText);
-      utterance.rate = 0.8;
 
       // Get voice preference from localStorage
-      const voiceType = localStorage.getItem("tts-voice") || "female";
-      const voices = speechSynthesis.getVoices();
+      const voiceType = (localStorage.getItem("tts-voice") ||
+        "female") as VoiceType;
 
-      if (voiceType === "male") {
-        const maleVoice = voices.find(
-          (voice) =>
-            voice.name.toLowerCase().includes("male") ||
-            voice.name.toLowerCase().includes("david") ||
-            voice.name.toLowerCase().includes("mark"),
-        );
-        if (maleVoice) utterance.voice = maleVoice;
-      } else if (voiceType === "female") {
-        const femaleVoice = voices.find(
-          (voice) =>
-            voice.name.toLowerCase().includes("female") ||
-            voice.name.toLowerCase().includes("zira") ||
-            voice.name.toLowerCase().includes("samantha"),
-        );
-        if (femaleVoice) utterance.voice = femaleVoice;
-      } else if (voiceType === "robot") {
-        utterance.pitch = 0.3;
-        utterance.rate = 0.6;
+      // Use the improved voice selection system
+      const voiceSettings = getVoiceSettings(voiceType);
+
+      // Apply voice and settings
+      if (voiceSettings.voice) {
+        utterance.voice = voiceSettings.voice;
       }
+      utterance.rate = voiceSettings.rate;
+      utterance.pitch = voiceSettings.pitch;
+      utterance.volume = voiceSettings.volume;
 
       utterance.onend = () => setIsPlaying(false);
       utterance.onerror = () => setIsPlaying(false);
@@ -131,6 +121,7 @@ export default function ConverterSection() {
                 size="icon"
                 className="text-primary hover:text-primary/80"
                 onClick={handleCopy}
+                aria-label="Copy NATO alphabet to clipboard"
               >
                 <Copy className="h-4 w-4" />
               </Button>
@@ -138,15 +129,34 @@ export default function ConverterSection() {
 
             {/* NATO Output - Compact Pills */}
             <div className="flex flex-wrap gap-2">
+              {/* Display converted NATO letters */}
               {convertedText.map((item, index) => (
                 <Badge
-                  key={index}
+                  key={`converted-${index}`}
                   variant="secondary"
                   className="px-3 py-1 text-sm font-medium bg-blue-100 text-blue-800 border border-blue-200"
                 >
                   {item.nato}
                 </Badge>
               ))}
+              
+              {/* Display numbers and special characters that were filtered out */}
+              {inputText.split("").map((char, index) => {
+                const upperChar = char.toUpperCase();
+                // Only show characters that were filtered out (not letters or spaces)
+                if (!/[A-Z ]/.test(upperChar)) {
+                  return (
+                    <Badge
+                      key={`special-${index}`}
+                      variant="secondary"
+                      className="px-3 py-1 text-sm font-medium bg-blue-100 text-blue-800 border border-blue-200"
+                    >
+                      {upperChar}
+                    </Badge>
+                  );
+                }
+                return null;
+              })}
             </div>
 
             {/* Audio Control */}

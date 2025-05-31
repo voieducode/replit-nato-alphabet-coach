@@ -11,7 +11,9 @@ import SettingsSection from "@/components/settings-section";
 import NotificationModal from "@/components/notification-modal";
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<"converter" | "quiz" | "settings">("converter");
+  const [activeTab, setActiveTab] = useState<"converter" | "quiz" | "settings">(
+    "converter"
+  );
   const [showNotifications, setShowNotifications] = useState(false);
   const [userId] = useState("user-1"); // In a real app, this would come from auth
   const { translations } = useLanguage();
@@ -24,7 +26,9 @@ export default function Home() {
       {/* Header */}
       <header className="bg-primary text-primary-foreground p-4 shadow-material relative cityscape-bg">
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-semibold text-white drop-shadow-sm">{translations.appName}</h1>
+          <h1 className="text-xl font-semibold text-white drop-shadow-sm">
+            {translations.appName}
+          </h1>
           <div className="relative">
             <Button
               variant="ghost"
@@ -90,7 +94,9 @@ export default function Home() {
             onClick={() => setActiveTab("converter")}
           >
             <div className="text-lg">⇄</div>
-            <span className="text-xs font-medium">{translations.converter}</span>
+            <span className="text-xs font-medium">
+              {translations.converter}
+            </span>
           </button>
           <button
             className={`flex flex-col items-center space-y-1 ${

@@ -1,4 +1,3 @@
-
 interface QuizSession {
   id: number;
   userId: string;
@@ -35,7 +34,11 @@ class InMemoryStorage {
   private nextId = 1;
 
   // Quiz Sessions
-  async createQuizSession(data: { userId: string; score: number; totalQuestions: number }): Promise<QuizSession> {
+  async createQuizSession(data: {
+    userId: string;
+    score: number;
+    totalQuestions: number;
+  }): Promise<QuizSession> {
     const session: QuizSession = {
       id: this.nextId++,
       userId: data.userId,
@@ -48,17 +51,23 @@ class InMemoryStorage {
   }
 
   async getUserQuizSessions(userId: string): Promise<QuizSession[]> {
-    return this.quizSessions.filter(session => session.userId === userId);
+    return this.quizSessions.filter((session) => session.userId === userId);
   }
 
   // User Progress
   async getUserProgress(userId: string): Promise<UserProgress[]> {
-    return this.userProgress.filter(progress => progress.userId === userId);
+    return this.userProgress.filter((progress) => progress.userId === userId);
   }
 
-  async updateUserProgress(userId: string, letter: string, isCorrect: boolean): Promise<UserProgress> {
-    let progress = this.userProgress.find(p => p.userId === userId && p.letter === letter);
-    
+  async updateUserProgress(
+    userId: string,
+    letter: string,
+    isCorrect: boolean
+  ): Promise<UserProgress> {
+    let progress = this.userProgress.find(
+      (p) => p.userId === userId && p.letter === letter
+    );
+
     if (!progress) {
       progress = {
         id: this.nextId++,
@@ -82,17 +91,32 @@ class InMemoryStorage {
     }
 
     progress.lastReviewed = new Date();
-    progress.nextReview = new Date(Date.now() + progress.difficulty * 24 * 60 * 60 * 1000);
+    progress.nextReview = new Date(
+      Date.now() + progress.difficulty * 24 * 60 * 60 * 1000
+    );
 
     return progress;
   }
 
-  async getLetterProgress(userId: string, letter: string): Promise<UserProgress | null> {
-    return this.userProgress.find(p => p.userId === userId && p.letter === letter) || null;
+  async getLetterProgress(
+    userId: string,
+    letter: string
+  ): Promise<UserProgress | null> {
+    return (
+      this.userProgress.find(
+        (p) => p.userId === userId && p.letter === letter
+      ) || null
+    );
   }
 
   // Notifications
-  async createNotification(data: { userId: string; type: string; title: string; message: string; isRead?: boolean }): Promise<Notification> {
+  async createNotification(data: {
+    userId: string;
+    type: string;
+    title: string;
+    message: string;
+    isRead?: boolean;
+  }): Promise<Notification> {
     const notification: Notification = {
       id: this.nextId++,
       userId: data.userId,
@@ -108,19 +132,20 @@ class InMemoryStorage {
 
   async getUserNotifications(userId: string): Promise<Notification[]> {
     return this.notifications
-      .filter(notification => notification.userId === userId)
+      .filter((notification) => notification.userId === userId)
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
   }
 
   async markNotificationRead(id: number): Promise<void> {
-    const notification = this.notifications.find(n => n.id === id);
+    const notification = this.notifications.find((n) => n.id === id);
     if (notification) {
       notification.isRead = true;
     }
   }
 
   async getUnreadNotificationCount(userId: string): Promise<number> {
-    return this.notifications.filter(n => n.userId === userId && !n.isRead).length;
+    return this.notifications.filter((n) => n.userId === userId && !n.isRead)
+      .length;
   }
 }
 

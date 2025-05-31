@@ -1,7 +1,10 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertQuizSessionSchema, insertNotificationSchema } from "@shared/schema";
+import {
+  insertQuizSessionSchema,
+  insertNotificationSchema,
+} from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Quiz Sessions
@@ -40,12 +43,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { userId, letter } = req.params;
       const { isCorrect } = req.body;
-      
+
       if (typeof isCorrect !== "boolean") {
         return res.status(400).json({ error: "isCorrect must be a boolean" });
       }
 
-      const progress = await storage.updateUserProgress(userId, letter.toUpperCase(), isCorrect);
+      const progress = await storage.updateUserProgress(
+        userId,
+        letter.toUpperCase(),
+        isCorrect
+      );
       res.json(progress);
     } catch (error) {
       res.status(500).json({ error: "Failed to update progress" });
@@ -55,7 +62,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/progress/:userId/:letter", async (req, res) => {
     try {
       const { userId, letter } = req.params;
-      const progress = await storage.getLetterProgress(userId, letter.toUpperCase());
+      const progress = await storage.getLetterProgress(
+        userId,
+        letter.toUpperCase()
+      );
       res.json(progress || null);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch letter progress" });
@@ -99,7 +109,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const count = await storage.getUnreadNotificationCount(userId);
       res.json({ count });
     } catch (error) {
-      res.status(500).json({ error: "Failed to fetch unread notification count" });
+      res
+        .status(500)
+        .json({ error: "Failed to fetch unread notification count" });
     }
   });
 

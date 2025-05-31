@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
 import {
   Trophy,
   Brain,
@@ -17,8 +16,6 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { queryClient } from "@/lib/queryClient";
-import { natoAlphabet } from "@/lib/nato-alphabet";
 import {
   generateQuizSet,
   checkAnswerVariants,
@@ -32,7 +29,7 @@ import {
   getUserProgressLocal,
   updateUserProgressLocal,
 } from "@/lib/storage";
-import type { UserProgress, QuizSession } from "@shared/schema";
+import type { UserProgress } from "@shared/schema";
 
 interface QuizSectionProps {
   userId: string;
@@ -138,7 +135,9 @@ export default function QuizSection({ userId }: QuizSectionProps) {
           if (event.error === "language-not-supported") {
             toast({
               title: "Language Not Supported",
-              description: `Speech recognition language not supported in ${isEdge ? "Edge" : isSafari ? "Safari" : "this browser"}. Try switching to English system language.`,
+              description: `Speech recognition language not supported in ${
+                isEdge ? "Edge" : isSafari ? "Safari" : "this browser"
+              }. Try switching to English system language.`,
               variant: "destructive",
             });
           } else if (event.error === "not-allowed") {
@@ -197,7 +196,7 @@ export default function QuizSection({ userId }: QuizSectionProps) {
                 nextReview: new Date(localProgress.nextReview),
                 difficulty: localProgress.difficulty,
               }
-            : p,
+            : p
         );
       } else {
         return [
@@ -311,7 +310,7 @@ export default function QuizSection({ userId }: QuizSectionProps) {
 
     const isCorrect = checkAnswerVariants(
       userAnswer,
-      currentQuestion.correctAnswer,
+      currentQuestion.correctAnswer
     );
 
     // Add to session results
@@ -447,7 +446,7 @@ export default function QuizSection({ userId }: QuizSectionProps) {
 
       return acc;
     },
-    { learning: 0, review: 0, mastered: 0 },
+    { learning: 0, review: 0, mastered: 0 }
   );
 
   const currentStreak = Math.min(7, totalSessions); // Simplified streak calculation
@@ -733,7 +732,7 @@ export default function QuizSection({ userId }: QuizSectionProps) {
                     {translations.hint}:{" "}
                     {getHintForLetter(
                       currentQuestion.letter,
-                      translations.natoHints,
+                      translations.natoHints
                     )}
                   </p>
                 </div>
@@ -745,7 +744,7 @@ export default function QuizSection({ userId }: QuizSectionProps) {
                 className={`p-4 rounded-lg border ${
                   checkAnswerVariants(
                     userAnswer,
-                    currentQuestion?.correctAnswer || "",
+                    currentQuestion?.correctAnswer || ""
                   )
                     ? "bg-green-50 border-green-200 text-green-800"
                     : "bg-red-50 border-red-200 text-red-800"
@@ -754,7 +753,7 @@ export default function QuizSection({ userId }: QuizSectionProps) {
                 <p className="font-medium">
                   {checkAnswerVariants(
                     userAnswer,
-                    currentQuestion?.correctAnswer || "",
+                    currentQuestion?.correctAnswer || ""
                   )
                     ? translations.correct
                     : `${translations.correctAnswer}: ${currentQuestion?.correctAnswer}`}
