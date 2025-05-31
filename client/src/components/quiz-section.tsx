@@ -621,15 +621,21 @@ export default function QuizSection({ userId }: QuizSectionProps) {
               <div className="flex items-center justify-between text-sm">
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                  <span>{translations.learning}: {progressStats.learning}</span>
+                  <span>
+                    {translations.learning}: {progressStats.learning}
+                  </span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                  <span>{translations.review}: {progressStats.review}</span>
+                  <span>
+                    {translations.review}: {progressStats.review}
+                  </span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                  <span>{translations.mastered}: {progressStats.mastered}</span>
+                  <span>
+                    {translations.mastered}: {progressStats.mastered}
+                  </span>
                 </div>
               </div>
             </CardContent>
@@ -792,19 +798,19 @@ export default function QuizSection({ userId }: QuizSectionProps) {
               </p>
               <div className="flex items-center space-x-4 text-xs">
                 <Badge variant="secondary" className="bg-red-100 text-red-700">
-                  {translations.learning} ({progressStats.learning})
+                  {translations.learning}&nbsp;({progressStats.learning})
                 </Badge>
                 <Badge
                   variant="secondary"
                   className="bg-yellow-100 text-yellow-700"
                 >
-                  {translations.review} ({progressStats.review})
+                  {translations.review}&nbsp;({progressStats.review})
                 </Badge>
                 <Badge
                   variant="secondary"
                   className="bg-green-100 text-green-700"
                 >
-                  {translations.mastered} ({progressStats.mastered})
+                  {translations.mastered}&nbsp;({progressStats.mastered})
                 </Badge>
               </div>
             </div>
