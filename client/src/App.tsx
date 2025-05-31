@@ -1,6 +1,6 @@
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Router, Route, Switch } from 'wouter';
 import { Toaster } from '@/components/ui/toaster';
 import { LanguageProvider } from '@/contexts/language-context';
 import { ThemeProvider } from '@/contexts/theme-context';
@@ -14,15 +14,15 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <LanguageProvider>
-          <BrowserRouter>
+          <Router>
             <div className="min-h-screen bg-background">
-              <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route path="*" element={<NotFoundPage />} />
-              </Routes>
+              <Switch>
+                <Route path="/" component={HomePage} />
+                <Route component={NotFoundPage} />
+              </Switch>
             </div>
             <Toaster />
-          </BrowserRouter>
+          </Router>
         </LanguageProvider>
       </ThemeProvider>
     </QueryClientProvider>

@@ -6,7 +6,7 @@ import QuizSection from '@/components/quiz-section';
 import SettingsSection from '@/components/settings-section';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { useLanguage } from '@/hooks/use-language';
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<'converter' | 'quiz' | 'settings'>(

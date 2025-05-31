@@ -4,7 +4,7 @@ import { Bell, TrendingUp, Trophy, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { useLanguage } from '@/hooks/use-language';
 import { queryClient } from '@/lib/queryClient';
 
 interface NotificationModalProps {
