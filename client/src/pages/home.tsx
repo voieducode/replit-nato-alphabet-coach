@@ -40,7 +40,7 @@ export default function Home() {
             </Button>
           </div>
         </div>
-        
+
         {/* Tab Navigation */}
         <nav className="mt-4">
           <div className="flex space-x-1 bg-primary/80 rounded-lg p-1">

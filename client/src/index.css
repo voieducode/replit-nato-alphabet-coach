@@ -27,13 +27,6 @@
   /* Custom shadow variables for material design */
   --shadow-material: 0 2px 4px rgba(0,0,0,0.1), 0 8px 16px rgba(0,0,0,0.1);
   --shadow-material-lg: 0 4px 8px rgba(0,0,0,0.12), 0 16px 32px rgba(0,0,0,0.12);
-  
-  /* Cityscape background images (base64 SVG) */
-  --cityscape-1: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 100'%3E%3Cpath fill='%23ffffff20' d='M0,100 L0,80 L50,80 L50,40 L100,40 L100,60 L150,60 L150,20 L200,20 L200,70 L250,70 L250,30 L300,30 L300,50 L350,50 L350,10 L400,10 L400,100 Z'/%3E%3C/svg%3E");
-  --cityscape-2: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 100'%3E%3Cpath fill='%23ffffff20' d='M0,100 L0,70 L40,70 L40,30 L80,30 L80,50 L120,50 L120,10 L160,10 L160,80 L200,80 L200,40 L240,40 L240,60 L280,60 L280,20 L320,20 L320,90 L360,90 L360,35 L400,35 L400,100 Z'/%3E%3C/svg%3E");
-  --cityscape-3: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 100'%3E%3Cpath fill='%23ffffff20' d='M0,100 L0,60 L60,60 L60,20 L120,20 L120,70 L180,70 L180,30 L240,30 L240,80 L300,80 L300,15 L360,15 L360,50 L400,50 L400,100 Z'/%3E%3C/svg%3E");
-  --cityscape-4: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 100'%3E%3Cpath fill='%23ffffff20' d='M0,100 L0,50 L70,50 L70,25 L140,25 L140,75 L210,75 L210,5 L280,5 L280,60 L350,60 L350,40 L400,40 L400,100 Z'/%3E%3C/svg%3E");
-  --cityscape-5: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 100'%3E%3Cpath fill='%23ffffff20' d='M0,100 L0,75 L45,75 L45,35 L90,35 L90,65 L135,65 L135,15 L180,15 L180,55 L225,55 L225,25 L270,25 L270,85 L315,85 L315,45 L360,45 L360,10 L400,10 L400,100 Z'/%3E%3C/svg%3E");
 }
 
 .dark {
@@ -67,6 +60,29 @@
   body {
     @apply font-sans antialiased bg-background text-foreground;
     font-family: 'Inter', system-ui, sans-serif;
+    position: relative;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    opacity: 0.15;
+    background: url('/attached_assets/cityscape-small.jpeg') center center / cover no-repeat;
+    
+    /* Responsive backgrounds */
+    @media (min-width: 768px) {
+      background: url('/attached_assets/cityscape-medium.jpg') center center / cover no-repeat;
+    }
+    
+    @media (min-width: 1024px) {
+      background: url('/attached_assets/cityscape-large.jpg') center center / cover no-repeat;
+    }
   }
 }
 
@@ -81,43 +97,29 @@
   
   .cityscape-bg {
     position: relative;
-    overflow: hidden;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(2px);
   }
   
-  .cityscape-bg::before {
+  .cityscape-overlay {
+    position: relative;
+  }
+  
+  .cityscape-overlay::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(45deg, rgba(255,255,255,0.1) 25%, transparent 25%), 
-                linear-gradient(-45deg, rgba(255,255,255,0.1) 25%, transparent 25%);
-    background-size: 20px 20px;
-    background-position: 0 0, 10px 10px;
-    animation: slidePattern 10s infinite linear;
-    opacity: 0.3;
-    z-index: 1;
+    background: rgba(255, 255, 255, 0.1);
     pointer-events: none;
+    z-index: 1;
   }
   
-  .cityscape-bg > * {
+  .cityscape-overlay > * {
     position: relative;
     z-index: 2;
-  }
-  
-  @keyframes slidePattern {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(40px); }
-  }
-  
-  @keyframes rotateCityscape {
-    0% { background-image: var(--cityscape-1); }
-    20% { background-image: var(--cityscape-2); }
-    40% { background-image: var(--cityscape-3); }
-    60% { background-image: var(--cityscape-4); }
-    80% { background-image: var(--cityscape-5); }
-    100% { background-image: var(--cityscape-1); }
   }
 }
 
