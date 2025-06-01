@@ -106,7 +106,9 @@ export const AnswerInput = memo(
                 size="sm"
                 className={cn(
                   'absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0',
-                  isListening ? 'text-red-500 bg-red-50' : 'text-gray-500'
+                  isListening
+                    ? 'text-info-foreground-red bg-info'
+                    : 'text-gray-500'
                 )}
                 onClick={isListening ? stopListening : startListening}
                 disabled={showResult}
@@ -128,7 +130,7 @@ export const AnswerInput = memo(
 
         {/* Hint Display */}
         {showHint && !showResult && (
-          <div className="p-3 rounded-lg bg-yellow-50 border border-yellow-200 text-yellow-800">
+          <div className="p-3 rounded-lg bg-info border border-yellow-200 text-info-foreground">
             <div className="flex items-center space-x-2">
               <Lightbulb className="h-4 w-4" />
               <p className="text-sm font-medium">
@@ -142,10 +144,10 @@ export const AnswerInput = memo(
         {showResult && (
           <div
             className={cn(
-              'p-4 rounded-lg border',
+              'p-4 rounded-lg border bg-info',
               checkAnswerVariants(userAnswer, correctAnswer)
-                ? 'bg-green-50 border-green-200 text-green-800'
-                : 'bg-red-50 border-red-200 text-red-800'
+                ? 'border-green-200 text-info-foreground-green'
+                : 'border-red-200 text-info-foreground-red'
             )}
           >
             <p className="font-medium">

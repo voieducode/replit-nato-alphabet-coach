@@ -21,7 +21,44 @@ const STORAGE_KEYS = {
   USER_STATS: 'userStats',
   USER_PROGRESS: 'userProgress',
   SETTINGS: 'appSettings',
+  QUIZ_SESSION: 'quizSession',
 } as const;
+
+export interface StoredQuizSession {
+  currentQuizSet: any | null; // Using any since QuizSet from spaced-repetition.ts isn't imported
+  currentQuestionIndex: number;
+  sessionResults: {
+    question: any; // Using any since QuizQuestion isn't imported
+    userAnswer: string;
+    isCorrect: boolean;
+  }[];
+  isQuizComplete: boolean;
+  showResult: boolean;
+  isActive: boolean;
+  showReviewDialog: boolean;
+}
+
+export function getStoredQuizSession(): StoredQuizSession | null {
+  const stored = localStorage.getItem(STORAGE_KEYS.QUIZ_SESSION);
+  if (stored) {
+    try {
+      return JSON.parse(stored);
+    } catch {
+      console.warn('Failed to parse stored quiz session');
+    }
+  }
+  return null;
+}
+
+export function updateStoredQuizSession(
+  session: StoredQuizSession | null
+): void {
+  if (session) {
+    localStorage.setItem(STORAGE_KEYS.QUIZ_SESSION, JSON.stringify(session));
+  } else {
+    localStorage.removeItem(STORAGE_KEYS.QUIZ_SESSION);
+  }
+}
 
 // Stats management
 export function getUserStats(): UserStats {

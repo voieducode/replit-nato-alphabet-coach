@@ -2,7 +2,7 @@ import type { UserProgress } from '@shared/schema';
 import type { QuizQuestion } from '@/lib/spaced-repetition';
 import React, { useEffect, useState } from 'react';
 import { useLanguage } from '@/hooks/use-language';
-import { useQuizSession } from '@/hooks/use-quiz-session';
+import { useQuizContext } from '@/hooks/use-quiz-context';
 import { useToast } from '@/hooks/use-toast';
 import { checkAnswerVariants } from '@/lib/spaced-repetition';
 import { getUserProgressLocal, updateUserProgressLocal } from '@/lib/storage';
@@ -15,11 +15,8 @@ import { SpacedRepetitionInfo } from './quiz/spaced-repetition-info';
 import { StatsDisplay } from './quiz/stats-display';
 import { StudyStatsFooter } from './quiz/study-stats-footer';
 
-interface QuizSectionProps {
-  userId: string;
-}
-
-export default function QuizSection({ userId }: QuizSectionProps) {
+// QuizSection no longer needs userId prop as it's provided by QuizProvider
+export default function QuizSection() {
   const {
     sessionState: {
       currentQuizSet,
@@ -34,7 +31,10 @@ export default function QuizSection({ userId }: QuizSectionProps) {
     addSessionResult,
     advanceQuiz,
     finishQuizSet,
-  } = useQuizSession(userId);
+  } = useQuizContext();
+
+  // Hard-code userId since it's always the same in this app
+  const userId = 'user-1';
 
   const [userAnswer, setUserAnswer] = useState('');
   const [showHint, setShowHint] = useState(false);
@@ -241,7 +241,9 @@ export default function QuizSection({ userId }: QuizSectionProps) {
     );
   }
 
-  const correctAnswersCount = sessionResults.filter((r) => r.isCorrect).length;
+  const correctAnswersCount = sessionResults.filter(
+    (r: { isCorrect: boolean }) => r.isCorrect
+  ).length;
 
   return (
     <div className="p-4 space-y-6">
@@ -278,6 +280,7 @@ export default function QuizSection({ userId }: QuizSectionProps) {
           onSubmitAnswer={handleSubmitAnswer}
           onSkipQuestion={handleSkipQuestion}
           translations={translations}
+          sessionResults={sessionResults}
         />
       )}
 

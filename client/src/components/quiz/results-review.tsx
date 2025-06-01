@@ -4,6 +4,7 @@ import { CheckCircle, Target, Trophy, XCircle } from 'lucide-react';
 import React, { memo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 
 interface SessionResult {
   question: QuizQuestion;
@@ -15,44 +16,52 @@ interface ResultsReviewProps {
   sessionResults: SessionResult[];
   onFinish: () => void;
   translations: Translations;
+  showCompletionHeader?: boolean;
 }
 
 export const ResultsReview = memo(
-  ({ sessionResults, onFinish, translations }: ResultsReviewProps) => {
+  ({
+    sessionResults,
+    onFinish,
+    translations,
+    showCompletionHeader = true,
+  }: ResultsReviewProps) => {
     const score = sessionResults.filter((r) => r.isCorrect).length;
     const accuracy = Math.round((score / sessionResults.length) * 100);
 
     return (
       <div className="p-4 space-y-6">
-        {/* Quiz Complete Header */}
-        <Card className="bg-linear-to-r from-green-50 to-blue-50 border border-green-200">
-          <CardContent className="p-6 text-center">
-            <div className="mb-4">
-              {accuracy >= 80 ? (
-                <Trophy className="h-12 w-12 text-yellow-500 mx-auto" />
-              ) : accuracy >= 60 ? (
-                <CheckCircle className="h-12 w-12 text-green-500 mx-auto" />
-              ) : (
-                <Target className="h-12 w-12 text-blue-500 mx-auto" />
-              )}
-            </div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">
-              {translations.sessionComplete}
-            </h2>
-            <p className="text-lg text-gray-600 mb-4">
-              {translations.score}:{score} /{sessionResults.length} ({accuracy}
-              %)
-            </p>
-            <Button
-              onClick={onFinish}
-              className="px-8"
-              autoFocus
-              aria-label="Start a new quiz set of 10 questions"
-            >
-              {translations.startQuiz}
-            </Button>
-          </CardContent>
-        </Card>
+        {/* Quiz Complete Header - only shown when showCompletionHeader is true */}
+        {showCompletionHeader && (
+          <Card className="bg-linear-to-r from-info to-blue-50 border border-green-200">
+            <CardContent className="p-6 text-center">
+              <div className="mb-4">
+                {accuracy >= 80 ? (
+                  <Trophy className="h-12 w-12 text-yellow-500 mx-auto" />
+                ) : accuracy >= 60 ? (
+                  <CheckCircle className="h-12 w-12 text-green-500 mx-auto" />
+                ) : (
+                  <Target className="h-12 w-12 text-blue-500 mx-auto" />
+                )}
+              </div>
+              <h2 className="text-2xl font-bold text-info-foreground mb-2">
+                {translations.sessionComplete}
+              </h2>
+              <p className="text-lg text-info-foreground mb-4">
+                {translations.score}: {score} / {sessionResults.length} (
+                {accuracy}%)
+              </p>
+              <Button
+                onClick={onFinish}
+                className="px-8"
+                autoFocus
+                aria-label="Start a new quiz set of 10 questions"
+              >
+                {translations.startQuiz}
+              </Button>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Results Review */}
         <Card>
@@ -64,11 +73,12 @@ export const ResultsReview = memo(
               {sessionResults.map((result) => (
                 <div
                   key={`${result.question.letter}-${result.userAnswer}`}
-                  className={`flex items-center justify-between p-3 rounded-lg border ${
+                  className={cn(
+                    'flex items-center justify-between p-3 rounded-lg border bg-info',
                     result.isCorrect
-                      ? 'bg-green-50 border-green-200'
-                      : 'bg-red-50 border-red-200'
-                  }`}
+                      ? 'border-green-200 text-info-foreground-green'
+                      : 'border-red-200 text-info-foreground-red'
+                  )}
                 >
                   <div className="flex items-center space-x-3">
                     <span className="font-mono text-lg font-bold w-8">
@@ -79,11 +89,9 @@ export const ResultsReview = memo(
                         {result.question.correctAnswer}
                       </p>
                       {!result.isCorrect && (
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-info-foreground">
                           <span>
-                            {translations.yourAnswer}
-                            {': '}
-                            {result.userAnswer}
+                            {translations.yourAnswer}: {result.userAnswer}
                           </span>
                         </p>
                       )}

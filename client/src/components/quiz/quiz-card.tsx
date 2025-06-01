@@ -16,6 +16,11 @@ interface QuizCardProps {
   onSubmitAnswer: () => void;
   onSkipQuestion: () => void;
   translations: Translations;
+  sessionResults: Array<{
+    question: QuizQuestion;
+    userAnswer: string;
+    isCorrect: boolean;
+  }>;
 }
 
 export const QuizCard = memo(
@@ -30,6 +35,7 @@ export const QuizCard = memo(
     onSubmitAnswer,
     onSkipQuestion,
     translations,
+    sessionResults,
   }: QuizCardProps) => {
     return (
       <Card className="bg-white shadow-material border border-gray-100 overflow-hidden">
@@ -38,6 +44,7 @@ export const QuizCard = memo(
           translations={translations}
           currentQuestionIndex={currentQuestionIndex}
           totalQuestions={totalQuestions}
+          sessionResults={sessionResults}
         />
 
         <div className="p-6">

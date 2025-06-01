@@ -34,6 +34,9 @@
   --color-destructive: hsl(var(--destructive));
   --color-destructive-foreground: hsl(var(--destructive-foreground));
 
+  --color-info: hsl(var(--info));
+  --color-info-foreground: hsl(var(--info-foreground));
+
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
@@ -86,7 +89,6 @@
   color utility to any element that depends on these defaults.
 */
 @layer base {
-
   *,
   ::after,
   ::before,
@@ -126,14 +128,13 @@
     z-index: 1;
   }
 
-  &>* {
+  & > * {
     position: relative;
     z-index: 2;
   }
 }
 
 @layer utilities {
-
   /* Light theme (default) */
   :root,
   .light {
@@ -144,6 +145,10 @@
     --primary-foreground: 0 0% 100%;
     --card: 0 0% 100%;
     --card-foreground: 220 15% 10%;
+    --info: 54 100% 96%;
+    --info-foreground: 220 15% 10%;
+    --info-foreground-green: 152 61% 23%;
+    --info-foreground-red: 0 85% 40%;
     --muted: 220 20% 95%;
     --muted-foreground: 220 10% 60%;
     --border: 220 10% 85%;
@@ -170,6 +175,10 @@
     --primary-foreground: 0 0% 100%;
     --card: 220 15% 16%;
     --card-foreground: 220 20% 98%;
+    --info: 57.93 32.58% 22%;
+    --info-foreground: 48 96.64% 92%;
+    --info-foreground-green: 152 61% 71%;
+    --info-foreground-red: 0 85% 65%;
     --muted: 220 15% 18%;
     --muted-foreground: 220 10% 60%;
     --border: 220 10% 25%;
@@ -198,6 +207,10 @@
     --popover-foreground: 0 0% 92%;
     --card: 270 20% 16%;
     --card-foreground: 0 0% 92%;
+    --info: 57.93 32.58% 17.45%;
+    --info-foreground: 48 96.64% 76.67%;
+    --info-foreground-green: 152 61% 71%;
+    --info-foreground-red: 0 85% 70%;
     --border: 270 15% 30%;
     --input: 270 15% 20%;
     --primary: 280 80% 70%;
@@ -238,6 +251,14 @@
     /* Card background */
     --card-foreground: 60 10% 96%;
     /* High contrast card text */
+    --info: 60 13.46% 20.39%;
+    /* Info background */
+    --info-foreground: 45.96 65.28% 71.76%;
+    /* Info text */
+    --info-foreground-green: 152 61% 71%;
+    /* Info foreground green */
+    --info-foreground-red: 0 70% 65%;
+    /* Info foreground red */
     --border: 60 15% 30%;
     /* Slightly lighter olive border */
     --input: 60 12% 20%;
@@ -402,15 +423,6 @@ input[type='submit'] {
   color: #bae6fd !important;
 }
 
-.dark .text-yellow-700 {
-  color: #fde68a !important;
-}
-
-.dark .bg-yellow-100 {
-  background-color: #3b3a1e !important;
-  color: #fde68a !important;
-}
-
 .dark .text-green-700 {
   color: #6ee7b7 !important;
 }
@@ -453,11 +465,6 @@ input[type='submit'] {
   color: #d1d5db !important;
 }
 
-.dark .bg-yellow-50 {
-  background-color: #3b3a1e !important;
-  color: #fde68a !important;
-}
-
 .dark .text-blue-900 {
   color: #93c5fd !important;
 }
@@ -497,12 +504,6 @@ input[type='submit'] {
   color: #bae6fd !important;
 }
 
-.rainbow .bg-yellow-100,
-.rainbow .bg-yellow-50 {
-  background-color: #3b3a1e !important;
-  color: #fde68a !important;
-}
-
 .rainbow .bg-green-100 {
   background-color: #052e16 !important;
   color: #6ee7b7 !important;
@@ -516,10 +517,6 @@ input[type='submit'] {
 .rainbow .text-blue-800,
 .rainbow .text-blue-900 {
   color: #60a5fa !important;
-}
-
-.rainbow .text-yellow-700 {
-  color: #fde68a !important;
 }
 
 .rainbow .text-green-700 {
@@ -616,7 +613,6 @@ input[type='submit'] {
 
 /* Rainbow theme specific styles */
 .rainbow {
-
   /* Subtle rainbow glow for cards */
   .shadow-material {
     box-shadow:
@@ -672,7 +668,6 @@ input[type='submit'] {
 
 /* NATO Military theme specific styles */
 .nato {
-
   /* Military-style shadows */
   .shadow-material {
     box-shadow:
@@ -692,16 +687,20 @@ input[type='submit'] {
   button[class*='bg-primary']:not(:disabled) {
     position: relative;
     border: 1px solid hsl(120 30% 50%);
-    background: linear-gradient(135deg,
-        hsl(120 30% 50%) 0%,
-        hsl(120 35% 45%) 100%);
+    background: linear-gradient(
+      135deg,
+      hsl(120 30% 50%) 0%,
+      hsl(120 35% 45%) 100%
+    );
   }
 
   button[class*='bg-primary']:not(:disabled):hover {
     box-shadow: 0 0 15px rgba(34, 51, 34, 0.4);
-    background: linear-gradient(135deg,
-        hsl(120 35% 55%) 0%,
-        hsl(120 40% 50%) 100%);
+    background: linear-gradient(
+      135deg,
+      hsl(120 35% 55%) 0%,
+      hsl(120 40% 50%) 100%
+    );
   }
 
   /* Military text styling with improved contrast */
@@ -786,13 +785,6 @@ input[type='submit'] {
   /* Improved contrast */
 }
 
-.nato .bg-yellow-100,
-.nato .bg-yellow-50 {
-  background-color: #3b3b2d !important;
-  color: #e6d088 !important;
-  /* Improved contrast */
-}
-
 .nato .bg-green-100 {
   background-color: #1f3b1f !important;
   color: #8fc38f !important;
@@ -808,11 +800,6 @@ input[type='submit'] {
 .nato .text-blue-800,
 .nato .text-blue-900 {
   color: #b8c5b8 !important;
-  /* Improved contrast */
-}
-
-.nato .text-yellow-700 {
-  color: #e6d088 !important;
   /* Improved contrast */
 }
 

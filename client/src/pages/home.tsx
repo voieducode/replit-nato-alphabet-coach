@@ -6,6 +6,7 @@ import QuizSection from '@/components/quiz-section';
 import SettingsSection from '@/components/settings-section';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { QuizProvider } from '@/contexts/quiz-provider';
 import { useLanguage } from '@/hooks/use-language';
 
 export default function Home() {
@@ -78,7 +79,9 @@ export default function Home() {
         {activeTab === 'converter' ? (
           <ConverterSection />
         ) : activeTab === 'quiz' ? (
-          <QuizSection userId={userId} />
+          <QuizProvider userId={userId}>
+            <QuizSection />
+          </QuizProvider>
         ) : (
           <SettingsSection />
         )}

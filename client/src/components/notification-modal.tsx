@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useLanguage } from '@/hooks/use-language';
 import { queryClient } from '@/lib/queryClient';
+import { cn } from '@/lib/utils';
 
 interface NotificationModalProps {
   isOpen: boolean;
@@ -52,7 +53,7 @@ export default function NotificationModal({
       case 'daily_reminder':
         return <Bell className="text-orange-500 h-5 w-5" />;
       case 'achievement':
-        return <Trophy className="text-yellow-500 h-5 w-5" />;
+        return <Trophy className="text-info-foreground h-5 w-5" />;
       case 'progress':
         return <TrendingUp className="text-blue-500 h-5 w-5" />;
       default:
@@ -65,7 +66,7 @@ export default function NotificationModal({
       case 'daily_reminder':
         return 'bg-orange-50 border-orange-100';
       case 'achievement':
-        return 'bg-yellow-50 border-yellow-100';
+        return 'bg-info border-yellow-100';
       case 'progress':
         return 'bg-blue-50 border-blue-100';
       default:
@@ -148,9 +149,11 @@ export default function NotificationModal({
             notifications.map((notification) => (
               <Card
                 key={notification.id}
-                className={`cursor-pointer transition-all hover:shadow-md ${getNotificationBgColor(notification.type)} ${
-                  !notification.isRead ? 'border-l-4 border-l-primary' : ''
-                }`}
+                className={cn(
+                  'cursor-pointer transition-all hover:shadow-md',
+                  getNotificationBgColor(notification.type),
+                  !notification.isRead && 'border-l-4 border-l-primary'
+                )}
                 onClick={() => handleNotificationClick(notification)}
               >
                 <CardContent className="p-3">
