@@ -60,14 +60,17 @@
     from {
       height: 0;
     }
+
     to {
       height: var(--radix-accordion-content-height);
     }
   }
+
   @keyframes accordion-up {
     from {
       height: var(--radix-accordion-content-height);
     }
+
     to {
       height: 0;
     }
@@ -83,6 +86,7 @@
   color utility to any element that depends on these defaults.
 */
 @layer base {
+
   *,
   ::after,
   ::before,
@@ -122,13 +126,14 @@
     z-index: 1;
   }
 
-  & > * {
+  &>* {
     position: relative;
     z-index: 2;
   }
 }
 
 @layer utilities {
+
   /* Light theme (default) */
   :root,
   .light {
@@ -611,6 +616,7 @@ input[type='submit'] {
 
 /* Rainbow theme specific styles */
 .rainbow {
+
   /* Subtle rainbow glow for cards */
   .shadow-material {
     box-shadow:
@@ -666,6 +672,7 @@ input[type='submit'] {
 
 /* NATO Military theme specific styles */
 .nato {
+
   /* Military-style shadows */
   .shadow-material {
     box-shadow:
@@ -685,20 +692,16 @@ input[type='submit'] {
   button[class*='bg-primary']:not(:disabled) {
     position: relative;
     border: 1px solid hsl(120 30% 50%);
-    background: linear-gradient(
-      135deg,
-      hsl(120 30% 50%) 0%,
-      hsl(120 35% 45%) 100%
-    );
+    background: linear-gradient(135deg,
+        hsl(120 30% 50%) 0%,
+        hsl(120 35% 45%) 100%);
   }
 
   button[class*='bg-primary']:not(:disabled):hover {
     box-shadow: 0 0 15px rgba(34, 51, 34, 0.4);
-    background: linear-gradient(
-      135deg,
-      hsl(120 35% 55%) 0%,
-      hsl(120 40% 50%) 100%
-    );
+    background: linear-gradient(135deg,
+        hsl(120 35% 55%) 0%,
+        hsl(120 40% 50%) 100%);
   }
 
   /* Military text styling with improved contrast */
