@@ -197,14 +197,18 @@ export default function QuizSection() {
       ? Math.round((localStats.correctAnswers / localStats.totalAnswers) * 100)
       : 0;
 
-  const progressStats = userProgress.reduce(
-    (acc, progress) => {
-      const total = progress.correctCount + progress.incorrectCount;
-      if (total === 0) {
-        return acc;
-      }
+  // Calculate letter progress and stats
+  const letterProgress = userProgress.map((progress) => {
+    const total = progress.correctCount + progress.incorrectCount;
+    const accuracy = total > 0 ? progress.correctCount / total : 0;
+    return {
+      letter: progress.letter,
+      accuracy,
+    };
+  });
 
-      const accuracy = progress.correctCount / total;
+  const progressStats = letterProgress.reduce(
+    (acc, { accuracy }) => {
       if (accuracy >= 0.8) {
         acc.mastered++;
       } else if (accuracy >= 0.5) {
@@ -212,7 +216,6 @@ export default function QuizSection() {
       } else {
         acc.learning++;
       }
-
       return acc;
     },
     { learning: 0, review: 0, mastered: 0 }
@@ -263,6 +266,7 @@ export default function QuizSection() {
           totalSessions={totalSessions}
           averageScore={averageScore}
           learningStats={progressStats}
+          letterProgress={letterProgress}
           translations={translations}
         />
       )}
@@ -287,6 +291,7 @@ export default function QuizSection() {
       {/* Spaced Repetition Info */}
       <SpacedRepetitionInfo
         progressStats={progressStats}
+        letterProgress={letterProgress}
         translations={translations}
       />
 
