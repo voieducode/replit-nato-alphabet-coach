@@ -17,27 +17,32 @@ export function ThemeSelector() {
   const themes = [
     {
       value: 'light' as const,
-      label: 'Light',
+      label: 'Ocean Blue',
+      description: 'Clean and bright design',
       icon: Sun,
     },
     {
       value: 'dark' as const,
-      label: 'Dark',
+      label: 'Midnight Sky',
+      description: 'Dark mode for low light',
       icon: Moon,
     },
     {
       value: 'rainbow' as const,
-      label: 'Rainbow',
+      label: 'Aurora',
+      description: 'Vibrant and colorful',
       icon: Palette,
     },
     {
       value: 'nato' as const,
-      label: 'NATO',
+      label: 'Military Green',
+      description: 'NATO-inspired tactical theme',
       icon: Shield,
     },
     {
       value: 'system' as const,
-      label: 'System',
+      label: 'Auto',
+      description: 'Follows device setting',
       icon: Monitor,
     },
   ];
@@ -59,19 +64,24 @@ export function ThemeSelector() {
           <span className="sm:hidden">Theme</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-36">
+      <DropdownMenuContent align="end" className="w-48">
         {themes.map((themeOption) => {
           const Icon = themeOption.icon;
           return (
             <DropdownMenuItem
               key={themeOption.value}
               onClick={() => setTheme(themeOption.value)}
-              className={`flex items-center space-x-2 ${
+              className={`flex items-start space-x-3 p-3 ${
                 theme === themeOption.value ? 'bg-accent' : ''
               }`}
             >
-              <Icon className="h-4 w-4" />
-              <span>{themeOption.label}</span>
+              <Icon className="h-4 w-4 mt-0.5 flex-shrink-0" />
+              <div className="flex flex-col">
+                <span className="font-medium">{themeOption.label}</span>
+                <span className="text-xs text-muted-foreground">
+                  {themeOption.description}
+                </span>
+              </div>
             </DropdownMenuItem>
           );
         })}

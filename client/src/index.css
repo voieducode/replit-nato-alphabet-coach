@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import './styles/theme-system.css';
 
 @plugin 'tailwindcss-animate';
 @plugin '@tailwindcss/typography';
@@ -132,141 +133,26 @@
   }
 }
 
+/* Custom shadow variables for material design */
 @layer utilities {
-
-  /* Light theme (default) */
-  :root,
-  .light {
-    --background: 220 20% 98%;
-    --foreground: 220 15% 10%;
-    --primary: 217 91% 60%;
-    /* #2196F3 - Blue primary */
-    --primary-foreground: 0 0% 100%;
-    --card: 0 0% 100%;
-    --card-foreground: 220 15% 10%;
-    --muted: 220 20% 95%;
-    --muted-foreground: 220 10% 60%;
-    --border: 220 10% 85%;
-    --input: 220 10% 90%;
-    --accent: 217 91% 95%;
-    --accent-foreground: 217 91% 40%;
-    --destructive: 0 80% 60%;
-    --destructive-foreground: 0 0% 100%;
-    --ring: 217 91% 60%;
-    --radius: 0.5rem;
-
-    /* Custom shadow variables for material design */
-    --shadow-material:
-      0 2px 4px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.1);
-    --shadow-material-lg:
-      0 4px 8px rgba(0, 0, 0, 0.12), 0 16px 32px rgba(0, 0, 0, 0.12);
+  :root {
+    --shadow-material: 0 2px 4px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.1);
+    --shadow-material-lg: 0 4px 8px rgba(0, 0, 0, 0.12), 0 16px 32px rgba(0, 0, 0, 0.12);
   }
-
-  /* Dark theme */
+  
   .dark {
-    --background: 220 15% 12%;
-    --foreground: 220 20% 98%;
-    --primary: 217 91% 60%;
-    --primary-foreground: 0 0% 100%;
-    --card: 220 15% 16%;
-    --card-foreground: 220 20% 98%;
-    --muted: 220 15% 18%;
-    --muted-foreground: 220 10% 60%;
-    --border: 220 10% 25%;
-    --input: 220 10% 20%;
-    --accent: 217 91% 20%;
-    --accent-foreground: 217 91% 90%;
-    --destructive: 0 80% 60%;
-    --destructive-foreground: 0 0% 100%;
-    --ring: 217 91% 60%;
-    --radius: 0.5rem;
-
-    /* Dark theme shadows */
-    --shadow-material:
-      0 2px 4px rgba(0, 0, 0, 0.4), 0 8px 16px rgba(0, 0, 0, 0.3);
-    --shadow-material-lg:
-      0 4px 8px rgba(0, 0, 0, 0.5), 0 16px 32px rgba(0, 0, 0, 0.4);
+    --shadow-material: 0 2px 4px rgba(0, 0, 0, 0.4), 0 8px 16px rgba(0, 0, 0, 0.3);
+    --shadow-material-lg: 0 4px 8px rgba(0, 0, 0, 0.5), 0 16px 32px rgba(0, 0, 0, 0.4);
   }
-
-  /* Rainbow theme */
+  
   .rainbow {
-    --background: 270 25% 12%;
-    --foreground: 0 0% 92%;
-    --muted: 270 15% 22%;
-    --muted-foreground: 270 15% 78%;
-    --popover: 270 20% 16%;
-    --popover-foreground: 0 0% 92%;
-    --card: 270 20% 16%;
-    --card-foreground: 0 0% 92%;
-    --border: 270 15% 30%;
-    --input: 270 15% 20%;
-    --primary: 280 80% 70%;
-    /* More accessible magenta */
-    --primary-foreground: 270 25% 12%;
-    --secondary: 270 15% 25%;
-    --secondary-foreground: 0 0% 88%;
-    --accent: 180 60% 65%;
-    /* More accessible cyan */
-    --accent-foreground: 270 25% 12%;
-    --destructive: 0 75% 70%;
-    --destructive-foreground: 270 25% 12%;
-    --ring: 280 80% 70%;
-    --radius: 0.5rem;
-
-    /* Rainbow theme shadows with subtle glow */
-    --shadow-material:
-      0 2px 4px rgba(0, 0, 0, 0.3), 0 8px 16px rgba(139, 69, 190, 0.15);
-    --shadow-material-lg:
-      0 4px 8px rgba(0, 0, 0, 0.4), 0 16px 32px rgba(139, 69, 190, 0.2);
+    --shadow-material: 0 2px 4px rgba(0, 0, 0, 0.3), 0 8px 16px rgba(139, 69, 190, 0.15);
+    --shadow-material-lg: 0 4px 8px rgba(0, 0, 0, 0.4), 0 16px 32px rgba(139, 69, 190, 0.2);
   }
-
-  /* NATO Military theme */
+  
   .nato {
-    --background: 60 8% 12%;
-    /* Dark olive background */
-    --foreground: 60 10% 96%;
-    /* High contrast light tan text */
-    --muted: 60 12% 18%;
-    /* Darker olive */
-    --muted-foreground: 60 8% 82%;
-    /* Higher contrast muted tan */
-    --popover: 60 12% 16%;
-    /* Dark olive popover */
-    --popover-foreground: 60 10% 96%;
-    /* High contrast light tan */
-    --card: 60 12% 16%;
-    /* Card background */
-    --card-foreground: 60 10% 96%;
-    /* High contrast card text */
-    --border: 60 15% 30%;
-    /* Slightly lighter olive border */
-    --input: 60 12% 20%;
-    /* Input background */
-    --primary: 120 30% 50%;
-    /* Brighter military green primary */
-    --primary-foreground: 0 0% 100%;
-    /* Pure white text on primary */
-    --secondary: 60 12% 22%;
-    /* Secondary olive */
-    --secondary-foreground: 60 10% 94%;
-    /* High contrast secondary text */
-    --accent: 45 90% 55%;
-    /* Brighter gold accent for NATO */
-    --accent-foreground: 60 8% 12%;
-    /* Dark text on accent */
-    --destructive: 0 75% 60%;
-    /* Brighter military red */
-    --destructive-foreground: 0 0% 100%;
-    /* Pure white text */
-    --ring: 120 30% 50%;
-    /* Ring color matches primary */
-    --radius: 0.5rem;
-
-    /* NATO theme shadows with military feel */
-    --shadow-material:
-      0 2px 4px rgba(0, 0, 0, 0.4), 0 8px 16px rgba(34, 51, 34, 0.2);
-    --shadow-material-lg:
-      0 4px 8px rgba(0, 0, 0, 0.5), 0 16px 32px rgba(34, 51, 34, 0.3);
+    --shadow-material: 0 2px 4px rgba(0, 0, 0, 0.4), 0 8px 16px rgba(34, 51, 34, 0.2);
+    --shadow-material-lg: 0 4px 8px rgba(0, 0, 0, 0.5), 0 16px 32px rgba(34, 51, 34, 0.3);
   }
 }
 
