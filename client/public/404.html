@@ -4,35 +4,29 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>NATO Alphabet Coach</title>
-    <script type="text/javascript">
-      // Single Page Apps for GitHub Pages
-      // MIT License
-      // https://github.com/rafgraph/spa-github-pages
-      var pathSegmentsToKeep = 1;
+    <script>
+      // Handles GitHub Pages subdirectory path
+      (function () {
+        const repo = 'replit-nato-alphabet-coach';
+        const l = window.location;
+        const segments = l.pathname.split('/');
+        const repoIndex = segments.indexOf(repo);
 
-      var l = window.location;
-      l.replace(
-        l.protocol +
-          '//' +
-          l.hostname +
-          (l.port ? ':' + l.port : '') +
-          l.pathname
-            .split('/')
-            .slice(0, 1 + pathSegmentsToKeep)
-            .join('/') +
-          '/?/' +
-          l.pathname
-            .slice(1)
-            .split('/')
-            .slice(pathSegmentsToKeep)
-            .join('/')
-            .replace(/&/g, '~and~') +
-          (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
-          l.hash
-      );
+        if (repoIndex > -1) {
+          const path = segments.slice(repoIndex + 1).join('/') || '';
+          const redirectPath = `/${repo}/?p=${path}${l.search}${l.hash}`;
+          l.replace(redirectPath);
+        } else {
+          l.replace(
+            `/${segments[1]}/?p=${segments.slice(2).join('/')}${l.search}${l.hash}`
+          );
+        }
+      })();
     </script>
   </head>
   <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <noscript>
+      <strong>JavaScript is required to run this application.</strong>
+    </noscript>
   </body>
 </html>
