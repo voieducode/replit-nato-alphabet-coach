@@ -1,7 +1,8 @@
 {
-  "name": "rest-express",
+  "name": "nato-alphabet-coach",
   "type": "module",
   "version": "1.0.0",
+  "description": "Interactive web app to learn and practice the NATO phonetic alphabet",
   "license": "MIT",
   "scripts": {
     "dev": "NODE_ENV=development tsx server/index.ts",

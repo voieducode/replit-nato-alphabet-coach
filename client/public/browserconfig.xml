@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Please do not change this file, it is used by IE11 and Edge Legacy -->
+<browserconfig>
+    <msapplication>
+        <tile>
+            <square150x150logo src="favicons/mstile-150x150.svg"/>
+            <TileColor>#1e40af</TileColor>
+        </tile>
+    </msapplication>
+</browserconfig>
