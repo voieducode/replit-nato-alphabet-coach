@@ -25,7 +25,7 @@ export const ResultsReview = memo(
     return (
       <div className="p-4 space-y-6">
         {/* Quiz Complete Header */}
-        <Card className="bg-linear-to-r from-green-50 to-blue-50 border border-green-200">
+        <Card className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200">
           <CardContent className="p-6 text-center">
             <div className="mb-4">
               {accuracy >= 80 ? (
@@ -57,9 +57,7 @@ export const ResultsReview = memo(
         {/* Results Review */}
         <Card>
           <CardContent className="p-4">
-            <h3 className="font-semibold text-lg mb-4">
-              {translations.reviewYourAnswers}
-            </h3>
+            <h3 className="font-semibold text-lg mb-4">{translations.reviewYourAnswers}</h3>
             <div className="space-y-3 text-primary">
               {sessionResults.map((result) => (
                 <div

@@ -24,7 +24,7 @@ export default function Home() {
       {/* Header */}
       <header className="bg-primary text-primary-foreground p-4 shadow-material relative cityscape-bg">
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-semibold text-white drop-shadow-xs">
+          <h1 className="text-xl font-semibold text-white drop-shadow-sm">
             {translations.appName}
           </h1>
           <div className="relative">

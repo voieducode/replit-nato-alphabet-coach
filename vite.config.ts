@@ -1,14 +1,12 @@
 import path from 'node:path';
 import process from 'node:process';
 import runtimeErrorOverlay from '@replit/vite-plugin-runtime-error-modal';
-import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
   plugins: [
     react(),
-    tailwindcss(),
     runtimeErrorOverlay(),
     ...(process.env.NODE_ENV !== 'production' &&
     process.env.REPL_ID !== undefined

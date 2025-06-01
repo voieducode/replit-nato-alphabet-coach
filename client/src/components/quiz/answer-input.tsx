@@ -93,10 +93,7 @@ export const AnswerInput = memo(
               className="w-full p-4 text-lg text-center pr-12"
               disabled={showResult}
               autoFocus
-              aria-label={translations.typeNatoWordForLetter.replace(
-                '{letter}',
-                letter
-              )}
+              aria-label={translations.typeNatoWordForLetter.replace('{letter}', letter)}
               aria-describedby="answer-instructions"
             />
             {speechSupported && (
@@ -111,9 +108,7 @@ export const AnswerInput = memo(
                 onClick={isListening ? stopListening : startListening}
                 disabled={showResult}
                 aria-label={
-                  isListening
-                    ? translations.stopVoiceInput
-                    : translations.startVoiceInput
+                  isListening ? translations.stopVoiceInput : translations.startVoiceInput
                 }
               >
                 {isListening ? (

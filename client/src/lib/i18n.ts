@@ -437,8 +437,7 @@ export const translations: Record<string, Translations> = {
     question: 'Frage',
     questionCount: '{current} von {total}',
     reviewYourAnswers: 'Überprüfen Sie Ihre Antworten',
-    typeNatoWordForLetter:
-      'Geben Sie das NATO-Wort für den Buchstaben {letter} ein',
+    typeNatoWordForLetter: 'Geben Sie das NATO-Wort für den Buchstaben {letter} ein',
     startVoiceInput: 'Spracheingabe starten',
     stopVoiceInput: 'Spracheingabe stoppen',
     aboutDescription:

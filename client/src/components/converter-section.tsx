@@ -95,7 +95,7 @@ export default function ConverterSection() {
             placeholder={translations.placeholder}
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
-            className="w-full p-4 border-2 border-gray-200 rounded-lg focus:border-primary focus:outline-hidden transition-colors resize-none h-32 text-base"
+            className="w-full p-4 border-2 border-gray-200 rounded-lg focus:border-primary focus:outline-none transition-colors resize-none h-32 text-base"
           />
           {inputText && (
             <Button
