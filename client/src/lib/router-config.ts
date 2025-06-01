@@ -11,8 +11,8 @@ function getBasePath() {
   return '';
 }
 
-// Custom hook for router base configuration
-export function useRouterBase() {
+// Router base configuration utility
+export function getRouterBase() {
   const base = getBasePath();
 
   return {
