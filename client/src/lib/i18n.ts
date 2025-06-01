@@ -69,6 +69,12 @@ export interface Translations {
   systemTheme: string;
   appearance: string;
   chooseTheme: string;
+  question: string;
+  questionCount: string;
+  reviewYourAnswers: string;
+  typeNatoWordForLetter: string;
+  startVoiceInput: string;
+  stopVoiceInput: string;
 }
 
 export const translations: Record<string, Translations> = {
@@ -97,6 +103,12 @@ export const translations: Record<string, Translations> = {
     language: 'English',
     interfaceLanguage: 'Interface Language',
     about: 'About NATO Alphabet Coach',
+    question: 'Question',
+    questionCount: '{current} of {total}',
+    reviewYourAnswers: 'Review Your Answers',
+    typeNatoWordForLetter: 'Type the NATO word for letter {letter}',
+    startVoiceInput: 'Start voice input',
+    stopVoiceInput: 'Stop voice input',
     aboutDescription:
       'Learn the NATO phonetic alphabet through interactive quizzes and spaced repetition.',
     version: 'Version 1.0.0',
@@ -197,6 +209,12 @@ export const translations: Record<string, Translations> = {
     testVoice: 'Tester la Voix',
     notifications: 'Notifications',
     spacedRepetitionReminders: 'Rappels de Répétition Espacée',
+    question: 'Question',
+    questionCount: '{current} sur {total}',
+    reviewYourAnswers: 'Révisez Vos Réponses',
+    typeNatoWordForLetter: 'Tapez le mot OTAN pour la lettre {letter}',
+    startVoiceInput: 'Démarrer la saisie vocale',
+    stopVoiceInput: 'Arrêter la saisie vocale',
     notificationDescription:
       'Recevez des notifications quotidiennes pour pratiquer',
     language: 'Langue',
@@ -306,6 +324,12 @@ export const translations: Record<string, Translations> = {
     language: 'Idioma',
     interfaceLanguage: 'Idioma de la Interfaz',
     about: 'Acerca del Entrenador Alfabeto OTAN',
+    question: 'Pregunta',
+    questionCount: '{current} de {total}',
+    reviewYourAnswers: 'Revise Sus Respuestas',
+    typeNatoWordForLetter: 'Escriba la palabra OTAN para la letra {letter}',
+    startVoiceInput: 'Iniciar entrada de voz',
+    stopVoiceInput: 'Detener entrada de voz',
     aboutDescription:
       'Aprenda el alfabeto fonético OTAN a través de cuestionarios interactivos y repetición espaciada.',
     version: 'Versión 1.0.0',
@@ -410,6 +434,12 @@ export const translations: Record<string, Translations> = {
     language: 'Sprache',
     interfaceLanguage: 'Oberflächensprache',
     about: 'Über NATO-Alphabet Trainer',
+    question: 'Frage',
+    questionCount: '{current} von {total}',
+    reviewYourAnswers: 'Überprüfen Sie Ihre Antworten',
+    typeNatoWordForLetter: 'Geben Sie das NATO-Wort für den Buchstaben {letter} ein',
+    startVoiceInput: 'Spracheingabe starten',
+    stopVoiceInput: 'Spracheingabe stoppen',
     aboutDescription:
       'Lernen Sie das NATO-Phonetik-Alphabet durch interaktive Quiz und wiederholtes Lernen.',
     version: 'Version 1.0.0',
@@ -514,6 +544,12 @@ export const translations: Record<string, Translations> = {
     language: 'اللغة',
     interfaceLanguage: 'لغة الواجهة',
     about: 'حول مدرب الأبجدية العسكرية',
+    question: 'سؤال',
+    questionCount: '{current} من {total}',
+    reviewYourAnswers: 'مراجعة إجاباتك',
+    typeNatoWordForLetter: 'اكتب كلمة الناتو للحرف {letter}',
+    startVoiceInput: 'بدء إدخال الصوت',
+    stopVoiceInput: 'إيقاف إدخال الصوت',
     aboutDescription:
       'تعلم الأبجدية الصوتية العسكرية من خلال الاختبارات التفاعلية والتكرار المتباعد.',
     version: 'الإصدار 1.0.0',
@@ -616,6 +652,12 @@ export const translations: Record<string, Translations> = {
     language: 'Lugha',
     interfaceLanguage: 'Lugha ya Kiolesura',
     about: 'Kuhusu Mwalimu wa Herufi za NATO',
+    question: 'Swali',
+    questionCount: '{current} kati ya {total}',
+    reviewYourAnswers: 'Pitia Majibu Yako',
+    typeNatoWordForLetter: 'Andika neno la NATO kwa herufi {letter}',
+    startVoiceInput: 'Anza ingizo la sauti',
+    stopVoiceInput: 'Acha ingizo la sauti',
     aboutDescription:
       'Jifunze herufi za sauti za NATO kupitia majaribio ya maingiliano na kurudia kwa nafasi.',
     version: 'Toleo 1.0.0',
@@ -718,6 +760,12 @@ export const translations: Record<string, Translations> = {
     language: '语言',
     interfaceLanguage: '界面语言',
     about: '关于北约字母教练',
+    question: '问题',
+    questionCount: '{current} / {total}',
+    reviewYourAnswers: '检查您的答案',
+    typeNatoWordForLetter: '请输入字母 {letter} 对应的北约单词',
+    startVoiceInput: '开始语音输入',
+    stopVoiceInput: '停止语音输入',
     aboutDescription: '通过互动测验和间隔重复学习北约语音字母。',
     version: '版本 1.0.0',
     builtWith: '使用现代网络技术构建',

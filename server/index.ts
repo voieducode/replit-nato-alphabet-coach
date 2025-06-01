@@ -3,10 +3,8 @@ import process from 'node:process';
 import express from 'express';
 import { registerRoutes } from './routes';
 import { log, serveStatic, setupVite } from './vite';
-import { allowHostMiddleware } from './middleware';
 
 const app = express();
-app.use(allowHostMiddleware);
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
@@ -60,18 +58,10 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  // ALWAYS serve the app on port 5000
+  // ALWAYS serve the app on port 5000 in production, 3000 in development
   // this serves both the API and the client.
-  // It is the only port that is not firewalled.
-  const port = 5000;
-  server.listen(
-    {
-      port,
-      host: '0.0.0.0',
-      reusePort: true,
-    },
-    () => {
-      log(`serving on port ${port}`);
-    }
-  );
+  const port = process.env.NODE_ENV === 'development' ? 4000 : 5000;
+  server.listen(port, '0.0.0.0', () => {
+    log(`serving on port ${port}`);
+  });
 })();

@@ -15,7 +15,8 @@
     "test": "vitest",
     "test:run": "vitest run",
     "test:ui": "vitest --ui",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "validate": "npm run format && npm run lint && npm run check && npm run test:run"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
