@@ -48,4 +48,3 @@ export const QuestionDisplay = memo(
 
 // Add displayName for better debugging
 QuestionDisplay.displayName = 'QuestionDisplay';
-
