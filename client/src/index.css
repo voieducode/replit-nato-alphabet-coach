@@ -1,5 +1,6 @@
-@import 'tailwindcss';
-@import './styles/theme-system.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 @plugin 'tailwindcss-animate';
 @plugin '@tailwindcss/typography';
@@ -133,27 +134,178 @@
   }
 }
 
-/* Custom shadow variables for material design */
+/* Simplified Theme System with 4 Color Types */
 @layer utilities {
-  :root {
+  /* Light Theme */
+  :root,
+  .light {
+    /* Primary: Main brand/action color */
+    --primary: 217 91% 60%;        /* Blue #3B82F6 */
+    --primary-foreground: 0 0% 100%;
+    
+    /* Secondary: Supporting/accent color */
+    --secondary: 220 20% 95%;      /* Light gray */
+    --secondary-foreground: 220 15% 10%;
+    
+    /* Ternary: Content backgrounds */
+    --ternary: 0 0% 100%;          /* White */
+    --ternary-foreground: 220 15% 10%;
+    
+    /* Quaternary: Surface/neutral color */
+    --quaternary: 220 10% 85%;     /* Border gray */
+    --quaternary-foreground: 220 10% 60%;
+    
+    /* System colors mapped to our 4-color system */
+    --background: var(--ternary);
+    --foreground: var(--ternary-foreground);
+    --card: var(--ternary);
+    --card-foreground: var(--ternary-foreground);
+    --muted: var(--secondary);
+    --muted-foreground: var(--secondary-foreground);
+    --border: var(--quaternary);
+    --input: var(--secondary);
+    --accent: var(--primary);
+    --accent-foreground: var(--primary-foreground);
+    --destructive: 0 80% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --ring: var(--primary);
+    --radius: 0.5rem;
+
+    /* Custom shadow variables */
     --shadow-material: 0 2px 4px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.1);
     --shadow-material-lg: 0 4px 8px rgba(0, 0, 0, 0.12), 0 16px 32px rgba(0, 0, 0, 0.12);
   }
-  
+
+  /* Dark Theme */
   .dark {
+    /* Primary: Main brand/action color (same as light) */
+    --primary: 217 91% 60%;        /* Blue #3B82F6 */
+    --primary-foreground: 0 0% 100%;
+    
+    /* Secondary: Supporting surfaces */
+    --secondary: 220 15% 18%;      /* Dark gray */
+    --secondary-foreground: 220 20% 98%;
+    
+    /* Ternary: Content backgrounds */
+    --ternary: 220 15% 16%;        /* Darker gray */
+    --ternary-foreground: 220 20% 98%;
+    
+    /* Quaternary: Darkest surfaces/borders */
+    --quaternary: 220 10% 25%;     /* Border dark gray */
+    --quaternary-foreground: 220 10% 60%;
+    
+    /* System colors mapped to our 4-color system */
+    --background: 220 15% 12%;
+    --foreground: var(--ternary-foreground);
+    --card: var(--ternary);
+    --card-foreground: var(--ternary-foreground);
+    --muted: var(--secondary);
+    --muted-foreground: var(--quaternary-foreground);
+    --border: var(--quaternary);
+    --input: 220 10% 20%;
+    --accent: 217 91% 20%;
+    --accent-foreground: 217 91% 90%;
+    --destructive: 0 80% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --ring: var(--primary);
+    --radius: 0.5rem;
+
     --shadow-material: 0 2px 4px rgba(0, 0, 0, 0.4), 0 8px 16px rgba(0, 0, 0, 0.3);
     --shadow-material-lg: 0 4px 8px rgba(0, 0, 0, 0.5), 0 16px 32px rgba(0, 0, 0, 0.4);
   }
-  
+
+  /* Rainbow Theme */
   .rainbow {
+    /* Primary: Vibrant magenta */
+    --primary: 280 80% 70%;        /* Bright magenta */
+    --primary-foreground: 270 25% 12%;
+    
+    /* Secondary: Deep purple backgrounds */
+    --secondary: 270 15% 25%;      /* Purple gray */
+    --secondary-foreground: 0 0% 88%;
+    
+    /* Ternary: Card surfaces */
+    --ternary: 270 20% 16%;        /* Dark purple */
+    --ternary-foreground: 0 0% 92%;
+    
+    /* Quaternary: Borders and subtle elements */
+    --quaternary: 270 15% 30%;     /* Purple border */
+    --quaternary-foreground: 270 15% 78%;
+    
+    /* System colors mapped to our 4-color system */
+    --background: 270 25% 12%;
+    --foreground: var(--ternary-foreground);
+    --card: var(--ternary);
+    --card-foreground: var(--ternary-foreground);
+    --muted: var(--secondary);
+    --muted-foreground: var(--quaternary-foreground);
+    --border: var(--quaternary);
+    --input: 270 15% 20%;
+    --accent: 180 60% 65%; /* Cyan accent */
+    --accent-foreground: var(--primary-foreground);
+    --destructive: 0 75% 70%;
+    --destructive-foreground: var(--primary-foreground);
+    --ring: var(--primary);
+    --radius: 0.5rem;
+
     --shadow-material: 0 2px 4px rgba(0, 0, 0, 0.3), 0 8px 16px rgba(139, 69, 190, 0.15);
     --shadow-material-lg: 0 4px 8px rgba(0, 0, 0, 0.4), 0 16px 32px rgba(139, 69, 190, 0.2);
   }
-  
+
+  /* NATO Military Theme */
   .nato {
+    /* Primary: Military green */
+    --primary: 120 30% 50%;        /* Military green */
+    --primary-foreground: 0 0% 100%;
+    
+    /* Secondary: Olive surfaces */
+    --secondary: 60 12% 22%;       /* Olive gray */
+    --secondary-foreground: 60 10% 94%;
+    
+    /* Ternary: Dark olive cards */
+    --ternary: 60 12% 16%;         /* Dark olive */
+    --ternary-foreground: 60 10% 96%;
+    
+    /* Quaternary: Borders and subtle elements */
+    --quaternary: 60 15% 30%;      /* Olive border */
+    --quaternary-foreground: 60 8% 82%;
+    
+    /* System colors mapped to our 4-color system */
+    --background: 60 8% 12%;
+    --foreground: var(--ternary-foreground);
+    --card: var(--ternary);
+    --card-foreground: var(--ternary-foreground);
+    --muted: 60 12% 18%;
+    --muted-foreground: var(--quaternary-foreground);
+    --border: var(--quaternary);
+    --input: 60 12% 20%;
+    --accent: 45 90% 55%; /* Gold accent */
+    --accent-foreground: 60 8% 12%;
+    --destructive: 0 75% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --ring: var(--primary);
+    --radius: 0.5rem;
+
     --shadow-material: 0 2px 4px rgba(0, 0, 0, 0.4), 0 8px 16px rgba(34, 51, 34, 0.2);
     --shadow-material-lg: 0 4px 8px rgba(0, 0, 0, 0.5), 0 16px 32px rgba(34, 51, 34, 0.3);
   }
+
+  /* Utility classes for the 4-color system */
+  .bg-primary-color { background-color: hsl(var(--primary)); }
+  .text-primary-color { color: hsl(var(--primary)); }
+  .border-primary-color { border-color: hsl(var(--primary)); }
+  
+  .bg-secondary-color { background-color: hsl(var(--secondary)); }
+  .text-secondary-color { color: hsl(var(--secondary-foreground)); }
+  .border-secondary-color { border-color: hsl(var(--secondary)); }
+  
+  .bg-ternary-color { background-color: hsl(var(--ternary)); }
+  .text-ternary-color { color: hsl(var(--ternary-foreground)); }
+  .border-ternary-color { border-color: hsl(var(--ternary)); }
+  
+  .bg-quaternary-color { background-color: hsl(var(--quaternary)); }
+  .text-quaternary-color { color: hsl(var(--quaternary-foreground)); }
+  .border-quaternary-color { border-color: hsl(var(--quaternary)); }
 }
 
 @layer base {
@@ -162,10 +314,13 @@
   }
 
   body {
-    @apply font-sans antialiased bg-background text-foreground;
     font-family: 'Inter', system-ui, sans-serif;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
     position: relative;
     min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
