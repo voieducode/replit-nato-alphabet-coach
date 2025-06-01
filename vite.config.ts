@@ -5,7 +5,17 @@ import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
+function getBase() {
+  // In GitHub Actions
+  if (process.env.GITHUB_REPOSITORY) {
+    return `/${process.env.GITHUB_REPOSITORY.split('/')[1]}/`;
+  }
+  // In Replit or local dev
+  return '/';
+}
+
 export default defineConfig({
+  base: getBase(),
   plugins: [
     react(),
     tailwindcss(),
@@ -35,5 +45,18 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, 'dist/public'),
     emptyOutDir: true,
+    sourcemap: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          react: ['react', 'react-dom'],
+          radix: [
+            '@radix-ui/react-dialog',
+            '@radix-ui/react-toast',
+            '@radix-ui/react-slot',
+          ],
+        },
+      },
+    },
   },
 });
