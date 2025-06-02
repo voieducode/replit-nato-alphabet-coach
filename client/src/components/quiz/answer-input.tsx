@@ -1,9 +1,10 @@
 import type { Translations } from '@/lib/i18n';
-import { Lightbulb, Mic, MicOff } from 'lucide-react';
+import { Lightbulb, Mic, MicOff, Volume2 } from 'lucide-react';
 import React, { memo, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useSpeechRecognition } from '@/hooks/use-speech-recognition';
+import { useSpeechSynthesis } from '@/hooks/use-speech-synthesis';
 import { checkAnswerVariants, getHintForLetter } from '@/lib/spaced-repetition';
 import { cn } from '@/lib/utils';
 
@@ -32,6 +33,7 @@ export const AnswerInput = memo(
     translations,
   }: AnswerInputProps) => {
     const inputRef = useRef<HTMLInputElement>(null);
+    const { speak } = useSpeechSynthesis();
 
     // Use our custom speech recognition hook
     const { isListening, speechSupported, startListening, stopListening } =
@@ -70,12 +72,22 @@ export const AnswerInput = memo(
     return (
       <div className="space-y-4">
         <div>
-          <label
-            htmlFor="answer-input"
-            className="block text-sm font-medium text-gray-700 mb-2"
-          >
-            {translations.enterText}:
-          </label>
+          <div className="flex items-center justify-between mb-2">
+            <label
+              htmlFor="answer-input"
+              className="block text-sm font-medium text-gray-700"
+            >
+              {translations.enterText}:
+            </label>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => speak(`${letter}... ${correctAnswer}`)}
+              className="ml-2"
+            >
+              <Volume2 className="h-4 w-4" />
+            </Button>
+          </div>
           <div id="answer-instructions" className="text-xs text-gray-500 mb-2">
             {translations.pressEnterToSubmit} • {translations.pressEscapeToSkip}{' '}
             •{translations.exampleAnswers}

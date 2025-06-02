@@ -1,4 +1,3 @@
-import type { VoiceType } from '@/lib/voice-selector';
 import { Bell, Globe, Palette, Settings, Volume2 } from 'lucide-react';
 import { useState } from 'react';
 import { ThemeSelector } from '@/components/theme-selector';
@@ -12,41 +11,42 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { useLanguage } from '@/hooks/use-language';
-import { getVoiceSettings } from '@/lib/voice-selector';
+import { useSpeechSynthesis } from '@/hooks/use-speech-synthesis';
 
 export default function SettingsSection() {
-  const [ttsVoice, setTtsVoice] = useState(
-    localStorage.getItem('tts-voice') || 'female'
-  );
+  const { availableVoices, voiceSettings, setVoiceSettings, speak } =
+    useSpeechSynthesis();
   const [notificationsEnabled, setNotificationsEnabled] = useState(() => {
     const stored = localStorage.getItem('notifications-enabled');
     return stored === 'true';
   });
   const { language, translations, setLanguage } = useLanguage();
 
-  const handleVoiceChange = (value: string) => {
-    setTtsVoice(value);
-    localStorage.setItem('tts-voice', value);
+  const handleVoiceChange = (name: string) => {
+    setVoiceSettings((prev) => ({ ...prev, voiceName: name }));
+  };
+
+  const handleSettingChange = (
+    setting: 'rate' | 'pitch' | 'volume',
+    value: number
+  ) => {
+    setVoiceSettings((prev) => ({ ...prev, [setting]: value }));
   };
 
   const handleNotificationToggle = async (enabled: boolean) => {
-    // Always update the local state first
     setNotificationsEnabled(enabled);
     localStorage.setItem('notifications-enabled', enabled.toString());
 
     if (enabled) {
-      // Check if notifications are supported
       if (!('Notification' in window)) {
         console.error('Notifications not supported by browser');
         return;
       }
 
-      // Check current permission
       let permission = Notification.permission;
-
-      // If permission is default, request it
       if (permission === 'default') {
         try {
           permission = await Notification.requestPermission();
@@ -63,8 +63,6 @@ export default function SettingsSection() {
           'Notifications enabled but permission denied - user can still enable manually in browser settings'
         );
       }
-    } else {
-      console.warn('Notifications disabled');
     }
   };
 
@@ -73,13 +71,13 @@ export default function SettingsSection() {
   };
 
   const languages = [
-    { code: 'en', name: 'English', flag: '🇺🇸' },
-    { code: 'fr', name: 'Français', flag: '🇫🇷' },
-    { code: 'es', name: 'Español', flag: '🇪🇸' },
-    { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
-    { code: 'ar', name: 'العربية', flag: '🇸🇦' },
-    { code: 'sw', name: 'Kiswahili', flag: '🇰🇪' },
-    { code: 'zh', name: '中文', flag: '🇨🇳' },
+    { code: 'en', name: 'English' },
+    { code: 'fr', name: 'Français' },
+    { code: 'es', name: 'Español' },
+    { code: 'de', name: 'Deutsch' },
+    { code: 'ar', name: 'العربية' },
+    { code: 'sw', name: 'Kiswahili' },
+    { code: 'zh', name: '中文' },
   ];
 
   return (
@@ -107,42 +105,75 @@ export default function SettingsSection() {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 {translations.textToSpeechVoice}
               </label>
-              <Select value={ttsVoice} onValueChange={handleVoiceChange}>
+              <Select
+                value={voiceSettings.voiceName || ''}
+                onValueChange={handleVoiceChange}
+              >
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue placeholder="Select a voice" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="female">
-                    {translations.femaleVoice}
-                  </SelectItem>
-                  <SelectItem value="male">{translations.maleVoice}</SelectItem>
-                  <SelectItem value="robot">
-                    {translations.robotVoice}
-                  </SelectItem>
+                  {availableVoices.map((voice) => (
+                    <SelectItem key={voice.name} value={voice.name}>
+                      {voice.name} ({voice.lang})
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
+
+              <div className="space-y-6 mt-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">
+                    Speech Rate
+                  </label>
+                  <Slider
+                    min={0.5}
+                    max={2}
+                    step={0.1}
+                    value={[voiceSettings.rate]}
+                    onValueChange={([value]) =>
+                      handleSettingChange('rate', value)
+                    }
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">
+                    Pitch
+                  </label>
+                  <Slider
+                    min={0.5}
+                    max={2}
+                    step={0.1}
+                    value={[voiceSettings.pitch]}
+                    onValueChange={([value]) =>
+                      handleSettingChange('pitch', value)
+                    }
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">
+                    Volume
+                  </label>
+                  <Slider
+                    min={0}
+                    max={1}
+                    step={0.1}
+                    value={[voiceSettings.volume]}
+                    onValueChange={([value]) =>
+                      handleSettingChange('volume', value)
+                    }
+                  />
+                </div>
+              </div>
             </div>
 
             <Button
               variant="outline"
               size="sm"
               onClick={() => {
-                const utterance = new SpeechSynthesisUtterance(
-                  'Alpha Bravo Charlie'
-                );
-
-                // Use the improved voice selection system
-                const voiceSettings = getVoiceSettings(ttsVoice as VoiceType);
-
-                // Apply voice and settings
-                if (voiceSettings.voice) {
-                  utterance.voice = voiceSettings.voice;
-                }
-                utterance.rate = voiceSettings.rate;
-                utterance.pitch = voiceSettings.pitch;
-                utterance.volume = voiceSettings.volume;
-
-                speechSynthesis.speak(utterance);
+                speak('Alpha Bravo Charlie');
               }}
             >
               {translations.testVoice}
@@ -185,6 +216,7 @@ export default function SettingsSection() {
           )}
         </CardContent>
       </Card>
+
       {/* Theme Settings */}
       <Card className="bg-white shadow-material border border-gray-100">
         <CardContent className="p-4">
@@ -231,10 +263,7 @@ export default function SettingsSection() {
                 <SelectContent>
                   {languages.map((lang) => (
                     <SelectItem key={lang.code} value={lang.code}>
-                      <div className="flex items-center space-x-2">
-                        <span>{lang.flag}</span>
-                        <span>{lang.name}</span>
-                      </div>
+                      <span>{lang.name}</span>
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -249,7 +278,7 @@ export default function SettingsSection() {
                   className="cursor-pointer"
                   onClick={() => handleLanguageChange(lang.code)}
                 >
-                  {lang.flag} {lang.name}
+                  {lang.name}
                 </Badge>
               ))}
             </div>

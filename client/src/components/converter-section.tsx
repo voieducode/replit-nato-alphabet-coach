@@ -1,4 +1,3 @@
-import type { VoiceType } from '@/lib/voice-selector';
 import { Copy, Info, Play, Square, X } from 'lucide-react';
 import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
@@ -6,16 +5,21 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { useLanguage } from '@/hooks/use-language';
+import { useSpeechSynthesis } from '@/hooks/use-speech-synthesis';
 import { useToast } from '@/hooks/use-toast';
 import { convertToNATO, natoAlphabet } from '@/lib/nato-alphabet';
-import { getVoiceSettings } from '@/lib/voice-selector';
+import {
+  getStoredConverterText,
+  updateStoredConverterText,
+} from '@/lib/storage';
 
 export default function ConverterSection() {
-  const [inputText, setInputText] = useState('');
+  const [inputText, setInputText] = useState(getStoredConverterText);
   const [showFullReference, setShowFullReference] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const { toast } = useToast();
   const { translations } = useLanguage();
+  const { voiceSettings, availableVoices } = useSpeechSynthesis();
 
   const convertedText = convertToNATO(inputText);
 
@@ -49,17 +53,14 @@ export default function ConverterSection() {
       setIsPlaying(true);
       const utterance = new SpeechSynthesisUtterance(natoText);
 
-      // Get voice preference from localStorage
-      const voiceType = (localStorage.getItem('tts-voice') ||
-        'female') as VoiceType;
-
-      // Use the improved voice selection system
-      const voiceSettings = getVoiceSettings(voiceType);
-
-      // Apply voice and settings
-      if (voiceSettings.voice) {
-        utterance.voice = voiceSettings.voice;
+      // Apply voice settings from hook
+      const voice = availableVoices.find(
+        (v) => v.name === voiceSettings.voiceName
+      );
+      if (voice) {
+        utterance.voice = voice;
       }
+
       utterance.rate = voiceSettings.rate;
       utterance.pitch = voiceSettings.pitch;
       utterance.volume = voiceSettings.volume;
@@ -94,7 +95,11 @@ export default function ConverterSection() {
             id="textInput"
             placeholder={translations.placeholder}
             value={inputText}
-            onChange={(e) => setInputText(e.target.value)}
+            onChange={(e) => {
+              const newValue = e.target.value;
+              setInputText(newValue);
+              updateStoredConverterText(newValue);
+            }}
             className="w-full p-4 border-2 border-gray-200 rounded-lg focus:border-primary focus:outline-hidden transition-colors resize-none h-32 text-base"
           />
           {inputText && (
@@ -102,7 +107,10 @@ export default function ConverterSection() {
               variant="ghost"
               size="icon"
               className="absolute bottom-3 right-3 p-2 text-gray-400 hover:text-gray-600"
-              onClick={() => setInputText('')}
+              onClick={() => {
+                setInputText('');
+                updateStoredConverterText('');
+              }}
             >
               <X className="h-4 w-4" />
             </Button>

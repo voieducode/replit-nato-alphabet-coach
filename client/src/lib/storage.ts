@@ -22,6 +22,7 @@ const STORAGE_KEYS = {
   USER_PROGRESS: 'userProgress',
   SETTINGS: 'appSettings',
   QUIZ_SESSION: 'quizSession',
+  CONVERTER_TEXT: 'converterText',
 } as const;
 
 export interface StoredQuizSession {
@@ -169,6 +170,24 @@ export function updateAppSettings(settings: Partial<AppSettings>): void {
     const current = getAppSettings();
     const updated = { ...current, ...settings };
     localStorage.setItem('appSettings', JSON.stringify(updated));
+  } catch {
+    // Silently fail if localStorage is not available
+  }
+}
+
+// Converter text management
+export function getStoredConverterText(): string {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEYS.CONVERTER_TEXT);
+    return stored || '';
+  } catch {
+    return '';
+  }
+}
+
+export function updateStoredConverterText(text: string): void {
+  try {
+    localStorage.setItem(STORAGE_KEYS.CONVERTER_TEXT, text);
   } catch {
     // Silently fail if localStorage is not available
   }
