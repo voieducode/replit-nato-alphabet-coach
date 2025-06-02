@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
-interface VoiceSettings {
+export interface VoiceSettings {
   voiceName: string | null;
   rate: number;
   pitch: number;
@@ -27,9 +27,21 @@ export function useSpeechSynthesis() {
   const handleVoicesChanged = useCallback(() => {
     const voices = speechSynthesis.getVoices();
     if (voices.length > 0) {
+      // eslint-disable-next-line react-hooks-extra/no-direct-set-state-in-use-effect
       setAvailableVoices(voices);
     }
   }, []);
+
+  // Set default voice if none selected
+  const initializeDefaultVoice = useCallback(() => {
+    if (availableVoices.length > 0 && !voiceSettings.voiceName) {
+      // eslint-disable-next-line react-hooks-extra/no-direct-set-state-in-use-effect
+      setVoiceSettings((prev) => ({
+        ...prev,
+        voiceName: availableVoices[0].name,
+      }));
+    }
+  }, [availableVoices, voiceSettings.voiceName]);
 
   // Initialize voices
   useEffect(() => {
@@ -41,15 +53,10 @@ export function useSpeechSynthesis() {
     };
   }, [handleVoicesChanged]);
 
-  // Set default voice if none selected
+  // Call the voice initialization in a separate useEffect
   useEffect(() => {
-    if (availableVoices.length > 0 && !voiceSettings.voiceName) {
-      setVoiceSettings((prev) => ({
-        ...prev,
-        voiceName: availableVoices[0].name,
-      }));
-    }
-  }, [availableVoices, voiceSettings.voiceName]);
+    initializeDefaultVoice();
+  }, [initializeDefaultVoice]);
 
   // Save settings to localStorage
   useEffect(() => {
