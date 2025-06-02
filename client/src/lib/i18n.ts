@@ -1,81 +1,85 @@
 export interface Translations {
-  appName: string;
-  converter: string;
-  quiz: string;
-  settings: string;
-  enterText: string;
-  placeholder: string;
-  natoAlphabet: string;
-  playPronunciation: string;
-  stop: string;
-  quickReference: string;
-  showLess: string;
-  viewFullAlphabet: string;
-  copied: string;
-  copyFailed: string;
-  speechNotAvailable: string;
-  voiceSettings: string;
-  textToSpeechVoice: string;
-  testVoice: string;
-  notifications: string;
-  spacedRepetitionReminders: string;
-  notificationDescription: string;
-  language: string;
-  interfaceLanguage: string;
   about: string;
   aboutDescription: string;
-  version: string;
-  builtWith: string;
-  currentStreak: string;
-  totalSessions: string;
   accuracy: string;
-  learningProgress: string;
-  learning: string;
-  review: string;
-  mastered: string;
-  startQuiz: string;
-  restartQuiz: string;
-  nextQuestion: string;
-  submitAnswer: string;
-  showStats: string;
-  hideStats: string;
-  correctAnswer: string;
-  yourAnswer: string;
-  correct: string;
-  incorrect: string;
-  sessionComplete: string;
-  score: string;
-  tryAgain: string;
-  hint: string;
-  femaleVoice: string;
-  maleVoice: string;
-  robotVoice: string;
-  dailyReminders: string;
-  speakAnswer: string;
-  voiceInputActive: string;
   adaptiveLearning: string;
-  skipQuestion: string;
-  spacedRepetitionDescription: string;
+  appearance: string;
+  appName: string;
+  bestTime: string;
+  builtWith: string;
+  chooseTheme: string;
+  converter: string;
+  copied: string;
+  copyFailed: string;
+  correct: string;
+  correctAnswer: string;
+  currentStreak: string;
+  dailyReminders: string;
+  darkTheme: string;
+  enterText: string;
+  exampleAnswers: string;
+  femaleVoice: string;
+  hideStats: string;
+  hint: string;
+  incorrect: string;
+  interfaceLanguage: string;
+  language: string;
+  lastFiveTimes: string;
+  learning: string;
+  learningProgress: string;
+  lightTheme: string;
+  maleVoice: string;
+  markAllAsRead: string;
+  mastered: string;
+  natoAlphabet: string;
+  natoHints: Record<string, string>;
+  nextQuestion: string;
+  noNotifications: string;
+  notificationDescription: string;
+  notifications: string;
+  notificationsPanelTitle: string;
+  noTimesRecorded: string;
+  placeholder: string;
+  playPronunciation: string;
   pressEnterToSubmit: string;
   pressEscapeToSkip: string;
-  exampleAnswers: string;
-  notificationsPanelTitle: string;
-  markAllAsRead: string;
-  noNotifications: string;
-  natoHints: Record<string, string>;
-  theme: string;
-  lightTheme: string;
-  darkTheme: string;
-  rainbowTheme: string;
-  systemTheme: string;
-  appearance: string;
-  chooseTheme: string;
   question: string;
   questionCount: string;
+  quickReference: string;
+  quiz: string;
+  quizTimes: string;
+  rainbowTheme: string;
+  restartQuiz: string;
+  review: string;
   reviewYourAnswers: string;
-  typeNatoWordForLetter: string;
+  robotVoice: string;
+  score: string;
+  sessionComplete: string;
+  settings: string;
+  showLess: string;
+  showStats: string;
+  skipQuestion: string;
+  spacedRepetitionDescription: string;
+  spacedRepetitionReminders: string;
+  speakAnswer: string;
+  speechNotAvailable: string;
+  startQuiz: string;
   startVoiceInput: string;
+  stop: string;
   stopVoiceInput: string;
+  submitAnswer: string;
+  systemTheme: string;
+  testVoice: string;
+  textToSpeechVoice: string;
+  theme: string;
+  totalSessions: string;
+  tryAgain: string;
+  typeNatoWordForLetter: string;
+  version: string;
+  viewFullAlphabet: string;
+  voiceInputActive: string;
+  voiceSettings: string;
+  yourAnswer: string;
 }
 
 export const translations: Record<string, Translations> = {
@@ -181,6 +185,10 @@ export const translations: Record<string, Translations> = {
     learning: 'Learning',
     review: 'Review',
     mastered: 'Mastered',
+    lastFiveTimes: 'Last 5 Quiz Times',
+    quizTimes: 'Quiz Times',
+    bestTime: 'Best Time',
+    noTimesRecorded: 'No Times Recorded',
     // Settings
     theme: 'Theme',
     lightTheme: 'Light',
@@ -291,6 +299,10 @@ export const translations: Record<string, Translations> = {
     learning: 'Apprentissage',
     review: 'Révision',
     mastered: 'Maîtrisé',
+    lastFiveTimes: 'Derniers 5 Temps',
+    quizTimes: 'Temps de Quiz',
+    bestTime: 'Meilleur Temps',
+    noTimesRecorded: 'Aucun Temps Enregistré',
     // Settings
     theme: 'Thème',
     lightTheme: 'Clair',
@@ -404,6 +416,10 @@ export const translations: Record<string, Translations> = {
     learning: 'Aprendiendo',
     review: 'Repaso',
     mastered: 'Dominado',
+    lastFiveTimes: 'Últimos 5 Tiempos',
+    quizTimes: 'Tiempos de Cuestionarios',
+    bestTime: 'Mejor Tiempo',
+    noTimesRecorded: 'No Hay Tiempos Registrados',
     // Settings
     theme: 'Tema',
     lightTheme: 'Claro',
@@ -514,6 +530,10 @@ export const translations: Record<string, Translations> = {
     learning: 'Lernen',
     review: 'Wiederholen',
     mastered: 'Beherrscht',
+    lastFiveTimes: 'Letzte 5 Quiz-Zeiten',
+    quizTimes: 'Quiz-Zeiten',
+    bestTime: 'Beste Zeit',
+    noTimesRecorded: 'Keine Zeiten Aufgezeichnet',
     // Settings
     theme: 'Thema',
     lightTheme: 'Hell',
@@ -624,6 +644,10 @@ export const translations: Record<string, Translations> = {
     learning: 'التعلم',
     review: 'المراجعة',
     mastered: 'متقن',
+    lastFiveTimes: 'آخر 5 أوقات للاختبار',
+    quizTimes: 'أوقات الاختبار',
+    bestTime: 'أفضل وقت',
+    noTimesRecorded: 'لم يتم تسجيل أوقات',
     spacedRepetitionDescription:
       'كل مجموعة من 10 أسئلة تتكيف حسب أداءك باستخدام التكرار المتباعد.',
     theme: 'السمة',
@@ -733,6 +757,10 @@ export const translations: Record<string, Translations> = {
     learning: 'Kujifunza',
     review: 'Kukagua',
     mastered: 'Umejifunza',
+    lastFiveTimes: 'Muda wa Jaribio wa Mwisho 5',
+    quizTimes: 'Muda wa Jaribio',
+    bestTime: 'Muda Bora',
+    noTimesRecorded: 'Hakuna Muda Ulioandikwa',
     spacedRepetitionDescription:
       'Kila seti ya maswali 10 hubadilika kulingana na utendaji wako kwa kutumia rudia kwa nafasi.',
     theme: 'Mandhari',
@@ -840,6 +868,10 @@ export const translations: Record<string, Translations> = {
     learning: '学习中',
     review: '复习',
     mastered: '已掌握',
+    quizTimes: '测验时间',
+    bestTime: '最佳时间',
+    noTimesRecorded: '未记录时间',
+    lastFiveTimes: '最近5次测验时间',
     spacedRepetitionDescription:
       '每组10道题会根据您的表现使用间隔重复进行调整。',
     theme: '主题',

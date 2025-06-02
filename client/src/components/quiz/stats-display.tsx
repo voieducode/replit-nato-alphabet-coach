@@ -138,10 +138,14 @@ export const StatsDisplay = memo(
           {timerStats && (
             <Card className="bg-white shadow-material border border-gray-100 col-span-2">
               <CardContent className="p-4">
-                <h4 className="font-semibold text-gray-800 mb-3">Quiz Times</h4>
+                <h4 className="font-semibold text-gray-800 mb-3">
+                  {translations.quizTimes}
+                </h4>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <div className="text-sm text-gray-400 mb-1">Best Time</div>
+                    <div className="text-sm text-gray-400 mb-1">
+                      {translations.bestTime}
+                    </div>
                     <div className="text-xl font-bold text-primary">
                       {timerStats.bestTime === Infinity
                         ? '-'
@@ -150,12 +154,12 @@ export const StatsDisplay = memo(
                   </div>
                   <div>
                     <div className="text-sm text-gray-400 mb-1">
-                      Last 5 Times
+                      {translations.lastFiveTimes}
                     </div>
                     <div className="space-y-1">
                       {timerStats.lastFiveTimes.length === 0 ? (
                         <div className="text-sm text-gray-500">
-                          No times recorded
+                          {translations.noTimesRecorded}
                         </div>
                       ) : (
                         timerStats.lastFiveTimes.map(
@@ -166,7 +170,7 @@ export const StatsDisplay = memo(
                             >
                               <span>{formatTime(time.time)}</span>
                               <span className="text-gray-400">
-                                {new Date(time.date).toLocaleDateString()}
+                                {new Date(time.date).toLocaleString()}
                               </span>
                             </div>
                           )
