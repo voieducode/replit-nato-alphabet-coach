@@ -1,17 +1,9 @@
-import type { UserProgress } from '@shared/schema';
 import type { QuizQuestion } from '@/lib/spaced-repetition';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLanguage } from '@/hooks/use-language';
 import { useQuizContext } from '@/hooks/use-quiz-context';
 import { useToast } from '@/hooks/use-toast';
-import { checkAnswerVariants } from '@/lib/spaced-repetition';
-import {
-  addQuizTime,
-  getUserProgressLocal,
-  getUserStats,
-  updateUserProgressLocal,
-} from '@/lib/storage';
-
+import { addQuizTime, getUserStats } from '@/lib/storage';
 import { QuizCard } from './quiz/quiz-card';
 // Import subcomponents
 import { QuizHeader } from './quiz/quiz-header';
@@ -19,6 +11,11 @@ import { ResultsReview } from './quiz/results-review';
 import { SpacedRepetitionInfo } from './quiz/spaced-repetition-info';
 import { StatsDisplay } from './quiz/stats-display';
 import { StudyStatsFooter } from './quiz/study-stats-footer';
+import { useHintTimer } from './quiz/useHintTimer';
+import { useQuizAnswer } from './quiz/useQuizAnswer';
+import { quizStats } from './quiz/useQuizStats';
+import { useQuizTimer } from './quiz/useQuizTimer';
+import { useUserProgress } from './quiz/useUserProgress';
 
 // QuizSection no longer needs userId prop as it's provided by QuizProvider
 export default function QuizSection() {
@@ -40,124 +37,26 @@ export default function QuizSection() {
 
   // Hard-code userId since it's always the same in this app
   const userId = 'user-1';
+  const { userProgress, updateProgress } = useUserProgress(userId);
 
   const [userAnswer, setUserAnswer] = useState('');
-  const [showHint, setShowHint] = useState(false);
-  const [_hintTimer, setHintTimer] = useState(0);
   const [showStats, setShowStats] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const isTimerActiveRef = useRef(false);
-  const prevQuizSetRef = useRef(currentQuizSet);
   const { toast } = useToast();
   const { translations } = useLanguage();
 
-  // Use localStorage for all data persistence with lazy initialization
-  const [userProgress, setUserProgress] = useState<UserProgress[]>(() => {
-    const localProgress = getUserProgressLocal();
-    return localProgress.map((p, index) => ({
-      id: index + 1,
-      userId,
-      letter: p.letter,
-      correctCount: p.correctCount,
-      incorrectCount: p.incorrectCount,
-      lastReviewed: new Date(p.lastReview),
-      nextReview: new Date(p.nextReview),
-      difficulty: p.difficulty,
-    }));
-  });
+  const {
+    showHint,
+    setShowHint,
+    hintTimer: _hintTimer,
+    setHintTimer,
+  } = useHintTimer(isActive, showResult);
 
-  // Local progress update function
-  const updateProgress = (letter: string, isCorrect: boolean) => {
-    const localProgress = updateUserProgressLocal(letter, isCorrect);
-
-    // Update state
-    setUserProgress((prev) => {
-      const existing = prev.find((p) => p.letter === letter);
-      if (existing) {
-        return prev.map((p) =>
-          p.letter === letter
-            ? {
-                ...p,
-                correctCount: localProgress.correctCount,
-                incorrectCount: localProgress.incorrectCount,
-                lastReviewed: new Date(localProgress.lastReview),
-                nextReview: new Date(localProgress.nextReview),
-                difficulty: localProgress.difficulty,
-              }
-            : p
-        );
-      } else {
-        return [
-          ...prev,
-          {
-            id: prev.length + 1,
-            userId,
-            letter: localProgress.letter,
-            correctCount: localProgress.correctCount,
-            incorrectCount: localProgress.incorrectCount,
-            lastReviewed: new Date(localProgress.lastReview),
-            nextReview: new Date(localProgress.nextReview),
-            difficulty: localProgress.difficulty,
-          },
-        ];
-      }
-    });
-  };
-
-  // Timer management - no longer need callback functions
-
-  // Hint timer effect - show hint after 5 seconds
-  useEffect(() => {
-    let intervalId: NodeJS.Timeout;
-    if (isActive && !showResult) {
-      intervalId = setInterval(() => {
-        setHintTimer((timer) => {
-          if (timer >= 5 && !showHint) {
-            setShowHint(true);
-          }
-          return timer + 1;
-        });
-      }, 1000);
-    }
-    return () => clearInterval(intervalId);
-  }, [isActive, showResult, showHint]);
-
-  // Timer effect
-  useEffect(() => {
-    if (isActive && !isQuizComplete && !showResult) {
-      isTimerActiveRef.current = true;
-      timerRef.current = setInterval(() => {
-        setCurrentTime((prev) => prev + 1);
-      }, 1000);
-    } else {
-      isTimerActiveRef.current = false;
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
-      }
-    }
-
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
-      }
-    };
-  }, [isActive, isQuizComplete, showResult]);
-
-  // Handle timer reset when quiz set changes
-  if (prevQuizSetRef.current !== currentQuizSet) {
-    prevQuizSetRef.current = currentQuizSet;
-
-    // Reset timer whenever quiz set changes (new quiz set or null)
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
-    }
-    isTimerActiveRef.current = false;
-    setCurrentTime(0); // Always reset timer on quiz set change
-  }
+  const { currentTime } = useQuizTimer(
+    isActive,
+    isQuizComplete,
+    showResult,
+    currentQuizSet
+  );
 
   // Initialize first quiz set
   useEffect(() => {
@@ -189,97 +88,25 @@ export default function QuizSection() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isQuizComplete]);
 
-  const handleSubmitAnswer = async () => {
-    const currentQuestion = getCurrentQuestion();
-    if (!currentQuestion || !userAnswer.trim()) {
-      return;
-    }
-
-    const isCorrect = checkAnswerVariants(
-      userAnswer,
-      currentQuestion.correctAnswer
-    );
-
-    addSessionResult({
-      question: currentQuestion,
-      userAnswer: userAnswer.trim(),
-      isCorrect,
-    });
-
-    if (isCorrect) {
-      toast({
-        title: translations.correct,
-        description: `${currentQuestion.letter} is indeed ${currentQuestion.correctAnswer}`,
-      });
-    } else {
-      toast({
-        title: translations.incorrect,
-        description: `${currentQuestion.letter} is ${currentQuestion.correctAnswer}, not ${userAnswer}`,
-        variant: 'destructive',
-      });
-    }
-
-    // Update progress
-    updateProgress(currentQuestion.letter, isCorrect);
-
-    // Auto-advance after 2 seconds
-    setTimeout(() => {
-      setUserAnswer('');
-      setShowHint(false);
-      setHintTimer(0);
-      advanceQuiz();
-    }, 2000);
-  };
-
-  const handleSkipQuestion = () => {
-    const currentQuestion = getCurrentQuestion();
-    if (!currentQuestion) {
-      return;
-    }
-
-    updateProgress(currentQuestion.letter, false);
-    addSessionResult({
-      question: currentQuestion,
-      userAnswer: '(skipped)',
-      isCorrect: false,
-    });
-
-    setUserAnswer('');
-    setShowHint(false);
-    setHintTimer(0);
-    advanceQuiz();
-  };
-
-  // Calculate stats
-  const totalSessions = localStats.totalSessions;
-  const averageScore =
-    localStats.totalAnswers > 0
-      ? Math.round((localStats.correctAnswers / localStats.totalAnswers) * 100)
-      : 0;
-
-  // Calculate letter progress and stats
-  const letterProgress = userProgress.map((progress) => {
-    const total = progress.correctCount + progress.incorrectCount;
-    const accuracy = total > 0 ? progress.correctCount / total : 0;
-    return {
-      letter: progress.letter,
-      accuracy,
-    };
+  const { handleSubmitAnswer, handleSkipQuestion } = useQuizAnswer({
+    getCurrentQuestion,
+    addSessionResult,
+    updateProgress,
+    toast,
+    translations,
+    advanceQuiz,
+    setUserAnswer,
+    setShowHint,
+    setHintTimer,
   });
 
-  const progressStats = letterProgress.reduce(
-    (acc, { accuracy }) => {
-      if (accuracy >= 0.8) {
-        acc.mastered++;
-      } else if (accuracy >= 0.5) {
-        acc.review++;
-      } else {
-        acc.learning++;
-      }
-      return acc;
-    },
-    { learning: 0, review: 0, mastered: 0 }
-  );
+  const {
+    totalSessions,
+    averageScore,
+    letterProgress,
+    progressStats,
+    correctAnswersCount,
+  } = quizStats(userProgress, localStats, sessionResults);
 
   const currentQuestion = getCurrentQuestion();
 
@@ -303,10 +130,6 @@ export default function QuizSection() {
       />
     );
   }
-
-  const correctAnswersCount = sessionResults.filter(
-    (r: { isCorrect: boolean }) => r.isCorrect
-  ).length;
 
   return (
     <div className="p-4 space-y-6">
@@ -343,7 +166,7 @@ export default function QuizSection() {
           setUserAnswer={setUserAnswer}
           showResult={showResult}
           showHint={showHint}
-          onSubmitAnswer={handleSubmitAnswer}
+          onSubmitAnswer={() => handleSubmitAnswer(userAnswer)}
           onSkipQuestion={handleSkipQuestion}
           translations={translations}
           sessionResults={sessionResults}

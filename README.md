@@ -2,6 +2,8 @@
 
 An interactive web app to help users learn and practice the NATO phonetic alphabet. Perfect for pilots, radio operators, or anyone who wants to improve their clarity in spoken communication.
 
+Check it out at https://voieducode.github.io/replit-nato-alphabet-coach/
+
 ## Features
 
 - **Alphabet Converter**: Convert text to NATO phonetic alphabet representation
