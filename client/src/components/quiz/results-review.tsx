@@ -29,10 +29,14 @@ export const ResultsReview = memo(
     const score = sessionResults.filter((r) => r.isCorrect).length;
     const accuracy = Math.round((score / sessionResults.length) * 100);
 
+    // Check if the completion header (and its button) is being shown
+    const showHeaderButton =
+      sessionResults.length >= 10 || showCompletionHeader;
+
     return (
       <div className="p-4 space-y-6">
-        {/* Quiz Complete Header - only shown when showCompletionHeader is true */}
-        {showCompletionHeader && (
+        {/* Quiz Complete Header - shown when responses >= 10 or showCompletionHeader is true */}
+        {showHeaderButton && (
           <Card className="bg-linear-to-r from-info to-blue-50 border border-green-200">
             <CardContent className="p-6 text-center">
               <div className="mb-4">
@@ -110,6 +114,17 @@ export const ResultsReview = memo(
             </div>
           </CardContent>
         </Card>
+
+        {/* Conditionally visible start new quiz button - only show when header button is not shown */}
+        {!showHeaderButton && (
+          <Button
+            onClick={onFinish}
+            className="mt-4 w-full"
+            aria-label="Start a new quiz set of 10 questions"
+          >
+            {translations.restartQuiz}
+          </Button>
+        )}
       </div>
     );
   }

@@ -1,11 +1,16 @@
 import type { UserProgress } from '@shared/schema';
 import type { QuizQuestion } from '@/lib/spaced-repetition';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useLanguage } from '@/hooks/use-language';
 import { useQuizContext } from '@/hooks/use-quiz-context';
 import { useToast } from '@/hooks/use-toast';
 import { checkAnswerVariants } from '@/lib/spaced-repetition';
-import { getUserProgressLocal, updateUserProgressLocal } from '@/lib/storage';
+import {
+  addQuizTime,
+  getUserProgressLocal,
+  getUserStats,
+  updateUserProgressLocal,
+} from '@/lib/storage';
 
 import { QuizCard } from './quiz/quiz-card';
 // Import subcomponents
@@ -40,6 +45,10 @@ export default function QuizSection() {
   const [showHint, setShowHint] = useState(false);
   const [_hintTimer, setHintTimer] = useState(0);
   const [showStats, setShowStats] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const isTimerActiveRef = useRef(false);
+  const prevQuizSetRef = useRef(currentQuizSet);
   const { toast } = useToast();
   const { translations } = useLanguage();
 
@@ -96,6 +105,8 @@ export default function QuizSection() {
     });
   };
 
+  // Timer management - no longer need callback functions
+
   // Hint timer effect - show hint after 5 seconds
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
@@ -112,6 +123,45 @@ export default function QuizSection() {
     return () => clearInterval(intervalId);
   }, [isActive, showResult, showHint]);
 
+  // Timer effect
+  useEffect(() => {
+    if (isActive && !isQuizComplete && !showResult) {
+      isTimerActiveRef.current = true;
+      timerRef.current = setInterval(() => {
+        setCurrentTime((prev) => prev + 1);
+      }, 1000);
+    } else {
+      isTimerActiveRef.current = false;
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    }
+
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    };
+  }, [isActive, isQuizComplete, showResult]);
+
+  // Handle timer reset when quiz set changes
+  if (prevQuizSetRef.current !== currentQuizSet) {
+    prevQuizSetRef.current = currentQuizSet;
+    if (!currentQuizSet) {
+      // Clear any existing timer and reset time
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+      isTimerActiveRef.current = false;
+      if (currentTime > 0) {
+        setCurrentTime(0);
+      }
+    }
+  }
+
   // Initialize first quiz set
   useEffect(() => {
     if (userProgress.length >= 0 && !currentQuizSet) {
@@ -127,6 +177,15 @@ export default function QuizSection() {
       return null;
     }
     return currentQuizSet.questions[currentQuestionIndex];
+  };
+
+  // Save quiz time on completion
+  const handleQuizCompletion = () => {
+    if (currentTime > 0) {
+      const score = sessionResults.filter((r) => r.isCorrect).length;
+      const totalQuestions = currentQuizSet?.questions.length || 10;
+      addQuizTime(currentTime, score, totalQuestions);
+    }
   };
 
   const handleSubmitAnswer = async () => {
@@ -235,6 +294,7 @@ export default function QuizSection() {
   }
 
   if (isQuizComplete) {
+    handleQuizCompletion();
     return (
       <ResultsReview
         sessionResults={sessionResults}
@@ -258,6 +318,7 @@ export default function QuizSection() {
         showResult={showResult}
         toggleStats={() => setShowStats(!showStats)}
         translations={translations}
+        currentTime={currentTime}
       />
 
       {/* Stats Section - Shows when header is clicked */}
@@ -268,6 +329,7 @@ export default function QuizSection() {
           learningStats={progressStats}
           letterProgress={letterProgress}
           translations={translations}
+          timerStats={getUserStats().quizTimer}
         />
       )}
 

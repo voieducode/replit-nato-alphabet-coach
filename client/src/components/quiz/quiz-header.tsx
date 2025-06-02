@@ -11,6 +11,13 @@ interface QuizHeaderProps {
   showResult: boolean;
   toggleStats: () => void;
   translations: Translations;
+  currentTime: number;
+}
+
+function formatTime(seconds: number): string {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
 export const QuizHeader = memo(
@@ -21,6 +28,7 @@ export const QuizHeader = memo(
     showResult,
     toggleStats,
     translations,
+    currentTime,
   }: QuizHeaderProps) => {
     return (
       <Card
@@ -30,9 +38,14 @@ export const QuizHeader = memo(
         <CardContent className="p-4">
           <div className="flex items-center justify-between mb-3">
             <h2 className="font-semibold text-lg">{translations.quiz}</h2>
-            <span className="text-sm text-gray-400">
-              {new Date().toLocaleDateString()}
-            </span>
+            <div className="flex items-center gap-4">
+              <span className="text-sm font-medium text-primary">
+                {formatTime(currentTime)}
+              </span>
+              <span className="text-sm text-gray-400">
+                {new Date().toLocaleDateString()}
+              </span>
+            </div>
           </div>
 
           <div className="space-y-2">

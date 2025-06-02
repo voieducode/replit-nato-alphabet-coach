@@ -1,11 +1,17 @@
 // Local storage utilities for persisting user data
 
+export interface QuizTimer {
+  bestTime: number; // in seconds
+  lastFiveTimes: { time: number; date: string }[]; // Array of last 5 completion times with dates
+}
+
 export interface UserStats {
   currentStreak: number;
   totalSessions: number;
   correctAnswers: number;
   totalAnswers: number;
   lastSessionDate?: string;
+  quizTimer: QuizTimer;
 }
 
 export interface LocalUserProgress {
@@ -66,7 +72,14 @@ export function getUserStats(): UserStats {
   const stored = localStorage.getItem(STORAGE_KEYS.USER_STATS);
   if (stored) {
     try {
-      return JSON.parse(stored);
+      const parsed = JSON.parse(stored);
+      return {
+        ...parsed,
+        quizTimer: parsed.quizTimer ?? {
+          bestTime: Infinity,
+          lastFiveTimes: [],
+        },
+      };
     } catch {
       console.warn('Failed to parse stored stats');
     }
@@ -76,14 +89,75 @@ export function getUserStats(): UserStats {
     totalSessions: 0,
     correctAnswers: 0,
     totalAnswers: 0,
+    quizTimer: {
+      bestTime: Infinity,
+      lastFiveTimes: [],
+    },
   };
 }
 
 export function updateUserStats(stats: Partial<UserStats>): UserStats {
+  return updateStats(stats);
+}
+
+export function updateStats(stats: Partial<UserStats>): UserStats {
   const current = getUserStats();
   const updated = { ...current, ...stats };
+
+  // Special handling for quizTimer updates
+  if (stats.quizTimer?.lastFiveTimes) {
+    const currentQuizTimer = current.quizTimer ?? {
+      bestTime: Infinity,
+      lastFiveTimes: [],
+    };
+
+    // Merge existing and new times, then take last 5
+    const mergedTimes = [
+      ...(currentQuizTimer.lastFiveTimes ?? []),
+      ...stats.quizTimer.lastFiveTimes,
+    ].slice(-5);
+
+    updated.quizTimer = {
+      ...currentQuizTimer,
+      ...stats.quizTimer,
+      lastFiveTimes: mergedTimes,
+    };
+
+    // Update best time if new time is better
+    const latestTime =
+      stats.quizTimer.lastFiveTimes[stats.quizTimer.lastFiveTimes.length - 1]
+        ?.time;
+    if (latestTime && latestTime < (currentQuizTimer.bestTime ?? Infinity)) {
+      updated.quizTimer.bestTime = latestTime;
+    }
+  }
+
   localStorage.setItem(STORAGE_KEYS.USER_STATS, JSON.stringify(updated));
   return updated;
+}
+
+export function addQuizTime(
+  time: number,
+  score: number,
+  totalQuestions: number = 10
+): void {
+  // Only save timing for perfect scores (10/10)
+  if (score !== totalQuestions) {
+    return;
+  }
+
+  const stats = getUserStats();
+  const newTime = { time, date: new Date().toISOString() };
+
+  const update: Partial<UserStats> = {
+    quizTimer: {
+      bestTime:
+        time < stats.quizTimer.bestTime ? time : stats.quizTimer.bestTime,
+      lastFiveTimes: [newTime],
+    },
+  };
+
+  updateStats(update);
 }
 
 // Progress management

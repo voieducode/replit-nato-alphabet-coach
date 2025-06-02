@@ -40,8 +40,14 @@ export const QuestionDisplay = memo(
     totalQuestions,
     sessionResults = emptySessionResults,
   }: QuestionDisplayProps) => {
-    const { sessionState, setShowReviewDialog } = useQuizContext();
+    const { sessionState, setShowReviewDialog, startNewQuizSet } =
+      useQuizContext();
     const { showReviewDialog } = sessionState;
+
+    const handleStartNewQuiz = () => {
+      setShowReviewDialog(false);
+      startNewQuizSet();
+    };
 
     return (
       <>
@@ -84,7 +90,7 @@ export const QuestionDisplay = memo(
                   </DialogHeader>
                   <ResultsReview
                     sessionResults={sessionResults}
-                    onFinish={() => setShowReviewDialog(false)}
+                    onFinish={handleStartNewQuiz}
                     translations={translations}
                     showCompletionHeader={false}
                   />

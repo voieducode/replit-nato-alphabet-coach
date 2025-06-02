@@ -22,6 +22,10 @@ describe('storage Functions', () => {
         totalSessions: 0,
         correctAnswers: 0,
         totalAnswers: 0,
+        quizTimer: {
+          bestTime: Infinity,
+          lastFiveTimes: [],
+        },
       });
     });
 
@@ -32,6 +36,13 @@ describe('storage Functions', () => {
         correctAnswers: 80,
         totalAnswers: 100,
         lastSessionDate: '2024-01-01',
+        quizTimer: {
+          bestTime: 100,
+          lastFiveTimes: [
+            { time: 120, date: '2024-01-01T00:00:00Z' },
+            { time: 100, date: '2024-01-01T01:00:00Z' },
+          ],
+        },
       };
       localStorage.setItem('userStats', JSON.stringify(testStats));
 
@@ -47,6 +58,10 @@ describe('storage Functions', () => {
         totalSessions: 0,
         correctAnswers: 0,
         totalAnswers: 0,
+        quizTimer: {
+          bestTime: Infinity,
+          lastFiveTimes: [],
+        },
       });
     });
   });
@@ -58,6 +73,10 @@ describe('storage Functions', () => {
         totalSessions: 5,
         correctAnswers: 40,
         totalAnswers: 50,
+        quizTimer: {
+          bestTime: 120,
+          lastFiveTimes: [{ time: 120, date: '2024-01-01T00:00:00Z' }],
+        },
       };
       localStorage.setItem('userStats', JSON.stringify(initialStats));
 
@@ -66,10 +85,11 @@ describe('storage Functions', () => {
         correctAnswers: 50,
       });
 
-      expect(updatedStats.currentStreak).toBe(4);
-      expect(updatedStats.correctAnswers).toBe(50);
-      expect(updatedStats.totalSessions).toBe(5); // Unchanged
-      expect(updatedStats.totalAnswers).toBe(50); // Unchanged
+      expect(updatedStats).toEqual({
+        ...initialStats,
+        currentStreak: 4,
+        correctAnswers: 50,
+      });
     });
 
     it('should create stats if none exist', () => {
@@ -78,20 +98,34 @@ describe('storage Functions', () => {
         totalSessions: 1,
       });
 
-      expect(updatedStats.currentStreak).toBe(1);
-      expect(updatedStats.totalSessions).toBe(1);
-      expect(updatedStats.correctAnswers).toBe(0);
-      expect(updatedStats.totalAnswers).toBe(0);
+      expect(updatedStats).toEqual({
+        currentStreak: 1,
+        totalSessions: 1,
+        correctAnswers: 0,
+        totalAnswers: 0,
+        quizTimer: {
+          bestTime: Infinity,
+          lastFiveTimes: [],
+        },
+      });
     });
 
     it('should persist changes to localStorage', () => {
-      updateUserStats({ currentStreak: 10 });
+      const initialStats = {
+        currentStreak: 10,
+        quizTimer: {
+          bestTime: 100,
+          lastFiveTimes: [{ time: 100, date: '2024-01-01T00:00:00Z' }],
+        },
+      };
+      updateUserStats(initialStats);
 
       const storedData = localStorage.getItem('userStats');
       expect(storedData).toBeTruthy();
 
       const parsedData = JSON.parse(storedData!);
       expect(parsedData.currentStreak).toBe(10);
+      expect(parsedData.quizTimer).toEqual(initialStats.quizTimer);
     });
   });
 

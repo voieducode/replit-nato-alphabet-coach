@@ -100,6 +100,10 @@ export function QuizProvider({
 
   // Handle quiz completion and save stats
   const finishQuizSet = useCallback(() => {
+    // First, clear the stored session to prevent state conflicts
+    updateStoredQuizSession(null);
+
+    // Then update stats
     const score = sessionState.sessionResults.filter((r) => r.isCorrect).length;
     const accuracy = Math.round(
       (score / sessionState.sessionResults.length) * 100
@@ -122,8 +126,31 @@ export function QuizProvider({
     });
 
     setLocalStats(newStats);
-    startNewQuizSet();
-  }, [localStats, sessionState.sessionResults, startNewQuizSet]);
+
+    // Reset state and start a new quiz set
+    const localProgress = getUserProgressLocal();
+    const userProgress: UserProgress[] = localProgress.map((p, index) => ({
+      id: index + 1,
+      userId,
+      letter: p.letter,
+      correctCount: p.correctCount,
+      incorrectCount: p.incorrectCount,
+      lastReviewed: new Date(p.lastReview),
+      nextReview: new Date(p.nextReview),
+      difficulty: p.difficulty,
+    }));
+
+    const newQuizSet = generateQuizSet(userProgress, 10);
+    setSessionState({
+      currentQuizSet: newQuizSet,
+      currentQuestionIndex: 0,
+      sessionResults: [],
+      isQuizComplete: false,
+      showResult: false,
+      isActive: true,
+      showReviewDialog: false,
+    });
+  }, [localStats, sessionState.sessionResults, userId]);
 
   // Set review dialog visibility state
   const setShowReviewDialog = useCallback((show: boolean) => {
@@ -159,11 +186,8 @@ export function QuizProvider({
 
   // Persist session state changes
   useEffect(() => {
-    if (sessionState.isQuizComplete) {
-      // Clear stored session when quiz is completed
-      updateStoredQuizSession(null);
-    } else {
-      // Update stored session for other state changes
+    // Only persist non-completed sessions
+    if (!sessionState.isQuizComplete && sessionState.currentQuizSet) {
       updateStoredQuizSession(sessionState);
     }
   }, [sessionState]);

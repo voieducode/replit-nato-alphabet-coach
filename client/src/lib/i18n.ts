@@ -34,6 +34,7 @@ export interface Translations {
   review: string;
   mastered: string;
   startQuiz: string;
+  restartQuiz: string;
   nextQuestion: string;
   submitAnswer: string;
   showStats: string;
@@ -118,6 +119,7 @@ export const translations: Record<string, Translations> = {
     accuracy: 'Accuracy',
     learningProgress: 'Learning Progress',
     startQuiz: 'Start Quiz',
+    restartQuiz: 'Restart Quiz',
     nextQuestion: 'Next Question',
     submitAnswer: 'Submit Answer',
     showStats: 'Show Stats',
@@ -229,6 +231,7 @@ export const translations: Record<string, Translations> = {
     accuracy: 'Précision',
     learningProgress: "Progrès d'Apprentissage",
     startQuiz: 'Commencer le Quiz',
+    restartQuiz: 'Redémarrer le Quiz',
     nextQuestion: 'Question Suivante',
     submitAnswer: 'Soumettre la Réponse',
     showStats: 'Afficher les Stats',
@@ -339,6 +342,7 @@ export const translations: Record<string, Translations> = {
     accuracy: 'Precisión',
     learningProgress: 'Progreso de Aprendizaje',
     startQuiz: 'Iniciar Cuestionario',
+    restartQuiz: 'Reiniciar Cuestionario',
     nextQuestion: 'Siguiente Pregunta',
     submitAnswer: 'Enviar Respuesta',
     showStats: 'Mostrar Estadísticas',
@@ -450,6 +454,7 @@ export const translations: Record<string, Translations> = {
     accuracy: 'Genauigkeit',
     learningProgress: 'Lernfortschritt',
     startQuiz: 'Quiz Starten',
+    restartQuiz: 'Quiz Neustarten',
     nextQuestion: 'Nächste Frage',
     submitAnswer: 'Antwort Senden',
     showStats: 'Statistiken Anzeigen',
@@ -560,6 +565,7 @@ export const translations: Record<string, Translations> = {
     accuracy: 'الدقة',
     learningProgress: 'تقدم التعلم',
     startQuiz: 'بدء الاختبار',
+    restartQuiz: 'إعادة تشغيل الاختبار',
     nextQuestion: 'السؤال التالي',
     submitAnswer: 'إرسال الإجابة',
     showStats: 'إظهار الإحصائيات',
@@ -668,6 +674,7 @@ export const translations: Record<string, Translations> = {
     accuracy: 'Usahihi',
     learningProgress: 'Maendeleo ya Kujifunza',
     startQuiz: 'Anza Jaribio',
+    restartQuiz: 'Anza Jaribio Upya',
     nextQuestion: 'Swali Linalofuata',
     submitAnswer: 'Wasilisha Jibu',
     showStats: 'Onyesha Takwimu',
@@ -775,6 +782,7 @@ export const translations: Record<string, Translations> = {
     accuracy: '准确率',
     learningProgress: '学习进度',
     startQuiz: '开始测验',
+    restartQuiz: '重新开始测验',
     nextQuestion: '下一题',
     submitAnswer: '提交答案',
     showStats: '显示统计',

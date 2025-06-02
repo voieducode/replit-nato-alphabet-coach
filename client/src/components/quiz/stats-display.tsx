@@ -14,6 +14,16 @@ interface StatsDisplayProps {
   };
   letterProgress: LetterProgress[];
   translations: Translations;
+  timerStats?: {
+    bestTime: number;
+    lastFiveTimes: { time: number; date: string }[];
+  };
+}
+
+function formatTime(seconds: number): string {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
 export const StatsDisplay = memo(
@@ -23,6 +33,7 @@ export const StatsDisplay = memo(
     learningStats,
     letterProgress,
     translations,
+    timerStats,
   }: StatsDisplayProps) => {
     const [dialogState, setDialogState] = useState<{
       type: ProgressType | null;
@@ -123,6 +134,50 @@ export const StatsDisplay = memo(
               </div>
             </CardContent>
           </Card>
+          {/* Timer Stats */}
+          {timerStats && (
+            <Card className="bg-white shadow-material border border-gray-100 col-span-2">
+              <CardContent className="p-4">
+                <h4 className="font-semibold text-gray-800 mb-3">Quiz Times</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <div className="text-sm text-gray-400 mb-1">Best Time</div>
+                    <div className="text-xl font-bold text-primary">
+                      {timerStats.bestTime === Infinity
+                        ? '-'
+                        : formatTime(timerStats.bestTime)}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-400 mb-1">
+                      Last 5 Times
+                    </div>
+                    <div className="space-y-1">
+                      {timerStats.lastFiveTimes.length === 0 ? (
+                        <div className="text-sm text-gray-500">
+                          No times recorded
+                        </div>
+                      ) : (
+                        timerStats.lastFiveTimes.map(
+                          (time: { time: number; date: string }) => (
+                            <div
+                              key={time.date}
+                              className="text-sm flex justify-between"
+                            >
+                              <span>{formatTime(time.time)}</span>
+                              <span className="text-gray-400">
+                                {new Date(time.date).toLocaleDateString()}
+                              </span>
+                            </div>
+                          )
+                        )
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         <LettersDialog
