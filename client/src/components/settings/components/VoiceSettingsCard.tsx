@@ -40,9 +40,9 @@ export function VoiceSettingsCard({
               onValueChange={onVoiceChange}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select a voice" />
+                <SelectValue placeholder={translations.placeholder} />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-background border-border">
                 {availableVoices.map((voice) => (
                   <SelectItem key={voice.name} value={voice.name}>
                     {voice.name} ({voice.lang})
@@ -54,7 +54,7 @@ export function VoiceSettingsCard({
             <div className="space-y-6 mt-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700">
-                  Speech Rate
+                  {translations.speechRate}
                 </label>
                 <Slider
                   min={0.5}
@@ -67,7 +67,7 @@ export function VoiceSettingsCard({
 
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700">
-                  Pitch
+                  {translations.pitch}
                 </label>
                 <Slider
                   min={0.5}
@@ -80,7 +80,7 @@ export function VoiceSettingsCard({
 
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700">
-                  Volume
+                  {translations.volume}
                 </label>
                 <Slider
                   min={0}

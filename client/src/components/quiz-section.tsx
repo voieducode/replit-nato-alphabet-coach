@@ -149,17 +149,14 @@ export default function QuizSection() {
   // Handle timer reset when quiz set changes
   if (prevQuizSetRef.current !== currentQuizSet) {
     prevQuizSetRef.current = currentQuizSet;
-    if (!currentQuizSet) {
-      // Clear any existing timer and reset time
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
-      }
-      isTimerActiveRef.current = false;
-      if (currentTime > 0) {
-        setCurrentTime(0);
-      }
+
+    // Reset timer whenever quiz set changes (new quiz set or null)
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
     }
+    isTimerActiveRef.current = false;
+    setCurrentTime(0); // Always reset timer on quiz set change
   }
 
   // Initialize first quiz set
@@ -180,13 +177,17 @@ export default function QuizSection() {
   };
 
   // Save quiz time on completion
-  const handleQuizCompletion = () => {
-    if (currentTime > 0) {
-      const score = sessionResults.filter((r) => r.isCorrect).length;
-      const totalQuestions = currentQuizSet?.questions.length || 10;
-      addQuizTime(currentTime, score, totalQuestions);
+  useEffect(() => {
+    if (isQuizComplete) {
+      if (currentTime > 0) {
+        const score = sessionResults.filter((r) => r.isCorrect).length;
+        const totalQuestions = currentQuizSet?.questions.length || 10;
+        addQuizTime(currentTime, score, totalQuestions);
+      }
     }
-  };
+    // Only run when quiz completes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isQuizComplete]);
 
   const handleSubmitAnswer = async () => {
     const currentQuestion = getCurrentQuestion();
@@ -294,7 +295,6 @@ export default function QuizSection() {
   }
 
   if (isQuizComplete) {
-    handleQuizCompletion();
     return (
       <ResultsReview
         sessionResults={sessionResults}

@@ -3,7 +3,9 @@ import type { LanguageContextType } from './language-context-types';
 import { createContext, useCallback, useMemo, useState } from 'react';
 import {
   getCurrentLanguage,
+  getLanguageDirection,
   getTranslations,
+  isRTLLanguage,
   setCurrentLanguage,
 } from '../lib/i18n';
 
@@ -26,7 +28,13 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const contextValue = useMemo(
-    () => ({ language, translations, setLanguage }),
+    () => ({
+      language,
+      translations,
+      isRTL: isRTLLanguage(language),
+      direction: getLanguageDirection(language),
+      setLanguage,
+    }),
     [language, translations, setLanguage]
   );
 

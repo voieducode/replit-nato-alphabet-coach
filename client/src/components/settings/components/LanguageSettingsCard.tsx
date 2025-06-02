@@ -39,7 +39,7 @@ export function LanguageSettingsCard({
               <SelectTrigger>
                 <SelectValue placeholder="Select language" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-background border-border">
                 {SUPPORTED_LANGUAGES.map((lang) => (
                   <SelectItem key={lang.code} value={lang.code}>
                     <span>{lang.name}</span>

@@ -59,7 +59,10 @@ export function ThemeSelector() {
           <span className="sm:hidden">Theme</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-36">
+      <DropdownMenuContent
+        align="end"
+        className="w-36 bg-background border-border"
+      >
         {themes.map((themeOption) => {
           const Icon = themeOption.icon;
           return (
