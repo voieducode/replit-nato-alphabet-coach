@@ -30,7 +30,9 @@ export function Toaster() {
           </Toast>
         );
       })}
-      <ToastViewport className={cn(isMobile && 'bottom-0 top-auto flex-col')} />
+      <ToastViewport
+        className={cn(isMobile && '!bottom-0 !top-auto flex-col')}
+      />
     </ToastProvider>
   );
 }
