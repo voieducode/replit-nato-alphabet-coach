@@ -13,6 +13,7 @@ interface SpeechRecognitionInstance {
   onend: () => void;
   start: () => void;
   stop: () => void;
+  abort: () => void;
 }
 
 interface SpeechRecognitionHookResult {
@@ -34,21 +35,33 @@ export function useSpeechRecognition(
   const [isListening, setIsListening] = useState(false);
   const [speechSupported, setSpeechSupported] = useState(false);
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
+  const isInitializedRef = useRef(false);
+  const onTranscriptReceivedRef = useRef(onTranscriptReceived);
   const { toast } = useToast();
 
-  // Event handlers
+  // Keep callback ref updated
+  useEffect(() => {
+    onTranscriptReceivedRef.current = onTranscriptReceived;
+  }, [onTranscriptReceived]);
+
+  // Event handlers - stable references
   const handleStart = useCallback(() => {
     setIsListening(true);
   }, []);
 
-  const handleResult = useCallback(
-    (event: any) => {
-      const transcript = event.results[0][0].transcript.toLowerCase().trim();
-      onTranscriptReceived(transcript);
-      setIsListening(false);
-    },
-    [onTranscriptReceived]
-  );
+  const handleResult = useCallback((event: any) => {
+    try {
+      if (event.results && event.results.length > 0) {
+        const transcript = event.results[0][0].transcript.toLowerCase().trim();
+        if (transcript) {
+          onTranscriptReceivedRef.current(transcript);
+        }
+      }
+    } catch (error) {
+      console.error('Error processing speech result:', error);
+    }
+    // Don't set isListening to false here - let handleEnd do it
+  }, []);
 
   const handleEnd = useCallback(() => {
     setIsListening(false);
@@ -56,9 +69,10 @@ export function useSpeechRecognition(
 
   const handleError = useCallback(
     (event: any) => {
+      console.error('Speech recognition error:', event.error);
       setIsListening(false);
 
-      // Provide error messages
+      // Only show toast for serious errors, not transient ones
       if (event.error === 'language-not-supported') {
         toast({
           title: 'Language Not Supported',
@@ -71,11 +85,6 @@ export function useSpeechRecognition(
           description: 'Please allow microphone access in browser settings.',
           variant: 'destructive',
         });
-      } else if (event.error === 'no-speech') {
-        toast({
-          title: 'No Speech Detected',
-          description: 'Please speak clearly and try again.',
-        });
       } else if (event.error === 'network') {
         toast({
           title: 'Network Error',
@@ -83,17 +92,24 @@ export function useSpeechRecognition(
           variant: 'destructive',
         });
       }
+      // Don't show toast for 'no-speech' or 'aborted' errors as they're common
     },
     [toast]
   );
 
-  // Initialize speech recognition
+  // Initialize speech recognition once
   const initializeSpeechRecognition = useCallback(() => {
+    if (isInitializedRef.current) {
+      return speechSupported;
+    }
+
     const SpeechRecognition =
       (window as any).SpeechRecognition ||
       (window as any).webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
+      isInitializedRef.current = true;
+      setSpeechSupported(false);
       return false;
     }
 
@@ -110,45 +126,78 @@ export function useSpeechRecognition(
       recognition.onend = handleEnd;
 
       recognitionRef.current = recognition;
+      isInitializedRef.current = true;
+      setSpeechSupported(true);
       return true;
-    } catch {
+    } catch (error) {
+      console.error('Failed to initialize speech recognition:', error);
       toast({
         title: 'Speech Recognition Error',
         description: 'Failed to initialize speech recognition.',
         variant: 'destructive',
       });
+      isInitializedRef.current = true;
+      setSpeechSupported(false);
       return false;
     }
-  }, [handleStart, handleResult, handleError, handleEnd, toast]);
+  }, [
+    handleStart,
+    handleResult,
+    handleError,
+    handleEnd,
+    toast,
+    speechSupported,
+  ]);
 
+  // Initialize once on mount
   useEffect(() => {
-    // Initialize speech recognition and get support status
-    const isSupported = initializeSpeechRecognition();
-
-    // Use a setTimeout with 0ms delay to move setState out of the immediate useEffect execution
-    const timer = setTimeout(() => {
-      setSpeechSupported(isSupported);
-    }, 0);
+    initializeSpeechRecognition();
 
     return () => {
-      clearTimeout(timer);
       if (recognitionRef.current) {
-        recognitionRef.current.stop();
+        try {
+          recognitionRef.current.abort();
+        } catch (error) {
+          console.error('Error stopping speech recognition:', error);
+        }
+        recognitionRef.current = null;
       }
+      isInitializedRef.current = false;
     };
-  }, [initializeSpeechRecognition]);
+  }, []); // Empty dependency array - initialize only once
 
   const startListening = useCallback(() => {
-    if (recognitionRef.current && speechSupported) {
-      setIsListening(true);
-      recognitionRef.current.start();
+    if (!speechSupported) {
+      console.warn('Speech recognition not supported');
+      return;
     }
-  }, [speechSupported]);
+
+    if (!recognitionRef.current) {
+      console.warn('Speech recognition not initialized');
+      return;
+    }
+
+    if (isListening) {
+      console.warn('Already listening');
+      return;
+    }
+
+    try {
+      recognitionRef.current.start();
+    } catch (error) {
+      console.error('Error starting speech recognition:', error);
+      setIsListening(false);
+    }
+  }, [speechSupported, isListening]);
 
   const stopListening = useCallback(() => {
     if (recognitionRef.current && isListening) {
-      recognitionRef.current.stop();
-      setIsListening(false);
+      try {
+        recognitionRef.current.stop();
+      } catch (error) {
+        console.error('Error stopping speech recognition:', error);
+        setIsListening(false);
+      }
     }
   }, [isListening]);
 
