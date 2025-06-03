@@ -1,10 +1,11 @@
 import type { Translations } from '@/lib/i18n';
-import { Lightbulb, Mic, MicOff, Volume2 } from 'lucide-react';
+import { AlertCircle, Lightbulb, Mic, MicOff, Volume2 } from 'lucide-react';
 import React, { memo, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useSpeechRecognition } from '@/hooks/use-speech-recognition';
 import { useSpeechSynthesis } from '@/hooks/use-speech-synthesis';
+import { useToast } from '@/hooks/use-toast';
 import { checkAnswerVariants, getHintForLetter } from '@/lib/spaced-repetition';
 import { cn } from '@/lib/utils';
 
@@ -34,12 +35,33 @@ export const AnswerInput = memo(
   }: AnswerInputProps) => {
     const inputRef = useRef<HTMLInputElement>(null);
     const { speak } = useSpeechSynthesis();
+    const { toast } = useToast();
 
-    // Use our custom speech recognition hook
-    const { isListening, speechSupported, startListening, stopListening } =
-      useSpeechRecognition((transcript) => {
+    // Use our enhanced speech recognition hook with debug mode enabled
+    const {
+      isListening,
+      isProcessing,
+      speechSupported,
+      currentTranscript,
+      interimTranscript,
+      audioLevel,
+      error,
+      startListening,
+      stopListening,
+      testMicrophone,
+      clearError,
+    } = useSpeechRecognition(
+      (transcript) => {
         setUserAnswer(transcript);
-      });
+      },
+      {
+        debugMode: true, // Enable debug logging to help troubleshoot
+        continuous: true, // Keep listening for better UX
+        interimResults: true, // Show real-time feedback
+        autoRestart: true, // Auto-restart when speech ends
+        confidenceThreshold: 0.6, // Lower threshold for NATO words
+      }
+    );
 
     // Focus input when component mounts
     useEffect(() => {
@@ -101,8 +123,16 @@ export const AnswerInput = memo(
               onChange={(e) => setUserAnswer(e.target.value.toLowerCase())}
               onKeyPress={handleKeyPress}
               onKeyDown={handleKeyDown}
-              placeholder={translations.placeholder}
-              className="w-full p-4 text-lg text-center pr-12"
+              placeholder={
+                isListening
+                  ? interimTranscript || 'Listening...'
+                  : translations.placeholder
+              }
+              className={cn(
+                'w-full p-4 text-lg text-center pr-12',
+                isListening && 'border-blue-300 bg-blue-50',
+                isProcessing && 'border-yellow-300 bg-yellow-50'
+              )}
               disabled={showResult}
               autoFocus
               aria-label={translations.typeNatoWordForLetter.replace(
@@ -112,32 +142,133 @@ export const AnswerInput = memo(
               aria-describedby="answer-instructions"
             />
             {speechSupported && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className={cn(
-                  'absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0',
-                  isListening
-                    ? 'text-info-foreground-red bg-info'
-                    : 'text-gray-500'
+              <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center space-x-1">
+                {/* Audio level indicator */}
+                {isListening && audioLevel > 0 && (
+                  <div className="flex items-center space-x-1">
+                    <div
+                      className={cn(
+                        'w-1 h-3 bg-green-400 rounded-full transition-all duration-100',
+                        audioLevel > 10 ? 'opacity-100' : 'opacity-30'
+                      )}
+                    />
+                    <div
+                      className={cn(
+                        'w-1 h-4 bg-green-400 rounded-full transition-all duration-100',
+                        audioLevel > 30 ? 'opacity-100' : 'opacity-30'
+                      )}
+                    />
+                    <div
+                      className={cn(
+                        'w-1 h-5 bg-yellow-400 rounded-full transition-all duration-100',
+                        audioLevel > 50 ? 'opacity-100' : 'opacity-30'
+                      )}
+                    />
+                    <div
+                      className={cn(
+                        'w-1 h-6 bg-red-400 rounded-full transition-all duration-100',
+                        audioLevel > 70 ? 'opacity-100' : 'opacity-30'
+                      )}
+                    />
+                  </div>
                 )}
-                onClick={isListening ? stopListening : startListening}
-                disabled={showResult}
-                aria-label={
-                  isListening
-                    ? translations.stopVoiceInput
-                    : translations.startVoiceInput
-                }
-              >
-                {isListening ? (
-                  <MicOff className="h-4 w-4" />
-                ) : (
-                  <Mic className="h-4 w-4" />
-                )}
-              </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className={cn(
+                    'h-8 w-8 p-0',
+                    isListening
+                      ? 'text-red-600 bg-red-100 hover:bg-red-200'
+                      : isProcessing
+                        ? 'text-yellow-600 bg-yellow-100'
+                        : 'text-gray-500 hover:text-gray-700'
+                  )}
+                  onClick={isListening ? stopListening : startListening}
+                  disabled={showResult}
+                  aria-label={
+                    isListening
+                      ? translations.stopVoiceInput
+                      : translations.startVoiceInput
+                  }
+                >
+                  {isListening ? (
+                    <MicOff className="h-4 w-4" />
+                  ) : (
+                    <Mic className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
             )}
           </div>
+
+          {/* Speech Recognition Status */}
+          {speechSupported && (isListening || isProcessing || error) && (
+            <div className="mt-2 text-sm">
+              {error && (
+                <div className="flex items-center space-x-2 text-red-600 bg-red-50 p-2 rounded border border-red-200">
+                  <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                  <span className="flex-1">{error}</span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={clearError}
+                    className="h-6 w-6 p-0 text-red-600 hover:text-red-800"
+                  >
+                    ×
+                  </Button>
+                </div>
+              )}
+
+              {!error && isListening && (
+                <div className="flex items-center space-x-2 text-blue-600 bg-blue-50 p-2 rounded border border-blue-200">
+                  <div className="flex space-x-1">
+                    <div className="w-1 h-1 bg-blue-400 rounded-full animate-pulse" />
+                    <div className="w-1 h-1 bg-blue-400 rounded-full animate-pulse delay-75" />
+                    <div className="w-1 h-1 bg-blue-400 rounded-full animate-pulse delay-150" />
+                  </div>
+                  <span>
+                    {isProcessing
+                      ? 'Processing speech...'
+                      : `Listening... (Language: ${
+                          navigator.language || 'en-US'
+                        })`}
+                  </span>
+                </div>
+              )}
+
+              {!error && interimTranscript && (
+                <div className="text-gray-500 italic">
+                  Hearing: "{interimTranscript}"
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Microphone Test Button */}
+          {speechSupported && !isListening && !showResult && (
+            <div className="mt-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={async () => {
+                  const result = await testMicrophone();
+                  if (result) {
+                    // Microphone test passed, show a success toast
+                    toast({
+                      title: 'Microphone Test',
+                      description:
+                        "Microphone test successful! You're ready to use voice input.",
+                      variant: 'default',
+                    });
+                  }
+                }}
+                className="text-xs"
+              >
+                Test Microphone
+              </Button>
+            </div>
+          )}
         </div>
 
         {/* Hint Display */}
