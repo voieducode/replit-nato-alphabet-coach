@@ -140,14 +140,7 @@ export function useSpeechRecognition(
       setSpeechSupported(false);
       return false;
     }
-  }, [
-    handleStart,
-    handleResult,
-    handleError,
-    handleEnd,
-    toast,
-    speechSupported,
-  ]);
+  }, [speechSupported, handleStart, handleResult, handleError, handleEnd, toast]);
 
   // Initialize once on mount
   useEffect(() => {
