@@ -2,17 +2,22 @@ import { renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useQuizFeedback } from '../useQuizFeedback';
 
-// Mock dependencies
-const mockToast = vi.fn();
 vi.mock('@/hooks/use-toast', () => ({
   useToast: () => ({
-    toast: mockToast,
+    toast: vi.fn(),
   }),
 }));
 
 describe('useQuizFeedback', () => {
-  beforeEach(() => {
+  let mockToast: ReturnType<typeof vi.fn>;
+
+  beforeEach(async () => {
     vi.clearAllMocks();
+
+    // Get the mocked function
+    const { useToast } = await vi.importMock('@/hooks/use-toast');
+    const mockUseToast = useToast as () => { toast: ReturnType<typeof vi.fn> };
+    mockToast = mockUseToast().toast;
     mockToast.mockClear();
   });
 

@@ -3,12 +3,15 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { NATOInput } from '../NATOInput';
 
 // Mock dependencies
+const mockUseAutoResizeTextarea = vi.fn();
+const mockUseSpeechRecognition = vi.fn();
+
 vi.mock('../../hooks/useAutoResizeTextarea', () => ({
-  useAutoResizeTextarea: vi.fn(),
+  useAutoResizeTextarea: mockUseAutoResizeTextarea,
 }));
 
 vi.mock('@/hooks/use-speech-recognition', () => ({
-  useSpeechRecognition: vi.fn(),
+  useSpeechRecognition: mockUseSpeechRecognition,
 }));
 
 describe('nATOInput', () => {
@@ -22,15 +25,13 @@ describe('nATOInput', () => {
 
   let mockRef: { current: HTMLTextAreaElement | null };
   let speechRecognitionCallback: (transcript: string) => void;
-  let mockUseAutoResizeTextarea: any;
-  let mockUseSpeechRecognition: any;
+  let mockSpeechRecognitionState: any;
 
   beforeEach(() => {
     vi.clearAllMocks();
 
     // Create fresh mock objects
-    mockUseAutoResizeTextarea = vi.fn();
-    mockUseSpeechRecognition = {
+    mockSpeechRecognitionState = {
       isListening: false,
       isProcessing: false,
       speechSupported: true,
@@ -46,20 +47,10 @@ describe('nATOInput', () => {
     mockUseAutoResizeTextarea.mockReturnValue(mockRef);
 
     // Mock useSpeechRecognition and capture the callback
-    const mockUseSpeechRecognitionImpl = vi
-      .fn()
-      .mockImplementation((callback, _config) => {
-        speechRecognitionCallback = callback;
-        return mockUseSpeechRecognition;
-      });
-
-    // Update the mock implementations
-    vi.mocked(
-      require('../../hooks/useAutoResizeTextarea').useAutoResizeTextarea
-    ).mockImplementation(mockUseAutoResizeTextarea);
-    vi.mocked(
-      require('@/hooks/use-speech-recognition').useSpeechRecognition
-    ).mockImplementation(mockUseSpeechRecognitionImpl);
+    mockUseSpeechRecognition.mockImplementation((callback, _config) => {
+      speechRecognitionCallback = callback;
+      return mockSpeechRecognitionState;
+    });
   });
 
   describe('basic rendering', () => {
@@ -92,13 +83,7 @@ describe('nATOInput', () => {
     });
 
     it('should not show microphone button when speech is not supported', () => {
-      const mockUseSpeechRecognitionUnsupported = {
-        ...mockUseSpeechRecognition,
-        speechSupported: false,
-      };
-      vi.mocked(
-        require('@/hooks/use-speech-recognition').useSpeechRecognition
-      ).mockReturnValue(mockUseSpeechRecognitionUnsupported);
+      mockSpeechRecognitionState.speechSupported = false;
 
       render(<NATOInput {...defaultProps} />);
 
@@ -254,14 +239,8 @@ describe('nATOInput', () => {
 
   describe('speech recognition UI states', () => {
     it('should show listening state when speech recognition is active', () => {
-      const mockListening = {
-        ...mockUseSpeechRecognition,
-        isListening: true,
-        interimTranscript: 'Alpha',
-      };
-      vi.mocked(
-        require('@/hooks/use-speech-recognition').useSpeechRecognition
-      ).mockReturnValue(mockListening);
+      mockSpeechRecognitionState.isListening = true;
+      mockSpeechRecognitionState.interimTranscript = 'Alpha';
 
       render(<NATOInput {...defaultProps} />);
 
@@ -275,13 +254,7 @@ describe('nATOInput', () => {
     });
 
     it('should show processing state', () => {
-      const mockProcessing = {
-        ...mockUseSpeechRecognition,
-        isProcessing: true,
-      };
-      vi.mocked(
-        require('@/hooks/use-speech-recognition').useSpeechRecognition
-      ).mockReturnValue(mockProcessing);
+      mockSpeechRecognitionState.isProcessing = true;
 
       render(<NATOInput {...defaultProps} />);
 
@@ -293,14 +266,8 @@ describe('nATOInput', () => {
 
     it('should show error state with clear button', () => {
       const clearError = vi.fn();
-      const mockError = {
-        ...mockUseSpeechRecognition,
-        error: 'Microphone access denied',
-        clearError,
-      };
-      vi.mocked(
-        require('@/hooks/use-speech-recognition').useSpeechRecognition
-      ).mockReturnValue(mockError);
+      mockSpeechRecognitionState.error = 'Microphone access denied';
+      mockSpeechRecognitionState.clearError = clearError;
 
       render(<NATOInput {...defaultProps} />);
 
@@ -314,13 +281,7 @@ describe('nATOInput', () => {
     });
 
     it('should change microphone button appearance when listening', () => {
-      const mockListening = {
-        ...mockUseSpeechRecognition,
-        isListening: true,
-      };
-      vi.mocked(
-        require('@/hooks/use-speech-recognition').useSpeechRecognition
-      ).mockReturnValue(mockListening);
+      mockSpeechRecognitionState.isListening = true;
 
       render(<NATOInput {...defaultProps} />);
 
@@ -332,13 +293,7 @@ describe('nATOInput', () => {
   describe('speech recognition button interactions', () => {
     it('should start listening when microphone button is clicked', () => {
       const startListening = vi.fn();
-      const mockSpeech = {
-        ...mockUseSpeechRecognition,
-        startListening,
-      };
-      vi.mocked(
-        require('@/hooks/use-speech-recognition').useSpeechRecognition
-      ).mockReturnValue(mockSpeech);
+      mockSpeechRecognitionState.startListening = startListening;
 
       render(<NATOInput {...defaultProps} />);
 
@@ -350,14 +305,8 @@ describe('nATOInput', () => {
 
     it('should stop listening when microphone button is clicked while listening', () => {
       const stopListening = vi.fn();
-      const mockSpeech = {
-        ...mockUseSpeechRecognition,
-        isListening: true,
-        stopListening,
-      };
-      vi.mocked(
-        require('@/hooks/use-speech-recognition').useSpeechRecognition
-      ).mockReturnValue(mockSpeech);
+      mockSpeechRecognitionState.isListening = true;
+      mockSpeechRecognitionState.stopListening = stopListening;
 
       render(<NATOInput {...defaultProps} />);
 
@@ -506,16 +455,9 @@ describe('nATOInput', () => {
 
   describe('speech recognition configuration', () => {
     it('should configure speech recognition with correct options', () => {
-      const mockUseSpeechRecognitionImpl = vi
-        .fn()
-        .mockReturnValue(mockUseSpeechRecognition);
-      vi.mocked(
-        require('@/hooks/use-speech-recognition').useSpeechRecognition
-      ).mockImplementation(mockUseSpeechRecognitionImpl);
-
       render(<NATOInput {...defaultProps} />);
 
-      expect(mockUseSpeechRecognitionImpl).toHaveBeenCalledWith(
+      expect(mockUseSpeechRecognition).toHaveBeenCalledWith(
         expect.any(Function),
         {
           continuous: true,

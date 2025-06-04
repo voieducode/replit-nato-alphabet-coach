@@ -2,47 +2,56 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useWordQuiz } from '../useWordQuiz';
 
-// Mock dependencies
-const mockToast = vi.fn();
 vi.mock('@/hooks/use-toast', () => ({
   useToast: () => ({
-    toast: mockToast,
+    toast: vi.fn(),
   }),
 }));
 
-const mockGetRandomWord = vi.fn(() => ({ word: 'CAT', difficulty: 'easy' }));
-const mockIsValidWordInput = vi.fn((input: string) =>
-  /^[a-z\d\s]+$/i.test(input)
-);
-const mockNormalizeWordInput = vi.fn((input: string) =>
-  input.toUpperCase().trim()
-);
-
 vi.mock('@/lib/word-dictionary', () => ({
-  getRandomWord: mockGetRandomWord,
-  isValidWordInput: mockIsValidWordInput,
-  normalizeWordInput: mockNormalizeWordInput,
-}));
-
-const mockMatchWordToNATO = vi.fn(() => ({
-  score: 3,
-  percentage: 100,
-  correctCount: 3,
-  totalCount: 3,
-  matches: [
-    { letter: 'C', expected: 'Charlie', actual: 'Charlie', isCorrect: true },
-    { letter: 'A', expected: 'Alpha', actual: 'Alpha', isCorrect: true },
-    { letter: 'T', expected: 'Tango', actual: 'Tango', isCorrect: true },
-  ],
+  getRandomWord: vi.fn(() => ({ word: 'CAT', difficulty: 'easy' })),
+  isValidWordInput: vi.fn((input: string) => /^[a-z\d\s]+$/i.test(input)),
+  normalizeWordInput: vi.fn((input: string) => input.toUpperCase().trim()),
 }));
 
 vi.mock('@/lib/word-matching', () => ({
-  matchWordToNATO: mockMatchWordToNATO,
+  matchWordToNATO: vi.fn(() => ({
+    score: 3,
+    percentage: 100,
+    correctCount: 3,
+    totalCount: 3,
+    matches: [
+      { letter: 'C', expected: 'Charlie', actual: 'Charlie', isCorrect: true },
+      { letter: 'A', expected: 'Alpha', actual: 'Alpha', isCorrect: true },
+      { letter: 'T', expected: 'Tango', actual: 'Tango', isCorrect: true },
+    ],
+  })),
 }));
 
 describe('useWordQuiz', () => {
-  beforeEach(() => {
+  let mockToast: ReturnType<typeof vi.fn>;
+  let mockGetRandomWord: ReturnType<typeof vi.fn>;
+  let mockIsValidWordInput: ReturnType<typeof vi.fn>;
+  let mockNormalizeWordInput: ReturnType<typeof vi.fn>;
+  let mockMatchWordToNATO: ReturnType<typeof vi.fn>;
+
+  beforeEach(async () => {
     vi.clearAllMocks();
+
+    // Get the mocked functions
+    const { useToast } = await vi.importMock('@/hooks/use-toast');
+    const mockUseToast = useToast as () => { toast: ReturnType<typeof vi.fn> };
+    mockToast = mockUseToast().toast;
+
+    const { getRandomWord, isValidWordInput, normalizeWordInput } =
+      await vi.importMock('@/lib/word-dictionary');
+    mockGetRandomWord = getRandomWord as ReturnType<typeof vi.fn>;
+    mockIsValidWordInput = isValidWordInput as ReturnType<typeof vi.fn>;
+    mockNormalizeWordInput = normalizeWordInput as ReturnType<typeof vi.fn>;
+
+    const { matchWordToNATO } = await vi.importMock('@/lib/word-matching');
+    mockMatchWordToNATO = matchWordToNATO as ReturnType<typeof vi.fn>;
+
     mockToast.mockClear();
     mockGetRandomWord.mockReturnValue({ word: 'CAT', difficulty: 'easy' });
     mockIsValidWordInput.mockImplementation((input: string) =>

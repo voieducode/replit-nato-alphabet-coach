@@ -1,17 +1,14 @@
 import { renderHook } from '@testing-library/react';
+import * as React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useAutoResizeTextarea } from '../useAutoResizeTextarea';
-
-// Mock useRef and useEffect for more controlled testing
-const mockUseRef = vi.fn();
-const mockUseEffect = vi.fn();
 
 vi.mock('react', async () => {
   const actual = await vi.importActual('react');
   return {
     ...actual,
-    useRef: mockUseRef,
-    useEffect: mockUseEffect,
+    useRef: vi.fn(),
+    useEffect: vi.fn(),
   };
 });
 
@@ -31,11 +28,10 @@ describe('useAutoResizeTextarea', () => {
     // Create a mock ref
     mockRef = { current: null };
 
-    // Setup useRef mock
-    mockUseRef.mockReturnValue(mockRef);
-
+    // Setup useRef mock to return our mock ref
+    vi.mocked(React.useRef).mockReturnValue(mockRef);
     // Setup useEffect mock to call the effect function immediately
-    mockUseEffect.mockImplementation((fn) => fn());
+    vi.mocked(React.useEffect).mockImplementation((fn) => fn());
   });
 
   describe('basic functionality', () => {
@@ -43,14 +39,14 @@ describe('useAutoResizeTextarea', () => {
       const { result } = renderHook(() => useAutoResizeTextarea(''));
 
       expect(result.current).toBe(mockRef);
-      expect(mockUseRef).toHaveBeenCalledWith(null);
+      expect(React.useRef).toHaveBeenCalledWith(null);
     });
 
     it('should call useEffect with value dependency', () => {
       const testValue = 'test value';
       renderHook(() => useAutoResizeTextarea(testValue));
 
-      expect(mockUseEffect).toHaveBeenCalledWith(expect.any(Function), [
+      expect(React.useEffect).toHaveBeenCalledWith(expect.any(Function), [
         testValue,
       ]);
     });
@@ -66,8 +62,8 @@ describe('useAutoResizeTextarea', () => {
 
       renderHook(() => useAutoResizeTextarea('some text'));
 
-      expect(mockTextarea.style.height).toBe('auto'); // First set to auto
-      expect(mockTextarea.style.height).toBe('80px'); // Then set to calculated height
+      // The final height should be the calculated height
+      expect(mockTextarea.style.height).toBe('80px');
     });
 
     it('should respect minimum height constraint', () => {
@@ -238,13 +234,13 @@ describe('useAutoResizeTextarea', () => {
         { initialProps: { value: 'initial' } }
       );
 
-      expect(mockUseEffect).toHaveBeenCalledWith(expect.any(Function), [
+      expect(React.useEffect).toHaveBeenCalledWith(expect.any(Function), [
         'initial',
       ]);
 
       rerender({ value: 'changed' });
 
-      expect(mockUseEffect).toHaveBeenCalledWith(expect.any(Function), [
+      expect(React.useEffect).toHaveBeenCalledWith(expect.any(Function), [
         'changed',
       ]);
     });

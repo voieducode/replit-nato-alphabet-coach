@@ -2,18 +2,21 @@ import { renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useRealTimeMatching } from '../useRealTimeMatching';
 
-// Mock dependencies
-const mockGetRealTimeMatch = vi.fn();
 vi.mock('@/lib/word-matching', () => ({
-  getRealTimeMatch: mockGetRealTimeMatch,
+  getRealTimeMatch: vi.fn(),
 }));
 
 describe('useRealTimeMatching', () => {
   const mockSetMatchResult = vi.fn();
+  let mockGetRealTimeMatch: ReturnType<typeof vi.fn>;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks();
     mockSetMatchResult.mockClear();
+
+    // Get the mocked function
+    const { getRealTimeMatch } = await vi.importMock('@/lib/word-matching');
+    mockGetRealTimeMatch = getRealTimeMatch as ReturnType<typeof vi.fn>;
     mockGetRealTimeMatch.mockReturnValue({
       matches: [
         {

@@ -1,13 +1,8 @@
 import { act, renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import {
-  getUserProgressLocal,
-  updateUserProgressLocal,
-} from '../../../../src/lib/storage';
 import { useUserProgress } from '../useUserProgress';
 
-// Mock the storage module
 vi.mock('@/lib/storage', () => ({
   getUserProgressLocal: vi.fn(),
   updateUserProgressLocal: vi.fn(),
@@ -34,14 +29,26 @@ describe('useUserProgress', () => {
     },
   ];
 
-  beforeEach(() => {
+  let mockGetUserProgressLocal: ReturnType<typeof vi.fn>;
+  let mockUpdateUserProgressLocal: ReturnType<typeof vi.fn>;
+
+  beforeEach(async () => {
     vi.resetAllMocks();
-    (getUserProgressLocal as any).mockReturnValue(initialProgress);
+
+    // Get the mocked functions
+    const { getUserProgressLocal, updateUserProgressLocal } =
+      await vi.importMock('@/lib/storage');
+    mockGetUserProgressLocal = getUserProgressLocal as ReturnType<typeof vi.fn>;
+    mockUpdateUserProgressLocal = updateUserProgressLocal as ReturnType<
+      typeof vi.fn
+    >;
+
+    mockGetUserProgressLocal.mockReturnValue(initialProgress);
   });
 
   it('loads user progress on init', () => {
     const { result } = renderHook(() => useUserProgress(userId));
-    expect(getUserProgressLocal).toHaveBeenCalled();
+    expect(mockGetUserProgressLocal).toHaveBeenCalled();
     expect(result.current.userProgress.length).toBe(2);
     expect(result.current.userProgress[0].letter).toBe('A');
     expect(result.current.userProgress[1].letter).toBe('B');
@@ -66,7 +73,7 @@ describe('useUserProgress', () => {
       difficulty: 0.45,
     };
 
-    (updateUserProgressLocal as any)
+    mockUpdateUserProgressLocal
       .mockReturnValueOnce(updatedA)
       .mockReturnValueOnce(updatedB);
 
@@ -76,13 +83,13 @@ describe('useUserProgress', () => {
       result.current.updateProgress('A', true);
     });
 
-    expect(updateUserProgressLocal).toHaveBeenCalledWith('A', true);
+    expect(mockUpdateUserProgressLocal).toHaveBeenCalledWith('A', true);
 
     act(() => {
       result.current.updateProgress('B', false);
     });
 
-    expect(updateUserProgressLocal).toHaveBeenCalledWith('B', false);
+    expect(mockUpdateUserProgressLocal).toHaveBeenCalledWith('B', false);
   });
 
   it('adds new letter if not found', () => {
@@ -95,7 +102,7 @@ describe('useUserProgress', () => {
       difficulty: 0.3,
     };
 
-    (updateUserProgressLocal as any).mockReturnValue(newLetter);
+    mockUpdateUserProgressLocal.mockReturnValue(newLetter);
 
     const { result } = renderHook(() => useUserProgress(userId));
 
@@ -103,6 +110,6 @@ describe('useUserProgress', () => {
       result.current.updateProgress('C', true);
     });
 
-    expect(updateUserProgressLocal).toHaveBeenCalledWith('C', true);
+    expect(mockUpdateUserProgressLocal).toHaveBeenCalledWith('C', true);
   });
 });

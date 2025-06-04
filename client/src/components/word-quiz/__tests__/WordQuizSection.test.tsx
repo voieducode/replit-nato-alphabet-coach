@@ -164,7 +164,7 @@ describe('wordQuizSection', () => {
   let mockUseWordQuiz: any;
   let mockUseQuizFeedback: any;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks();
 
     // Create fresh mock objects for each test
@@ -191,12 +191,10 @@ describe('wordQuizSection', () => {
     };
 
     // Update the mock implementations
-    vi.mocked(require('../hooks/useWordQuiz').useWordQuiz).mockReturnValue(
-      mockUseWordQuiz
-    );
-    vi.mocked(
-      require('../hooks/useQuizFeedback').useQuizFeedback
-    ).mockReturnValue(mockUseQuizFeedback);
+    const { useWordQuiz } = await import('../hooks/useWordQuiz');
+    const { useQuizFeedback } = await import('../hooks/useQuizFeedback');
+    vi.mocked(useWordQuiz).mockReturnValue(mockUseWordQuiz);
+    vi.mocked(useQuizFeedback).mockReturnValue(mockUseQuizFeedback);
   });
 
   describe('loading state', () => {
@@ -474,8 +472,10 @@ describe('wordQuizSection', () => {
   });
 
   describe('real-time matching integration', () => {
-    it('should call useRealTimeMatching with correct props', () => {
-      const { useRealTimeMatching } = require('../hooks/useRealTimeMatching');
+    it('should call useRealTimeMatching with correct props', async () => {
+      const { useRealTimeMatching } = await import(
+        '../hooks/useRealTimeMatching'
+      );
 
       render(<WordQuizSection />);
 
