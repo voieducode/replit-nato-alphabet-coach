@@ -29,7 +29,7 @@ describe('useQuizTimer', () => {
       }
     );
     act(() => {
-      vi.advanceTimersByTime(2000);
+      vi.advanceTimersByTime(1000);
     });
     expect(result.current.currentTime).toBeGreaterThanOrEqual(1);
     quizSet = { id: 2 };
@@ -45,12 +45,12 @@ describe('useQuizTimer', () => {
       }
     );
     act(() => {
-      vi.advanceTimersByTime(2000);
+      vi.advanceTimersByTime(1000);
     });
     rerender({ active: false });
     const time = result.current.currentTime;
     act(() => {
-      vi.advanceTimersByTime(2000);
+      vi.advanceTimersByTime(1000);
     });
     expect(result.current.currentTime).toBe(time);
   });

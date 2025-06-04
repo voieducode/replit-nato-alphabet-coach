@@ -55,7 +55,7 @@ export function useQuizAnswer({
         setShowHint(false);
         setHintTimer(0);
         advanceQuiz();
-      }, 2000);
+      }, 100);
     },
     [
       getCurrentQuestion,
