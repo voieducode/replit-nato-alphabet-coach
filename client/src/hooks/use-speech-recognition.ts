@@ -145,6 +145,15 @@ export function useSpeechRecognition(
     setError(null);
   }, []);
 
+  // Safe state setters to avoid direct state updates in useEffect
+  const setSpeechSupportedSafely = useCallback((supported: boolean) => {
+    setSpeechSupported(supported);
+  }, []);
+
+  const setErrorSafely = useCallback((errorMessage: string | null) => {
+    setError(errorMessage);
+  }, []);
+
   // Audio level monitoring
   const startAudioMonitoring = useCallback(async () => {
     try {
@@ -395,8 +404,8 @@ export function useSpeechRecognition(
     if (!SpeechRecognition) {
       debugLog('Speech Recognition API not supported');
       isInitializedRef.current = true;
-      setSpeechSupported(false);
-      setError('Speech recognition not supported in this browser');
+      setSpeechSupportedSafely(false);
+      setErrorSafely('Speech recognition not supported in this browser');
       return false;
     }
 
@@ -422,7 +431,7 @@ export function useSpeechRecognition(
 
       recognitionRef.current = recognition;
       isInitializedRef.current = true;
-      setSpeechSupported(true);
+      setSpeechSupportedSafely(true);
 
       debugLog('Speech recognition initialized successfully', {
         continuous,
@@ -435,14 +444,14 @@ export function useSpeechRecognition(
       return true;
     } catch (error) {
       debugLog('Failed to initialize speech recognition:', error);
-      setError('Failed to initialize speech recognition');
+      setErrorSafely('Failed to initialize speech recognition');
       toast({
         title: 'Speech Recognition Error',
         description: 'Failed to initialize speech recognition.',
         variant: 'destructive',
       });
       isInitializedRef.current = true;
-      setSpeechSupported(false);
+      setSpeechSupportedSafely(false);
       return false;
     }
   }, [
@@ -460,6 +469,8 @@ export function useSpeechRecognition(
     handleSpeechEnd,
     toast,
     debugLog,
+    setSpeechSupportedSafely,
+    setErrorSafely,
   ]);
 
   // Initialize once on mount
@@ -487,7 +498,7 @@ export function useSpeechRecognition(
       stopAudioMonitoring();
       isInitializedRef.current = false;
     };
-  }, []); // Empty dependency array - initialize only once
+  }, [debugLog, initializeSpeechRecognition, stopAudioMonitoring]);
 
   const startListening = useCallback(() => {
     debugLog('startListening called', {

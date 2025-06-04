@@ -1,6 +1,6 @@
 import type { WordEntry } from '@/lib/word-dictionary';
 import type { WordMatchResult } from '@/lib/word-matching';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import {
   getRandomWord,
@@ -10,7 +10,9 @@ import {
 import { matchWordToNATO } from '@/lib/word-matching';
 
 export function useWordQuiz() {
-  const [currentWord, setCurrentWord] = useState<WordEntry | null>(null);
+  const [currentWord, setCurrentWord] = useState<WordEntry | null>(() =>
+    getRandomWord()
+  );
   const [customWordInput, setCustomWordInput] = useState('');
   const [isCustomMode, setIsCustomMode] = useState(false);
   const [userNATOInput, setUserNATOInput] = useState('');
@@ -31,7 +33,7 @@ export function useWordQuiz() {
     setCustomWordInput('');
   };
 
-  const useCustomWord = () => {
+  const handleCustomWord = () => {
     if (!customWordInput.trim()) {
       toast({
         title: 'Invalid Input',
@@ -96,11 +98,6 @@ export function useWordQuiz() {
     setIsCompleted(false);
   };
 
-  // Initialize with a random word
-  useEffect(() => {
-    generateNewWord();
-  }, []);
-
   return {
     // State
     currentWord,
@@ -113,7 +110,7 @@ export function useWordQuiz() {
 
     // Actions
     generateNewWord,
-    useCustomWord,
+    handleCustomWord,
     checkAnswer,
     retryCurrentWord,
     setCustomWordInput,

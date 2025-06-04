@@ -57,7 +57,7 @@ describe('useWordQuiz', () => {
     });
   });
 
-  describe('useCustomWord', () => {
+  describe('handleCustomWord', () => {
     it('should handle valid custom word input', async () => {
       const { result } = renderHook(() => useWordQuiz());
 
@@ -72,7 +72,7 @@ describe('useWordQuiz', () => {
 
       // Use custom word
       act(() => {
-        result.current.useCustomWord();
+        result.current.handleCustomWord();
       });
 
       await waitFor(() => {
@@ -92,7 +92,7 @@ describe('useWordQuiz', () => {
       // Try to use empty custom word - should not crash
       expect(() => {
         act(() => {
-          result.current.useCustomWord();
+          result.current.handleCustomWord();
         });
       }).not.toThrow();
 
@@ -115,7 +115,7 @@ describe('useWordQuiz', () => {
       // Should not crash when using invalid word
       expect(() => {
         act(() => {
-          result.current.useCustomWord();
+          result.current.handleCustomWord();
         });
       }).not.toThrow();
 
@@ -136,7 +136,7 @@ describe('useWordQuiz', () => {
       });
 
       act(() => {
-        result.current.useCustomWord();
+        result.current.handleCustomWord();
       });
 
       await waitFor(() => {
@@ -149,7 +149,7 @@ describe('useWordQuiz', () => {
       });
 
       act(() => {
-        result.current.useCustomWord();
+        result.current.handleCustomWord();
       });
 
       await waitFor(() => {
@@ -162,7 +162,7 @@ describe('useWordQuiz', () => {
       });
 
       act(() => {
-        result.current.useCustomWord();
+        result.current.handleCustomWord();
       });
 
       await waitFor(() => {
@@ -185,7 +185,7 @@ describe('useWordQuiz', () => {
       });
 
       act(() => {
-        result.current.useCustomWord();
+        result.current.handleCustomWord();
       });
 
       await waitFor(() => {
@@ -240,7 +240,7 @@ describe('useWordQuiz', () => {
       });
 
       act(() => {
-        result.current.useCustomWord();
+        result.current.handleCustomWord();
       });
 
       await waitFor(() => {
@@ -281,7 +281,7 @@ describe('useWordQuiz', () => {
       });
 
       act(() => {
-        result.current.useCustomWord();
+        result.current.handleCustomWord();
       });
 
       await waitFor(() => {
@@ -332,7 +332,7 @@ describe('useWordQuiz', () => {
       });
 
       act(() => {
-        result.current.useCustomWord();
+        result.current.handleCustomWord();
       });
 
       await waitFor(() => {
@@ -418,7 +418,7 @@ describe('useWordQuiz', () => {
         });
 
         act(() => {
-          result.current.useCustomWord();
+          result.current.handleCustomWord();
         });
 
         await waitFor(() => {
@@ -440,7 +440,7 @@ describe('useWordQuiz', () => {
       expect(() => {
         act(() => {
           result.current.setCustomWordInput('   ');
-          result.current.useCustomWord();
+          result.current.handleCustomWord();
         });
       }).not.toThrow();
 
@@ -521,7 +521,7 @@ describe('useWordQuiz', () => {
         });
 
         act(() => {
-          result.current.useCustomWord();
+          result.current.handleCustomWord();
         });
 
         // Wait for custom word to be applied with more specific check
@@ -533,6 +533,7 @@ describe('useWordQuiz', () => {
           { timeout: 2000 }
         );
 
+        // Set NATO input before checking answer
         act(() => {
           result.current.setUserNATOInput('Alpha Bravo Charlie');
         });

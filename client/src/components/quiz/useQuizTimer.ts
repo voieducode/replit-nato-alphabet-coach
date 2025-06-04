@@ -35,6 +35,7 @@ export function useQuizTimer(
         clearInterval(timerRef.current);
         timerRef.current = null;
       }
+      // eslint-disable-next-line react-hooks-extra/no-direct-set-state-in-use-effect
       setCurrentTime(0);
     }
   }, [quizSet]);

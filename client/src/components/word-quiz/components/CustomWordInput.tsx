@@ -6,14 +6,14 @@ interface CustomWordInputProps {
   isCustomMode: boolean;
   customWordInput: string;
   setCustomWordInput: (value: string) => void;
-  useCustomWord: () => void;
+  handleCustomWord: () => void;
 }
 
 export function CustomWordInput({
   isCustomMode,
   customWordInput,
   setCustomWordInput,
-  useCustomWord,
+  handleCustomWord,
 }: CustomWordInputProps) {
   if (!isCustomMode) {
     return null;
@@ -32,7 +32,7 @@ export function CustomWordInput({
           className="w-full"
         />
         <Button
-          onClick={useCustomWord}
+          onClick={handleCustomWord}
           className="w-full"
           disabled={!customWordInput.trim()}
         >

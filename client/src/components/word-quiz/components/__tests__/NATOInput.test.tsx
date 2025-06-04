@@ -4,6 +4,7 @@ import { NATOInput } from '../NATOInput';
 
 // Only mock external dependencies that are necessary
 vi.mock('@/hooks/use-speech-recognition', () => ({
+  // eslint-disable-next-line react-hooks-extra/no-unnecessary-use-prefix
   useSpeechRecognition: () => ({
     isListening: false,
     isProcessing: false,

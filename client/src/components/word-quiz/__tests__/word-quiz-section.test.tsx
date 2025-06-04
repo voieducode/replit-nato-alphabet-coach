@@ -1,11 +1,12 @@
 import type { ReactNode } from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import WordQuizSection from '@/components/word-quiz-section';
 import { LanguageProvider } from '@/contexts/language-context';
-import WordQuizSection from '../WordQuizSection';
 
 // Mock external dependencies that are not core to the component behavior
 vi.mock('@/hooks/use-speech-recognition', () => ({
+  // eslint-disable-next-line react-hooks-extra/no-unnecessary-use-prefix
   useSpeechRecognition: () => ({
     isListening: false,
     isProcessing: false,
