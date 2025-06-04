@@ -45,7 +45,7 @@ describe('nATOInput', () => {
     // Mock useSpeechRecognition and capture the callback
     const mockUseSpeechRecognitionImpl = vi
       .fn()
-      .mockImplementation((callback, config) => {
+      .mockImplementation((callback, _config) => {
         speechRecognitionCallback = callback;
         return mockUseSpeechRecognition;
       });

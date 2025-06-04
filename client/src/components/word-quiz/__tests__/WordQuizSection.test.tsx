@@ -107,19 +107,25 @@ vi.mock('../components/QuizActions', () => ({
   }: any) => (
     <div data-testid="quiz-actions">
       <button
+        type="button"
         data-testid="check-answer-btn"
         onClick={checkAnswer}
         disabled={!userNATOInput}
       >
         Check Answer
       </button>
-      <button data-testid="retry-btn" onClick={retryCurrentWord}>
+      <button type="button" data-testid="retry-btn" onClick={retryCurrentWord}>
         Retry
       </button>
-      <button data-testid="new-word-btn" onClick={generateNewWord}>
+      <button
+        type="button"
+        data-testid="new-word-btn"
+        onClick={generateNewWord}
+      >
         New Word
       </button>
       <button
+        type="button"
         data-testid="custom-mode-btn"
         onClick={() => setIsCustomMode(!isCustomMode)}
       >
@@ -145,7 +151,11 @@ vi.mock('../components/CustomWordInput', () => ({
             onChange={(e) => setCustomWordInput(e.target.value)}
             placeholder="Enter custom word"
           />
-          <button data-testid="use-custom-word-btn" onClick={useCustomWord}>
+          <button
+            type="button"
+            data-testid="use-custom-word-btn"
+            onClick={useCustomWord}
+          >
             Use Custom Word
           </button>
         </div>

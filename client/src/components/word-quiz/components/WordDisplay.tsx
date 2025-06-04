@@ -64,7 +64,7 @@ export function WordDisplay({
 
               return (
                 <span
-                  key={index}
+                  key={`${letter}-${index}`}
                   className={cn('transition-colors duration-200', letterColor)}
                 >
                   {letter}
