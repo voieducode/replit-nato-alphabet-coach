@@ -5,6 +5,12 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   plugins: [react()],
   test: {
+    browser: {
+      enabled: true,
+      name: 'chromium',
+      provider: 'playwright',
+      headless: true,
+    },
     environment: 'jsdom',
     setupFiles: ['./client/src/test/setup.ts'],
     globals: true,

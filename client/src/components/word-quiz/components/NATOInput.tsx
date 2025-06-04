@@ -35,7 +35,11 @@ export function NATOInput({
     clearError,
   } = useSpeechRecognition(
     (transcript) => {
-      setUserNATOInput(userNATOInput + transcript);
+      // Add a space between existing content and new dictated text if needed
+      const needsSpace =
+        userNATOInput.length > 0 && !userNATOInput.endsWith(' ');
+      const separator = needsSpace ? ' ' : '';
+      setUserNATOInput(userNATOInput + separator + transcript);
     },
     {
       continuous: true,
