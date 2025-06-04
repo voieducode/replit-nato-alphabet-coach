@@ -1,6 +1,9 @@
 import type { WordMatchResult } from '@/lib/word-matching';
 import { useEffect } from 'react';
-import { Button } from '@/components/ui/button';
+import {
+  SpeechInputButton,
+  SpeechStatusDisplay,
+} from '@/components/shared/speech';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { useLanguage } from '@/hooks/use-language';
@@ -45,6 +48,7 @@ export function NATOInput({
     isProcessing,
     speechSupported,
     interimTranscript,
+    audioLevel,
     error,
     startListening,
     stopListening,
@@ -88,44 +92,43 @@ export function NATOInput({
             disabled={showResult && isCompleted}
           />
 
-          {/* Speech Input Button */}
-          {speechSupported && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className={cn(
-                'absolute right-2 top-2 h-8 w-8 p-0',
-                isListening ? 'text-red-600 bg-red-100' : 'text-gray-500'
-              )}
-              onClick={isListening ? stopListening : startListening}
-              disabled={showResult && isCompleted}
-            >
-              🎤
-            </Button>
-          )}
+          <SpeechInputButton
+            isListening={isListening}
+            isProcessing={isProcessing}
+            speechSupported={speechSupported}
+            audioLevel={audioLevel}
+            onToggle={() => {
+              clearError();
+              if (isListening) {
+                stopListening();
+              } else {
+                startListening();
+              }
+            }}
+            disabled={showResult}
+            translations={{
+              startVoiceInput: translations.startVoiceInput,
+              stopVoiceInput: translations.stopVoiceInput,
+              natoInputListening: translations.natoInputListening,
+            }}
+          />
         </div>
 
-        {/* Speech Status */}
-        {isListening && (
-          <div className="text-sm text-blue-600 bg-blue-50 p-2 rounded border">
-            🎤 {translations.natoInputListening}{' '}
-            {interimTranscript && `(${interimTranscript})`}
-          </div>
-        )}
-
-        {error && (
-          <div className="text-sm text-red-600 bg-red-50 p-2 rounded border">
-            ⚠️ {error}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={clearError}
-              className="ml-2"
-            >
-              ✕
-            </Button>
-          </div>
-        )}
+        <SpeechStatusDisplay
+          isListening={isListening}
+          isProcessing={isProcessing}
+          error={error}
+          interimTranscript={interimTranscript}
+          onClearError={() => {
+            clearError();
+            stopListening();
+          }}
+          translations={{
+            startVoiceInput: translations.startVoiceInput,
+            stopVoiceInput: translations.stopVoiceInput,
+            natoInputListening: translations.natoInputListening,
+          }}
+        />
 
         {/* Real-time Score */}
         {matchResult && userNATOInput && !showResult && (

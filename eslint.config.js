@@ -52,6 +52,10 @@ export default antfu(
       'node/prefer-global/process': 'warn',
       'ts/no-require-imports': 'warn',
       'ts/no-use-before-define': 'warn',
+      'antfu/consistent-chaining': [
+        'warn',
+        { allowLeadingPropertyAccess: true },
+      ],
     },
 
     // Ignore certain files

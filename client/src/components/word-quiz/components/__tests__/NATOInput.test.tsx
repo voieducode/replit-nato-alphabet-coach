@@ -67,7 +67,7 @@ describe('nATOInput', () => {
       renderWithProviders(<NATOInput {...defaultProps} />);
 
       const micButton = screen.getByRole('button');
-      expect(micButton).toHaveTextContent('🎤');
+      expect(micButton.querySelector('svg')).toBeInTheDocument();
       expect(micButton).not.toBeDisabled();
     });
   });

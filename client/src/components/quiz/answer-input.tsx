@@ -1,6 +1,10 @@
 import type { Translations } from '@/lib/i18n';
-import { AlertCircle, Lightbulb, Mic, MicOff, Volume2 } from 'lucide-react';
+import { Lightbulb, Volume2 } from 'lucide-react';
 import React, { memo, useEffect, useRef } from 'react';
+import {
+  SpeechInputButton,
+  SpeechStatusDisplay,
+} from '@/components/shared/speech';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useSpeechRecognition } from '@/hooks/use-speech-recognition';
@@ -140,109 +144,41 @@ export const AnswerInput = memo(
               )}
               aria-describedby="answer-instructions"
             />
-            {speechSupported && (
-              <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center space-x-1">
-                {/* Audio level indicator */}
-                {isListening && audioLevel > 0 && (
-                  <div className="flex items-center space-x-1">
-                    <div
-                      className={cn(
-                        'w-1 h-3 bg-green-400 rounded-full transition-all duration-100',
-                        audioLevel > 10 ? 'opacity-100' : 'opacity-30'
-                      )}
-                    />
-                    <div
-                      className={cn(
-                        'w-1 h-4 bg-green-400 rounded-full transition-all duration-100',
-                        audioLevel > 30 ? 'opacity-100' : 'opacity-30'
-                      )}
-                    />
-                    <div
-                      className={cn(
-                        'w-1 h-5 bg-yellow-400 rounded-full transition-all duration-100',
-                        audioLevel > 50 ? 'opacity-100' : 'opacity-30'
-                      )}
-                    />
-                    <div
-                      className={cn(
-                        'w-1 h-6 bg-red-400 rounded-full transition-all duration-100',
-                        audioLevel > 70 ? 'opacity-100' : 'opacity-30'
-                      )}
-                    />
-                  </div>
-                )}
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className={cn(
-                    'h-8 w-8 p-0',
-                    isListening
-                      ? 'text-red-600 bg-red-100 hover:bg-red-200'
-                      : isProcessing
-                        ? 'text-yellow-600 bg-yellow-100'
-                        : 'text-gray-500 hover:text-gray-700'
-                  )}
-                  onClick={isListening ? stopListening : startListening}
-                  disabled={showResult}
-                  aria-label={
-                    isListening
-                      ? translations.stopVoiceInput
-                      : translations.startVoiceInput
-                  }
-                >
-                  {isListening ? (
-                    <MicOff className="h-4 w-4" />
-                  ) : (
-                    <Mic className="h-4 w-4" />
-                  )}
-                </Button>
-              </div>
-            )}
+            <SpeechInputButton
+              isListening={isListening}
+              isProcessing={isProcessing}
+              speechSupported={speechSupported}
+              audioLevel={audioLevel}
+              onToggle={() => {
+                clearError();
+                if (isListening) {
+                  stopListening();
+                } else {
+                  startListening();
+                }
+              }}
+              disabled={showResult}
+              translations={{
+                startVoiceInput: translations.startVoiceInput,
+                stopVoiceInput: translations.stopVoiceInput,
+              }}
+            />
           </div>
 
-          {/* Speech Recognition Status */}
-          {speechSupported && (isListening || isProcessing || error) && (
-            <div className="mt-2 text-sm">
-              {error && (
-                <div className="flex items-center space-x-2 text-red-600 bg-red-50 p-2 rounded border border-red-200">
-                  <AlertCircle className="h-4 w-4 flex-shrink-0" />
-                  <span className="flex-1">{error}</span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={clearError}
-                    className="h-6 w-6 p-0 text-red-600 hover:text-red-800"
-                  >
-                    ×
-                  </Button>
-                </div>
-              )}
-
-              {!error && isListening && (
-                <div className="flex items-center space-x-2 text-blue-600 bg-blue-50 p-2 rounded border border-blue-200">
-                  <div className="flex space-x-1">
-                    <div className="w-1 h-1 bg-blue-400 rounded-full animate-pulse" />
-                    <div className="w-1 h-1 bg-blue-400 rounded-full animate-pulse delay-75" />
-                    <div className="w-1 h-1 bg-blue-400 rounded-full animate-pulse delay-150" />
-                  </div>
-                  <span>
-                    {isProcessing
-                      ? 'Processing speech...'
-                      : `Listening... (Language: ${
-                          navigator.language || 'en-US'
-                        })`}
-                  </span>
-                </div>
-              )}
-
-              {!error && interimTranscript && (
-                <div className="text-gray-500 italic">
-                  Hearing: "{interimTranscript}"
-                </div>
-              )}
-            </div>
-          )}
+          <SpeechStatusDisplay
+            isListening={isListening}
+            isProcessing={isProcessing}
+            error={error}
+            interimTranscript={interimTranscript}
+            onClearError={() => {
+              clearError();
+              stopListening();
+            }}
+            translations={{
+              startVoiceInput: translations.startVoiceInput,
+              stopVoiceInput: translations.stopVoiceInput,
+            }}
+          />
 
           {/* Microphone Test Button */}
           {speechSupported && !isListening && !showResult && (

@@ -6,3 +6,4 @@ vite.config.ts.*
 *.tar.gz
 **/__screenshots__/
 .eslintcache
+**/__snapshots__/

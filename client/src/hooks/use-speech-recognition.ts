@@ -122,6 +122,10 @@ export function useSpeechRecognition(
   const analyserRef = useRef<AnalyserNode | null>(null);
   const microphoneRef = useRef<MediaStreamAudioSourceNode | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const micDeniedToastShownRef = useRef(false);
+  const langNotSupportedToastShownRef = useRef(false);
+  const networkErrorToastShownRef = useRef(false);
+  const serviceNotAllowedToastShownRef = useRef(false);
 
   const { toast } = useToast();
 
@@ -143,6 +147,10 @@ export function useSpeechRecognition(
   // Clear error function
   const clearError = useCallback(() => {
     setError(null);
+    micDeniedToastShownRef.current = false;
+    langNotSupportedToastShownRef.current = false;
+    networkErrorToastShownRef.current = false;
+    serviceNotAllowedToastShownRef.current = false;
   }, []);
 
   // Safe state setters to avoid direct state updates in useEffect
@@ -331,28 +339,38 @@ export function useSpeechRecognition(
       switch (event.error) {
         case 'language-not-supported':
           setError(`Language "${language}" not supported`);
-          toast({
-            title: 'Language Not Supported',
-            description: `Try switching to a supported language. Currently using: ${language}`,
-            variant: 'destructive',
-          });
+          if (!langNotSupportedToastShownRef.current) {
+            toast({
+              title: 'Language Not Supported',
+              description: `Try switching to a supported language. Currently using: ${language}`,
+              variant: 'destructive',
+            });
+            langNotSupportedToastShownRef.current = true;
+          }
           break;
         case 'not-allowed':
           setError('Microphone access denied');
-          toast({
-            title: 'Microphone Access Denied',
-            description:
-              'Please allow microphone access in browser settings and refresh the page.',
-            variant: 'destructive',
-          });
+          if (!micDeniedToastShownRef.current) {
+            toast({
+              title: 'Microphone Access Denied',
+              description:
+                'Please allow microphone access in browser settings and refresh the page.',
+              variant: 'destructive',
+            });
+            micDeniedToastShownRef.current = true;
+          }
           break;
         case 'network':
           setError('Network error - speech recognition requires internet');
-          toast({
-            title: 'Network Error',
-            description: 'Speech recognition requires an internet connection.',
-            variant: 'destructive',
-          });
+          if (!networkErrorToastShownRef.current) {
+            toast({
+              title: 'Network Error',
+              description:
+                'Speech recognition requires an internet connection.',
+              variant: 'destructive',
+            });
+            networkErrorToastShownRef.current = true;
+          }
           break;
         case 'no-speech':
           debugLog('No speech detected - this is normal');
@@ -364,12 +382,15 @@ export function useSpeechRecognition(
           break;
         case 'service-not-allowed':
           setError('Speech recognition service not allowed');
-          toast({
-            title: 'Service Not Allowed',
-            description:
-              'Speech recognition service is not allowed on this page.',
-            variant: 'destructive',
-          });
+          if (!serviceNotAllowedToastShownRef.current) {
+            toast({
+              title: 'Service Not Allowed',
+              description:
+                'Speech recognition service is not allowed on this page.',
+              variant: 'destructive',
+            });
+            serviceNotAllowedToastShownRef.current = true;
+          }
           break;
         default:
           setError(`Speech recognition error: ${event.error}`);
