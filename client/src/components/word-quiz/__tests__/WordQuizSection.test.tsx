@@ -3,37 +3,33 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import WordQuizSection from '../WordQuizSection';
 
 // Mock all the hooks
-const mockUseWordQuiz = {
-  currentWord: { word: 'CAT', difficulty: 'easy' } as {
-    word: string;
-    difficulty: string;
-  } | null,
-  userNATOInput: '',
-  setUserNATOInput: vi.fn(),
-  customWordInput: '',
-  setCustomWordInput: vi.fn(),
-  isCustomMode: false,
-  setIsCustomMode: vi.fn(),
-  showResult: false,
-  isCompleted: false,
-  matchResult: null as any,
-  setMatchResult: vi.fn(),
-  generateNewWord: vi.fn(),
-  useCustomWord: vi.fn(),
-  checkAnswer: vi.fn(),
-  retryCurrentWord: vi.fn(),
-};
-
-const mockUseQuizFeedback = {
-  showResultFeedback: vi.fn(),
-};
-
 vi.mock('../hooks/useWordQuiz', () => ({
-  useWordQuiz: () => mockUseWordQuiz,
+  useWordQuiz: () => ({
+    currentWord: { word: 'CAT', difficulty: 'easy' } as {
+      word: string;
+      difficulty: string;
+    } | null,
+    userNATOInput: '',
+    setUserNATOInput: vi.fn(),
+    customWordInput: '',
+    setCustomWordInput: vi.fn(),
+    isCustomMode: false,
+    setIsCustomMode: vi.fn(),
+    showResult: false,
+    isCompleted: false,
+    matchResult: null as any,
+    setMatchResult: vi.fn(),
+    generateNewWord: vi.fn(),
+    useCustomWord: vi.fn(),
+    checkAnswer: vi.fn(),
+    retryCurrentWord: vi.fn(),
+  }),
 }));
 
 vi.mock('../hooks/useQuizFeedback', () => ({
-  useQuizFeedback: () => mockUseQuizFeedback,
+  useQuizFeedback: () => ({
+    showResultFeedback: vi.fn(),
+  }),
 }));
 
 vi.mock('../hooks/useRealTimeMatching', () => ({
@@ -165,18 +161,42 @@ vi.mock('../components/CustomWordInput', () => ({
 }));
 
 describe('wordQuizSection', () => {
+  let mockUseWordQuiz: any;
+  let mockUseQuizFeedback: any;
+
   beforeEach(() => {
     vi.clearAllMocks();
-    // Reset mock state
-    Object.assign(mockUseWordQuiz, {
+
+    // Create fresh mock objects for each test
+    mockUseWordQuiz = {
       currentWord: { word: 'CAT', difficulty: 'easy' },
       userNATOInput: '',
+      setUserNATOInput: vi.fn(),
       customWordInput: '',
+      setCustomWordInput: vi.fn(),
       isCustomMode: false,
+      setIsCustomMode: vi.fn(),
       showResult: false,
       isCompleted: false,
       matchResult: null,
-    });
+      setMatchResult: vi.fn(),
+      generateNewWord: vi.fn(),
+      useCustomWord: vi.fn(),
+      checkAnswer: vi.fn(),
+      retryCurrentWord: vi.fn(),
+    };
+
+    mockUseQuizFeedback = {
+      showResultFeedback: vi.fn(),
+    };
+
+    // Update the mock implementations
+    vi.mocked(require('../hooks/useWordQuiz').useWordQuiz).mockReturnValue(
+      mockUseWordQuiz
+    );
+    vi.mocked(
+      require('../hooks/useQuizFeedback').useQuizFeedback
+    ).mockReturnValue(mockUseQuizFeedback);
   });
 
   describe('loading state', () => {

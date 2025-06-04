@@ -7,9 +7,13 @@ export default defineConfig({
   test: {
     browser: {
       enabled: true,
-      name: 'chromium',
       provider: 'playwright',
-      headless: true,
+      instances: [
+        {
+          browser: 'chromium',
+          headless: true,
+        },
+      ],
     },
     environment: 'jsdom',
     setupFiles: ['./client/src/test/setup.ts'],

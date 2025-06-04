@@ -3,20 +3,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { NATOInput } from '../NATOInput';
 
 // Mock dependencies
-const mockUseAutoResizeTextarea = vi.fn();
-const mockUseSpeechRecognition = {
-  isListening: false,
-  isProcessing: false,
-  speechSupported: true,
-  interimTranscript: '',
-  error: null,
-  startListening: vi.fn(),
-  stopListening: vi.fn(),
-  clearError: vi.fn(),
-};
-
 vi.mock('../../hooks/useAutoResizeTextarea', () => ({
-  useAutoResizeTextarea: mockUseAutoResizeTextarea,
+  useAutoResizeTextarea: vi.fn(),
 }));
 
 vi.mock('@/hooks/use-speech-recognition', () => ({
@@ -34,9 +22,24 @@ describe('nATOInput', () => {
 
   let mockRef: { current: HTMLTextAreaElement | null };
   let speechRecognitionCallback: (transcript: string) => void;
+  let mockUseAutoResizeTextarea: any;
+  let mockUseSpeechRecognition: any;
 
   beforeEach(() => {
     vi.clearAllMocks();
+
+    // Create fresh mock objects
+    mockUseAutoResizeTextarea = vi.fn();
+    mockUseSpeechRecognition = {
+      isListening: false,
+      isProcessing: false,
+      speechSupported: true,
+      interimTranscript: '',
+      error: null,
+      startListening: vi.fn(),
+      stopListening: vi.fn(),
+      clearError: vi.fn(),
+    };
 
     // Mock the ref
     mockRef = { current: null };
@@ -49,6 +52,11 @@ describe('nATOInput', () => {
         speechRecognitionCallback = callback;
         return mockUseSpeechRecognition;
       });
+
+    // Update the mock implementations
+    vi.mocked(
+      require('../../hooks/useAutoResizeTextarea').useAutoResizeTextarea
+    ).mockImplementation(mockUseAutoResizeTextarea);
     vi.mocked(
       require('@/hooks/use-speech-recognition').useSpeechRecognition
     ).mockImplementation(mockUseSpeechRecognitionImpl);
