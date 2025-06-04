@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { useSpeechRecognition } from '@/hooks/use-speech-recognition';
 import { useSpeechSynthesis } from '@/hooks/use-speech-synthesis';
 import { useToast } from '@/hooks/use-toast';
-import { checkAnswerVariants, getHintForLetter } from '@/lib/spaced-repetition';
+import { getHintForLetter } from '@/lib/spaced-repetition';
 import { cn } from '@/lib/utils';
 
 interface AnswerInputProps {
@@ -280,23 +280,6 @@ export const AnswerInput = memo(
                 {getHintForLetter(letter, translations.natoHints)}
               </p>
             </div>
-          </div>
-        )}
-
-        {showResult && (
-          <div
-            className={cn(
-              'p-4 rounded-lg border bg-info',
-              checkAnswerVariants(userAnswer, correctAnswer)
-                ? 'border-green-200 text-info-foreground-green'
-                : 'border-red-200 text-info-foreground-red'
-            )}
-          >
-            <p className="font-medium">
-              {checkAnswerVariants(userAnswer, correctAnswer)
-                ? translations.correct
-                : `${translations.correctAnswer}: ${correctAnswer}`}
-            </p>
           </div>
         )}
 

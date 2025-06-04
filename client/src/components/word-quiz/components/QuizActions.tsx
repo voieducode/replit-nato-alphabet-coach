@@ -26,12 +26,7 @@ export function QuizActions({
     <>
       {/* Action Buttons */}
       <div className="grid grid-cols-2 gap-3">
-        <Button
-          onClick={retryCurrentWord}
-          variant="outline"
-          className="w-full"
-          disabled={!showResult}
-        >
+        <Button onClick={retryCurrentWord} variant="outline" className="w-full">
           <RotateCcw className="h-4 w-4 mr-2" />
           Retry
         </Button>

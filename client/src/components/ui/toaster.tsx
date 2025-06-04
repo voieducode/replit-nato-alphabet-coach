@@ -6,13 +6,10 @@ import {
   ToastTitle,
   ToastViewport,
 } from '@/components/ui/toast';
-import { useIsMobile } from '@/hooks/use-mobile';
 import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
 
 export function Toaster() {
   const { toasts } = useToast();
-  const isMobile = useIsMobile();
 
   return (
     <ToastProvider>
@@ -30,9 +27,7 @@ export function Toaster() {
           </Toast>
         );
       })}
-      <ToastViewport
-        className={cn(isMobile && '!bottom-0 !top-auto flex-col')}
-      />
+      <ToastViewport />
     </ToastProvider>
   );
 }

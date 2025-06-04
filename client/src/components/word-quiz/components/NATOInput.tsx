@@ -1,4 +1,5 @@
 import type { WordMatchResult } from '@/lib/word-matching';
+import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -12,6 +13,7 @@ interface NATOInputProps {
   showResult: boolean;
   isCompleted: boolean;
   matchResult: WordMatchResult | null;
+  isCustomMode: boolean;
 }
 
 export function NATOInput({
@@ -20,8 +22,20 @@ export function NATOInput({
   showResult,
   isCompleted,
   matchResult,
+  isCustomMode,
 }: NATOInputProps) {
   const textareaRef = useAutoResizeTextarea(userNATOInput);
+
+  // Focus textarea when component mounts, when results are hidden, or after retry
+  // but not when custom mode is active (to avoid conflicting with custom word input)
+  useEffect(() => {
+    if (!showResult && !isCustomMode) {
+      const timer = setTimeout(() => {
+        textareaRef.current?.focus();
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [showResult, userNATOInput, isCustomMode, textareaRef]);
 
   // Speech recognition for NATO input
   const {

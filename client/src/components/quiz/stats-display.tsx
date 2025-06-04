@@ -108,7 +108,7 @@ export const StatsDisplay = memo(
                 >
                   <div className="w-3 h-3 bg-red-500 rounded-full"></div>
                   <span>
-                    {translations.learning}:{learningStats.learning}
+                    {translations.learning}:&nbsp;{learningStats.learning}
                   </span>
                 </button>
                 <button
@@ -118,7 +118,7 @@ export const StatsDisplay = memo(
                 >
                   <div className="w-3 h-3 bg-info rounded-full"></div>
                   <span>
-                    {translations.review}:{learningStats.review}
+                    {translations.review}:&nbsp;{learningStats.review}
                   </span>
                 </button>
                 <button
@@ -128,7 +128,7 @@ export const StatsDisplay = memo(
                 >
                   <div className="w-3 h-3 bg-green-500 rounded-full"></div>
                   <span>
-                    {translations.mastered}:{learningStats.mastered}
+                    {translations.mastered}:&nbsp;{learningStats.mastered}
                   </span>
                 </button>
               </div>

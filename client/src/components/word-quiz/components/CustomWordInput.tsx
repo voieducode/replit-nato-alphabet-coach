@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -15,6 +16,16 @@ export function CustomWordInput({
   setCustomWordInput,
   handleCustomWord,
 }: CustomWordInputProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Focus input when component mounts (custom mode activated)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      inputRef.current?.focus();
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
+
   if (!isCustomMode) {
     return null;
   }
@@ -26,6 +37,7 @@ export function CustomWordInput({
       </CardHeader>
       <CardContent className="space-y-3">
         <Input
+          ref={inputRef}
           value={customWordInput}
           onChange={(e) => setCustomWordInput(e.target.value)}
           placeholder="Enter your word or phrase..."

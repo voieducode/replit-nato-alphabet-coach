@@ -55,6 +55,7 @@ export default function WordQuizSection() {
         showResult={quiz.showResult}
         isCompleted={quiz.isCompleted}
         matchResult={quiz.matchResult}
+        isCustomMode={quiz.isCustomMode}
       />
 
       <QuizResults

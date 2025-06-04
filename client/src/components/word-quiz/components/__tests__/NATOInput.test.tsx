@@ -24,6 +24,7 @@ describe('nATOInput', () => {
     showResult: false,
     isCompleted: false,
     matchResult: null,
+    isCustomMode: false,
   };
 
   beforeEach(() => {
@@ -220,6 +221,71 @@ describe('nATOInput', () => {
       // Test that changes still work with long text
       fireEvent.change(textarea, { target: { value: `${longInput} Extra` } });
       expect(setUserNATOInput).toHaveBeenCalledWith(`${longInput} Extra`);
+    });
+  });
+
+  describe('custom mode behavior', () => {
+    it('should render normally when isCustomMode is false', () => {
+      const props = { ...defaultProps, isCustomMode: false };
+      render(<NATOInput {...props} />);
+
+      expect(screen.getByText('Your NATO Alphabet Input')).toBeInTheDocument();
+      expect(
+        screen.getByPlaceholderText(
+          'Enter NATO words: "Alpha Bravo Charlie..."'
+        )
+      ).toBeInTheDocument();
+    });
+
+    it('should render normally when isCustomMode is true', () => {
+      const props = { ...defaultProps, isCustomMode: true };
+      render(<NATOInput {...props} />);
+
+      expect(screen.getByText('Your NATO Alphabet Input')).toBeInTheDocument();
+      expect(
+        screen.getByPlaceholderText(
+          'Enter NATO words: "Alpha Bravo Charlie..."'
+        )
+      ).toBeInTheDocument();
+    });
+
+    it('should handle input changes in custom mode', () => {
+      const setUserNATOInput = vi.fn();
+      const props = {
+        ...defaultProps,
+        setUserNATOInput,
+        isCustomMode: true,
+      };
+
+      render(<NATOInput {...props} />);
+
+      const textarea = screen.getByPlaceholderText(
+        'Enter NATO words: "Alpha Bravo Charlie..."'
+      );
+      fireEvent.change(textarea, { target: { value: 'Custom Input' } });
+
+      expect(setUserNATOInput).toHaveBeenCalledWith('Custom Input');
+    });
+
+    it('should show live score in custom mode when match result is available', () => {
+      const matchResult = {
+        correctCount: 2,
+        totalCount: 4,
+        percentage: 50,
+        score: 2,
+        matches: [],
+      };
+      const props = {
+        ...defaultProps,
+        userNATOInput: 'Alpha Bravo Wrong Wrong',
+        matchResult,
+        showResult: false,
+        isCustomMode: true,
+      };
+
+      render(<NATOInput {...props} />);
+
+      expect(screen.getByText('Live Score: 2/4 (50%)')).toBeInTheDocument();
     });
   });
 
