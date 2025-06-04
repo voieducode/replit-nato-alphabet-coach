@@ -35,7 +35,7 @@ export function NATOInput({
     clearError,
   } = useSpeechRecognition(
     (transcript) => {
-      setUserNATOInput(transcript);
+      setUserNATOInput(userNATOInput + transcript);
     },
     {
       continuous: true,
