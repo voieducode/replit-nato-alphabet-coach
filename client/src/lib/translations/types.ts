@@ -47,6 +47,7 @@ export interface Translations {
   questionCount: string;
   quickReference: string;
   quiz: string;
+  wordQuiz: string;
   quizTimes: string;
   rainbowTheme: string;
   restartQuiz: string;

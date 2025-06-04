@@ -22,7 +22,7 @@ describe('internationalization Functions', () => {
       const translations = getTranslations('en');
       expect(translations.appName).toBe('NATO Alphabet Coach');
       expect(translations.converter).toBe('Converter');
-      expect(translations.quiz).toBe('Quiz');
+      expect(translations.quiz).toBe('Letter Quiz');
       expect(translations.settings).toBe('Settings');
     });
 
@@ -30,7 +30,7 @@ describe('internationalization Functions', () => {
       const translations = getTranslations('fr');
       expect(translations.appName).toBe('Entraîneur Alphabet OTAN');
       expect(translations.converter).toBe('Convertisseur');
-      expect(translations.quiz).toBe('Quiz');
+      expect(translations.quiz).toBe('Quiz Lettres');
       expect(translations.settings).toBe('Paramètres');
     });
 
@@ -38,7 +38,7 @@ describe('internationalization Functions', () => {
       const translations = getTranslations('es');
       expect(translations.appName).toBe('Entrenador Alfabeto OTAN');
       expect(translations.converter).toBe('Convertidor');
-      expect(translations.quiz).toBe('Cuestionario');
+      expect(translations.quiz).toBe('Quiz de Letras');
       expect(translations.settings).toBe('Configuración');
     });
 

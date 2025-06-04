@@ -3,7 +3,8 @@ import type { Translations } from './types';
 export const en: Translations = {
   appName: 'NATO Alphabet Coach',
   converter: 'Converter',
-  quiz: 'Quiz',
+  quiz: 'Letter Quiz',
+  wordQuiz: 'Word Quiz',
   settings: 'Settings',
   enterText: 'Enter text to convert',
   placeholder: 'Type your message here...',

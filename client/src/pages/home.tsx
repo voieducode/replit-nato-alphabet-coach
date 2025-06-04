@@ -6,13 +6,14 @@ import QuizSection from '@/components/quiz-section';
 import SettingsSection from '@/components/settings-section';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import WordQuizSection from '@/components/word-quiz-section';
 import { QuizProvider } from '@/contexts/quiz-provider';
 import { useLanguage } from '@/hooks/use-language';
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<'converter' | 'quiz' | 'settings'>(
-    'converter'
-  );
+  const [activeTab, setActiveTab] = useState<
+    'converter' | 'letterQuiz' | 'wordQuiz' | 'settings'
+  >('converter');
   const [showNotifications, setShowNotifications] = useState(false);
   const [userId] = useState('user-1'); // In a real app, this would come from auth
   const { translations } = useLanguage();
@@ -47,10 +48,10 @@ export default function Home() {
 
         {/* Tab Navigation */}
         <nav className="mt-4">
-          <div className="flex space-x-1 bg-primary/80 rounded-lg p-1">
+          <div className="grid grid-cols-4 gap-1 bg-primary/80 rounded-lg p-1">
             <button
               type="button"
-              className={`flex-1 py-2 px-4 rounded-md font-medium transition-colors ${
+              className={`py-2 px-2 rounded-md font-medium transition-colors text-xs ${
                 activeTab === 'converter'
                   ? 'bg-white text-primary'
                   : 'text-primary-foreground hover:bg-primary/60'
@@ -61,14 +62,36 @@ export default function Home() {
             </button>
             <button
               type="button"
-              className={`flex-1 py-2 px-4 rounded-md font-medium transition-colors ${
-                activeTab === 'quiz'
+              className={`py-2 px-2 rounded-md font-medium transition-colors text-xs ${
+                activeTab === 'letterQuiz'
                   ? 'bg-white text-primary'
                   : 'text-primary-foreground hover:bg-primary/60'
               }`}
-              onClick={() => setActiveTab('quiz')}
+              onClick={() => setActiveTab('letterQuiz')}
             >
               {translations.quiz}
+            </button>
+            <button
+              type="button"
+              className={`py-2 px-2 rounded-md font-medium transition-colors text-xs ${
+                activeTab === 'wordQuiz'
+                  ? 'bg-white text-primary'
+                  : 'text-primary-foreground hover:bg-primary/60'
+              }`}
+              onClick={() => setActiveTab('wordQuiz')}
+            >
+              {translations.wordQuiz}
+            </button>
+            <button
+              type="button"
+              className={`py-2 px-2 rounded-md font-medium transition-colors text-xs ${
+                activeTab === 'settings'
+                  ? 'bg-white text-primary'
+                  : 'text-primary-foreground hover:bg-primary/60'
+              }`}
+              onClick={() => setActiveTab('settings')}
+            >
+              {translations.settings}
             </button>
           </div>
         </nav>
@@ -78,21 +101,23 @@ export default function Home() {
       <main className="flex-1 overflow-y-auto">
         {activeTab === 'converter' ? (
           <ConverterSection />
-        ) : activeTab === 'quiz' ? (
+        ) : activeTab === 'letterQuiz' ? (
           <QuizProvider userId={userId}>
             <QuizSection />
           </QuizProvider>
+        ) : activeTab === 'wordQuiz' ? (
+          <WordQuizSection />
         ) : (
           <SettingsSection />
         )}
       </main>
 
       {/* Bottom Navigation */}
-      <nav className="bg-white border-t border-gray-200 p-4 sticky bottom-0">
-        <div className="flex justify-around">
+      <nav className="bg-white border-t border-gray-200 p-2 sticky bottom-0">
+        <div className="grid grid-cols-4 gap-1">
           <button
             type="button"
-            className={`flex flex-col items-center space-y-1 ${
+            className={`flex flex-col items-center space-y-1 py-2 ${
               activeTab === 'converter' ? 'text-primary' : 'text-gray-400'
             }`}
             onClick={() => setActiveTab('converter')}
@@ -104,17 +129,27 @@ export default function Home() {
           </button>
           <button
             type="button"
-            className={`flex flex-col items-center space-y-1 ${
-              activeTab === 'quiz' ? 'text-primary' : 'text-gray-400'
+            className={`flex flex-col items-center space-y-1 py-2 ${
+              activeTab === 'letterQuiz' ? 'text-primary' : 'text-gray-400'
             }`}
-            onClick={() => setActiveTab('quiz')}
+            onClick={() => setActiveTab('letterQuiz')}
           >
             <div className="text-lg">🎓</div>
             <span className="text-xs font-medium">{translations.quiz}</span>
           </button>
           <button
             type="button"
-            className={`flex flex-col items-center space-y-1 ${
+            className={`flex flex-col items-center space-y-1 py-2 ${
+              activeTab === 'wordQuiz' ? 'text-primary' : 'text-gray-400'
+            }`}
+            onClick={() => setActiveTab('wordQuiz')}
+          >
+            <div className="text-lg">📝</div>
+            <span className="text-xs font-medium">{translations.wordQuiz}</span>
+          </button>
+          <button
+            type="button"
+            className={`flex flex-col items-center space-y-1 py-2 ${
               activeTab === 'settings' ? 'text-primary' : 'text-gray-400'
             }`}
             onClick={() => setActiveTab('settings')}

@@ -3,7 +3,8 @@ import type { Translations } from './types';
 export const fr: Translations = {
   appName: 'Entraîneur Alphabet OTAN',
   converter: 'Convertisseur',
-  quiz: 'Quiz',
+  quiz: 'Quiz Lettres',
+  wordQuiz: 'Quiz Mots',
   settings: 'Paramètres',
   enterText: 'Entrez le texte à convertir ',
   placeholder: 'Tapez votre message ici...',

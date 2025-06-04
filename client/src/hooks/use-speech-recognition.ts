@@ -135,7 +135,7 @@ export function useSpeechRecognition(
   const debugLog = useCallback(
     (message: string, ...args: any[]) => {
       if (debugMode) {
-        console.log(`[SpeechRecognition] ${message}`, ...args);
+        console.debug(`[SpeechRecognition] ${message}`, ...args);
       }
     },
     [debugMode]

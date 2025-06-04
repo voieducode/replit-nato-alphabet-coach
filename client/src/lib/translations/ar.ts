@@ -3,7 +3,8 @@ import type { Translations } from './types';
 export const ar: Translations = {
   appName: 'مدرب الأبجدية العسكرية',
   converter: 'محوّل',
-  quiz: 'اختبار',
+  quiz: 'اختبار الحروف',
+  wordQuiz: 'اختبار الكلمات',
   settings: 'الإعدادات',
   enterText: 'أدخل النص للتحويل',
   placeholder: 'اكتب رسالتك هنا...',

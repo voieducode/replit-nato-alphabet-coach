@@ -3,7 +3,8 @@ import type { Translations } from './types';
 export const zh: Translations = {
   appName: '北约字母教练',
   converter: '转换器',
-  quiz: '测验',
+  quiz: '字母测验',
+  wordQuiz: '单词测验',
   settings: '设置',
   enterText: '输入要转换的文本',
   placeholder: '在此输入您的消息...',

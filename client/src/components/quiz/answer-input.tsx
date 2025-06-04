@@ -42,7 +42,6 @@ export const AnswerInput = memo(
       isListening,
       isProcessing,
       speechSupported,
-      currentTranscript,
       interimTranscript,
       audioLevel,
       error,

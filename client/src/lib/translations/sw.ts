@@ -3,7 +3,8 @@ import type { Translations } from './types';
 export const sw: Translations = {
   appName: 'Mwalimu wa Herufi za NATO',
   converter: 'Kibadilishi',
-  quiz: 'Jaribio',
+  quiz: 'Jaribio la Herufi',
+  wordQuiz: 'Jaribio la Maneno',
   settings: 'Mipangilio',
   enterText: 'Ingiza maandishi ya kubadilisha',
   placeholder: 'Andika ujumbe wako hapa...',
