@@ -20,12 +20,6 @@ interface SpeechRecognitionInstance {
   abort: () => void;
 }
 
-interface SpeechRecognitionResult {
-  transcript: string;
-  confidence: number;
-  isFinal: boolean;
-}
-
 interface SpeechRecognitionConfig {
   continuous?: boolean;
   interimResults?: boolean;
@@ -135,7 +129,7 @@ export function useSpeechRecognition(
   const debugLog = useCallback(
     (message: string, ...args: any[]) => {
       if (debugMode) {
-        console.debug(`[SpeechRecognition] ${message}`, ...args);
+        console.warn(`[SpeechRecognition] ${message}`, ...args);
       }
     },
     [debugMode]

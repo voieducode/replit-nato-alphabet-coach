@@ -64,6 +64,7 @@ export function WordDisplay({
 
               return (
                 <span
+                  // eslint-disable-next-line react/no-array-index-key
                   key={`${letter}-${index}`}
                   className={cn('transition-colors duration-200', letterColor)}
                 >

@@ -28,7 +28,7 @@ export function CustomWordInput({
         <Input
           value={customWordInput}
           onChange={(e) => setCustomWordInput(e.target.value)}
-          placeholder="Enter any word or phrase..."
+          placeholder="Enter your word or phrase..."
           className="w-full"
         />
         <Button

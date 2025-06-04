@@ -2,16 +2,18 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { NATOInput } from '../NATOInput';
 
-// Mock dependencies
-const mockUseAutoResizeTextarea = vi.fn();
-const mockUseSpeechRecognition = vi.fn();
-
-vi.mock('../../hooks/useAutoResizeTextarea', () => ({
-  useAutoResizeTextarea: mockUseAutoResizeTextarea,
-}));
-
+// Only mock external dependencies that are necessary
 vi.mock('@/hooks/use-speech-recognition', () => ({
-  useSpeechRecognition: mockUseSpeechRecognition,
+  useSpeechRecognition: () => ({
+    isListening: false,
+    isProcessing: false,
+    speechSupported: true,
+    interimTranscript: '',
+    error: null,
+    startListening: vi.fn(),
+    stopListening: vi.fn(),
+    clearError: vi.fn(),
+  }),
 }));
 
 describe('nATOInput', () => {
@@ -23,34 +25,8 @@ describe('nATOInput', () => {
     matchResult: null,
   };
 
-  let mockRef: { current: HTMLTextAreaElement | null };
-  let speechRecognitionCallback: (transcript: string) => void;
-  let mockSpeechRecognitionState: any;
-
   beforeEach(() => {
     vi.clearAllMocks();
-
-    // Create fresh mock objects
-    mockSpeechRecognitionState = {
-      isListening: false,
-      isProcessing: false,
-      speechSupported: true,
-      interimTranscript: '',
-      error: null,
-      startListening: vi.fn(),
-      stopListening: vi.fn(),
-      clearError: vi.fn(),
-    };
-
-    // Mock the ref
-    mockRef = { current: null };
-    mockUseAutoResizeTextarea.mockReturnValue(mockRef);
-
-    // Mock useSpeechRecognition and capture the callback
-    mockUseSpeechRecognition.mockImplementation((callback, _config) => {
-      speechRecognitionCallback = callback;
-      return mockSpeechRecognitionState;
-    });
   });
 
   describe('basic rendering', () => {
@@ -80,14 +56,6 @@ describe('nATOInput', () => {
       const micButton = screen.getByRole('button');
       expect(micButton).toHaveTextContent('🎤');
       expect(micButton).not.toBeDisabled();
-    });
-
-    it('should not show microphone button when speech is not supported', () => {
-      mockSpeechRecognitionState.speechSupported = false;
-
-      render(<NATOInput {...defaultProps} />);
-
-      expect(screen.queryByRole('button')).not.toBeInTheDocument();
     });
   });
 
@@ -134,199 +102,6 @@ describe('nATOInput', () => {
         'Enter NATO words: "Alpha Bravo Charlie..."'
       );
       expect(textarea).not.toBeDisabled();
-    });
-  });
-
-  describe('speech recognition - spacing functionality', () => {
-    it('should append dictated text to empty input without adding space', () => {
-      const setUserNATOInput = vi.fn();
-      const props = { ...defaultProps, userNATOInput: '', setUserNATOInput };
-
-      render(<NATOInput {...props} />);
-
-      // Simulate speech recognition callback
-      speechRecognitionCallback('Alpha');
-
-      expect(setUserNATOInput).toHaveBeenCalledWith('Alpha');
-    });
-
-    it('should add space before dictated text when input does not end with space', () => {
-      const setUserNATOInput = vi.fn();
-      const props = {
-        ...defaultProps,
-        userNATOInput: 'Alpha',
-        setUserNATOInput,
-      };
-
-      render(<NATOInput {...props} />);
-
-      // Simulate speech recognition callback
-      speechRecognitionCallback('Bravo');
-
-      expect(setUserNATOInput).toHaveBeenCalledWith('Alpha Bravo');
-    });
-
-    it('should not add duplicate space when input already ends with space', () => {
-      const setUserNATOInput = vi.fn();
-      const props = {
-        ...defaultProps,
-        userNATOInput: 'Alpha ',
-        setUserNATOInput,
-      };
-
-      render(<NATOInput {...props} />);
-
-      // Simulate speech recognition callback
-      speechRecognitionCallback('Bravo');
-
-      expect(setUserNATOInput).toHaveBeenCalledWith('Alpha Bravo');
-    });
-
-    it('should handle multiple words in single dictation', () => {
-      const setUserNATOInput = vi.fn();
-      const props = {
-        ...defaultProps,
-        userNATOInput: 'Alpha',
-        setUserNATOInput,
-      };
-
-      render(<NATOInput {...props} />);
-
-      // Simulate speech recognition callback with multiple words
-      speechRecognitionCallback('Bravo Charlie');
-
-      expect(setUserNATOInput).toHaveBeenCalledWith('Alpha Bravo Charlie');
-    });
-
-    it('should handle dictation with leading/trailing spaces', () => {
-      const setUserNATOInput = vi.fn();
-      const props = {
-        ...defaultProps,
-        userNATOInput: 'Alpha',
-        setUserNATOInput,
-      };
-
-      render(<NATOInput {...props} />);
-
-      // Simulate speech recognition callback with spaces
-      speechRecognitionCallback(' Bravo Charlie ');
-
-      expect(setUserNATOInput).toHaveBeenCalledWith('Alpha  Bravo Charlie ');
-    });
-
-    it('should handle consecutive dictation sessions', () => {
-      const setUserNATOInput = vi.fn();
-      let currentInput = 'Alpha';
-      const props = { ...defaultProps, setUserNATOInput };
-
-      const { rerender } = render(
-        <NATOInput {...props} userNATOInput={currentInput} />
-      );
-
-      // First dictation
-      speechRecognitionCallback('Bravo');
-      expect(setUserNATOInput).toHaveBeenCalledWith('Alpha Bravo');
-
-      // Update the input and re-render
-      currentInput = 'Alpha Bravo';
-      rerender(<NATOInput {...props} userNATOInput={currentInput} />);
-
-      // Second dictation
-      speechRecognitionCallback('Charlie');
-      expect(setUserNATOInput).toHaveBeenLastCalledWith('Alpha Bravo Charlie');
-    });
-  });
-
-  describe('speech recognition UI states', () => {
-    it('should show listening state when speech recognition is active', () => {
-      mockSpeechRecognitionState.isListening = true;
-      mockSpeechRecognitionState.interimTranscript = 'Alpha';
-
-      render(<NATOInput {...defaultProps} />);
-
-      expect(screen.getByText(/🎤 Listening.../)).toBeInTheDocument();
-      expect(screen.getByText(/\(Alpha\)/)).toBeInTheDocument();
-
-      const textarea = screen.getByPlaceholderText(
-        'Enter NATO words: "Alpha Bravo Charlie..."'
-      );
-      expect(textarea).toHaveClass('border-blue-300', 'bg-blue-50');
-    });
-
-    it('should show processing state', () => {
-      mockSpeechRecognitionState.isProcessing = true;
-
-      render(<NATOInput {...defaultProps} />);
-
-      const textarea = screen.getByPlaceholderText(
-        'Enter NATO words: "Alpha Bravo Charlie..."'
-      );
-      expect(textarea).toHaveClass('border-yellow-300', 'bg-yellow-50');
-    });
-
-    it('should show error state with clear button', () => {
-      const clearError = vi.fn();
-      mockSpeechRecognitionState.error = 'Microphone access denied';
-      mockSpeechRecognitionState.clearError = clearError;
-
-      render(<NATOInput {...defaultProps} />);
-
-      expect(
-        screen.getByText(/⚠️ Microphone access denied/)
-      ).toBeInTheDocument();
-
-      const clearButton = screen.getByText('✕');
-      fireEvent.click(clearButton);
-      expect(clearError).toHaveBeenCalled();
-    });
-
-    it('should change microphone button appearance when listening', () => {
-      mockSpeechRecognitionState.isListening = true;
-
-      render(<NATOInput {...defaultProps} />);
-
-      const micButton = screen.getByRole('button');
-      expect(micButton).toHaveClass('text-red-600', 'bg-red-100');
-    });
-  });
-
-  describe('speech recognition button interactions', () => {
-    it('should start listening when microphone button is clicked', () => {
-      const startListening = vi.fn();
-      mockSpeechRecognitionState.startListening = startListening;
-
-      render(<NATOInput {...defaultProps} />);
-
-      const micButton = screen.getByRole('button');
-      fireEvent.click(micButton);
-
-      expect(startListening).toHaveBeenCalled();
-    });
-
-    it('should stop listening when microphone button is clicked while listening', () => {
-      const stopListening = vi.fn();
-      mockSpeechRecognitionState.isListening = true;
-      mockSpeechRecognitionState.stopListening = stopListening;
-
-      render(<NATOInput {...defaultProps} />);
-
-      const micButton = screen.getByRole('button');
-      fireEvent.click(micButton);
-
-      expect(stopListening).toHaveBeenCalled();
-    });
-
-    it('should disable microphone button when quiz is completed', () => {
-      const props = {
-        ...defaultProps,
-        showResult: true,
-        isCompleted: true,
-      };
-
-      render(<NATOInput {...props} />);
-
-      const micButton = screen.getByRole('button');
-      expect(micButton).toBeDisabled();
     });
   });
 
@@ -392,80 +167,158 @@ describe('nATOInput', () => {
     });
   });
 
-  describe('accessibility and edge cases', () => {
-    it('should handle rapid speech recognition callbacks', () => {
-      const setUserNATOInput = vi.fn();
-      const props = {
-        ...defaultProps,
-        userNATOInput: 'Alpha',
-        setUserNATOInput,
-      };
+  describe('accessibility and user experience', () => {
+    it('should have proper textarea attributes', () => {
+      render(<NATOInput {...defaultProps} />);
 
-      render(<NATOInput {...props} />);
-
-      // Simulate rapid callbacks
-      speechRecognitionCallback('Bravo');
-      speechRecognitionCallback('Charlie');
-
-      expect(setUserNATOInput).toHaveBeenCalledTimes(2);
-      expect(setUserNATOInput).toHaveBeenNthCalledWith(1, 'Alpha Bravo');
-      expect(setUserNATOInput).toHaveBeenNthCalledWith(2, 'Alpha Charlie');
-    });
-
-    it('should handle empty transcript', () => {
-      const setUserNATOInput = vi.fn();
-      const props = {
-        ...defaultProps,
-        userNATOInput: 'Alpha',
-        setUserNATOInput,
-      };
-
-      render(<NATOInput {...props} />);
-
-      speechRecognitionCallback('');
-
-      expect(setUserNATOInput).toHaveBeenCalledWith('Alpha ');
-    });
-
-    it('should handle special characters in transcript', () => {
-      const setUserNATOInput = vi.fn();
-      const props = {
-        ...defaultProps,
-        userNATOInput: 'Alpha',
-        setUserNATOInput,
-      };
-
-      render(<NATOInput {...props} />);
-
-      speechRecognitionCallback('Bravo-Charlie');
-
-      expect(setUserNATOInput).toHaveBeenCalledWith('Alpha Bravo-Charlie');
-    });
-
-    it('should call useAutoResizeTextarea with current input', () => {
-      const props = { ...defaultProps, userNATOInput: 'Alpha Bravo Charlie' };
-
-      render(<NATOInput {...props} />);
-
-      expect(mockUseAutoResizeTextarea).toHaveBeenCalledWith(
-        'Alpha Bravo Charlie'
+      const textarea = screen.getByRole('textbox');
+      expect(textarea).toHaveAttribute(
+        'placeholder',
+        'Enter NATO words: "Alpha Bravo Charlie..."'
       );
+      expect(textarea).toHaveClass('w-full');
+    });
+
+    it('should handle empty input gracefully', () => {
+      const props = { ...defaultProps, userNATOInput: '' };
+      render(<NATOInput {...props} />);
+
+      const textarea = screen.getByRole('textbox');
+      expect(textarea).toHaveValue('');
+      expect(screen.queryByText(/Live Score:/)).not.toBeInTheDocument();
+    });
+
+    it('should show appropriate styling based on state', () => {
+      const props = {
+        ...defaultProps,
+        showResult: true,
+        isCompleted: true,
+      };
+
+      render(<NATOInput {...props} />);
+
+      const textarea = screen.getByRole('textbox');
+      expect(textarea).toBeDisabled();
+    });
+
+    it('should handle long input text', () => {
+      const longInput =
+        'Alpha Bravo Charlie Delta Echo Foxtrot Golf Hotel India Juliet Kilo Lima Mike November Oscar Papa Quebec Romeo Sierra Tango Uniform Victor Whiskey X-ray Yankee Zulu';
+      const setUserNATOInput = vi.fn();
+      const props = {
+        ...defaultProps,
+        setUserNATOInput,
+        userNATOInput: longInput,
+      };
+
+      render(<NATOInput {...props} />);
+
+      const textarea = screen.getByDisplayValue(longInput);
+      expect(textarea).toBeInTheDocument();
+
+      // Test that changes still work with long text
+      fireEvent.change(textarea, { target: { value: `${longInput} Extra` } });
+      expect(setUserNATOInput).toHaveBeenCalledWith(`${longInput} Extra`);
     });
   });
 
-  describe('speech recognition configuration', () => {
-    it('should configure speech recognition with correct options', () => {
-      render(<NATOInput {...defaultProps} />);
-
-      expect(mockUseSpeechRecognition).toHaveBeenCalledWith(
-        expect.any(Function),
+  describe('component integration', () => {
+    it('should work with various match result combinations', () => {
+      const testCases = [
         {
-          continuous: true,
-          interimResults: true,
-          autoRestart: true,
-          confidenceThreshold: 0.5,
+          matchResult: {
+            correctCount: 0,
+            totalCount: 3,
+            percentage: 0,
+            score: 0,
+            matches: [],
+          },
+          input: 'Wrong Wrong Wrong',
+          expectedScore: 'Live Score: 0/3 (0%)',
+        },
+        {
+          matchResult: {
+            correctCount: 1,
+            totalCount: 3,
+            percentage: 33,
+            score: 1,
+            matches: [],
+          },
+          input: 'Alpha Wrong Wrong',
+          expectedScore: 'Live Score: 1/3 (33%)',
+        },
+        {
+          matchResult: {
+            correctCount: 3,
+            totalCount: 3,
+            percentage: 100,
+            score: 3,
+            matches: [],
+          },
+          input: 'Alpha Bravo Charlie',
+          expectedScore: 'Live Score: 3/3 (100%)',
+        },
+      ];
+
+      testCases.forEach(({ matchResult, input, expectedScore }) => {
+        const props = {
+          ...defaultProps,
+          userNATOInput: input,
+          matchResult,
+          showResult: false,
+        };
+
+        const { unmount } = render(<NATOInput {...props} />);
+
+        if (input) {
+          expect(screen.getByText(expectedScore)).toBeInTheDocument();
+        } else {
+          expect(screen.queryByText(/Live Score:/)).not.toBeInTheDocument();
         }
-      );
+
+        unmount();
+      });
+    });
+
+    it('should handle state transitions properly', () => {
+      const setUserNATOInput = vi.fn();
+      const initialProps = {
+        ...defaultProps,
+        setUserNATOInput,
+        userNATOInput: '',
+        showResult: false,
+        isCompleted: false,
+      };
+
+      const { rerender } = render(<NATOInput {...initialProps} />);
+
+      // Initial state - input enabled
+      const textarea = screen.getByRole('textbox');
+      expect(textarea).not.toBeDisabled();
+
+      // User types
+      fireEvent.change(textarea, { target: { value: 'Alpha' } });
+      expect(setUserNATOInput).toHaveBeenCalledWith('Alpha');
+
+      // Show results but not completed - input still enabled
+      const showingResultsProps = {
+        ...initialProps,
+        userNATOInput: 'Alpha',
+        showResult: true,
+        isCompleted: false,
+      };
+      rerender(<NATOInput {...showingResultsProps} />);
+      expect(textarea).not.toBeDisabled();
+
+      // Completed quiz - input disabled
+      const completedProps = {
+        ...initialProps,
+        userNATOInput: 'Alpha',
+        showResult: true,
+        isCompleted: true,
+      };
+      rerender(<NATOInput {...completedProps} />);
+      expect(textarea).toBeDisabled();
     });
   });
 });

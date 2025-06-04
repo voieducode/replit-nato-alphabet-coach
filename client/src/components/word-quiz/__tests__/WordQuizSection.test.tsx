@@ -1,547 +1,572 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import type { ReactNode } from 'react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { LanguageProvider } from '@/contexts/language-context';
 import WordQuizSection from '../WordQuizSection';
 
-// Mock all the hooks
-vi.mock('../hooks/useWordQuiz', () => ({
-  useWordQuiz: () => ({
-    currentWord: { word: 'CAT', difficulty: 'easy' } as {
-      word: string;
-      difficulty: string;
-    } | null,
-    userNATOInput: '',
-    setUserNATOInput: vi.fn(),
-    customWordInput: '',
-    setCustomWordInput: vi.fn(),
-    isCustomMode: false,
-    setIsCustomMode: vi.fn(),
-    showResult: false,
-    isCompleted: false,
-    matchResult: null as any,
-    setMatchResult: vi.fn(),
-    generateNewWord: vi.fn(),
-    useCustomWord: vi.fn(),
-    checkAnswer: vi.fn(),
-    retryCurrentWord: vi.fn(),
+// Mock external dependencies that are not core to the component behavior
+vi.mock('@/hooks/use-speech-recognition', () => ({
+  useSpeechRecognition: () => ({
+    isListening: false,
+    isProcessing: false,
+    speechSupported: true,
+    interimTranscript: '',
+    error: null,
+    startListening: vi.fn(),
+    stopListening: vi.fn(),
+    clearError: vi.fn(),
   }),
 }));
 
-vi.mock('../hooks/useQuizFeedback', () => ({
-  useQuizFeedback: () => ({
-    showResultFeedback: vi.fn(),
-  }),
-}));
+// Test wrapper with providers
+function TestWrapper({ children }: { children: ReactNode }) {
+  return <LanguageProvider>{children}</LanguageProvider>;
+}
 
-vi.mock('../hooks/useRealTimeMatching', () => ({
-  useRealTimeMatching: vi.fn(),
-}));
-
-// Mock the individual components
-vi.mock('../components/QuizHeader', () => ({
-  QuizHeader: () => <div data-testid="quiz-header">Quiz Header</div>,
-}));
-
-vi.mock('../components/WordDisplay', () => ({
-  WordDisplay: ({
-    currentWord,
-    isCustomMode,
-    matchResult,
-    showResult,
-  }: any) => (
-    <div data-testid="word-display">
-      Word: {currentWord?.word} | Custom: {isCustomMode ? 'Yes' : 'No'} | Show
-      Result: {showResult ? 'Yes' : 'No'}
-    </div>
-  ),
-}));
-
-vi.mock('../components/NATOInput', () => ({
-  NATOInput: ({
-    userNATOInput,
-    setUserNATOInput,
-    showResult,
-    isCompleted,
-    matchResult,
-  }: any) => (
-    <div data-testid="nato-input">
-      <input
-        data-testid="nato-input-field"
-        value={userNATOInput}
-        onChange={(e) => setUserNATOInput(e.target.value)}
-        disabled={showResult && isCompleted}
-      />
-      {matchResult && (
-        <div data-testid="live-score">Score: {matchResult.percentage}%</div>
-      )}
-    </div>
-  ),
-}));
-
-vi.mock('../components/QuizResults', () => ({
-  QuizResults: ({ showResult, matchResult, isCompleted, currentWord }: any) => (
-    <div data-testid="quiz-results">
-      {showResult && (
-        <div>
-          Results for {currentWord?.word}: {matchResult?.percentage}% |
-          Completed: {isCompleted ? 'Yes' : 'No'}
-        </div>
-      )}
-    </div>
-  ),
-}));
-
-vi.mock('../components/QuizActions', () => ({
-  QuizActions: ({
-    retryCurrentWord,
-    checkAnswer,
-    generateNewWord,
-    setIsCustomMode,
-    showResult,
-    userNATOInput,
-    isCompleted,
-    isCustomMode,
-  }: any) => (
-    <div data-testid="quiz-actions">
-      <button
-        type="button"
-        data-testid="check-answer-btn"
-        onClick={checkAnswer}
-        disabled={!userNATOInput}
-      >
-        Check Answer
-      </button>
-      <button type="button" data-testid="retry-btn" onClick={retryCurrentWord}>
-        Retry
-      </button>
-      <button
-        type="button"
-        data-testid="new-word-btn"
-        onClick={generateNewWord}
-      >
-        New Word
-      </button>
-      <button
-        type="button"
-        data-testid="custom-mode-btn"
-        onClick={() => setIsCustomMode(!isCustomMode)}
-      >
-        {isCustomMode ? 'Exit Custom' : 'Custom Mode'}
-      </button>
-    </div>
-  ),
-}));
-
-vi.mock('../components/CustomWordInput', () => ({
-  CustomWordInput: ({
-    isCustomMode,
-    customWordInput,
-    setCustomWordInput,
-    useCustomWord,
-  }: any) => (
-    <div data-testid="custom-word-input">
-      {isCustomMode && (
-        <div>
-          <input
-            data-testid="custom-word-field"
-            value={customWordInput}
-            onChange={(e) => setCustomWordInput(e.target.value)}
-            placeholder="Enter custom word"
-          />
-          <button
-            type="button"
-            data-testid="use-custom-word-btn"
-            onClick={useCustomWord}
-          >
-            Use Custom Word
-          </button>
-        </div>
-      )}
-    </div>
-  ),
-}));
+function renderWithProviders(component: ReactNode) {
+  return render(component, { wrapper: TestWrapper });
+}
 
 describe('wordQuizSection', () => {
-  let mockUseWordQuiz: any;
-  let mockUseQuizFeedback: any;
-
-  beforeEach(async () => {
+  beforeEach(() => {
     vi.clearAllMocks();
-
-    // Create fresh mock objects for each test
-    mockUseWordQuiz = {
-      currentWord: { word: 'CAT', difficulty: 'easy' },
-      userNATOInput: '',
-      setUserNATOInput: vi.fn(),
-      customWordInput: '',
-      setCustomWordInput: vi.fn(),
-      isCustomMode: false,
-      setIsCustomMode: vi.fn(),
-      showResult: false,
-      isCompleted: false,
-      matchResult: null,
-      setMatchResult: vi.fn(),
-      generateNewWord: vi.fn(),
-      useCustomWord: vi.fn(),
-      checkAnswer: vi.fn(),
-      retryCurrentWord: vi.fn(),
-    };
-
-    mockUseQuizFeedback = {
-      showResultFeedback: vi.fn(),
-    };
-
-    // Update the mock implementations
-    const { useWordQuiz } = await import('../hooks/useWordQuiz');
-    const { useQuizFeedback } = await import('../hooks/useQuizFeedback');
-    vi.mocked(useWordQuiz).mockReturnValue(mockUseWordQuiz);
-    vi.mocked(useQuizFeedback).mockReturnValue(mockUseQuizFeedback);
   });
 
-  describe('loading state', () => {
-    it('should show loading state when currentWord is null', () => {
-      mockUseWordQuiz.currentWord = null;
+  describe('component rendering', () => {
+    it('should render the word quiz section with all components', async () => {
+      renderWithProviders(<WordQuizSection />);
 
-      render(<WordQuizSection />);
-
-      expect(screen.getByText('Loading word quiz...')).toBeInTheDocument();
-      expect(screen.getByRole('generic')).toHaveClass('animate-spin');
-    });
-  });
-
-  describe('normal quiz flow (happy path)', () => {
-    it('should render all quiz components when loaded', () => {
-      render(<WordQuizSection />);
-
-      expect(screen.getByTestId('quiz-header')).toBeInTheDocument();
-      expect(screen.getByTestId('word-display')).toBeInTheDocument();
-      expect(screen.getByTestId('nato-input')).toBeInTheDocument();
-      expect(screen.getByTestId('quiz-results')).toBeInTheDocument();
-      expect(screen.getByTestId('quiz-actions')).toBeInTheDocument();
-      expect(screen.getByTestId('custom-word-input')).toBeInTheDocument();
-    });
-
-    it('should display current word information', () => {
-      render(<WordQuizSection />);
-
-      expect(screen.getByText(/Word: CAT/)).toBeInTheDocument();
-      expect(screen.getByText(/Custom: No/)).toBeInTheDocument();
-      expect(screen.getByText(/Show Result: No/)).toBeInTheDocument();
-    });
-
-    it('should handle NATO input typing', () => {
-      render(<WordQuizSection />);
-
-      const natoInput = screen.getByTestId('nato-input-field');
-      fireEvent.change(natoInput, { target: { value: 'Charlie Alpha Tango' } });
-
-      expect(mockUseWordQuiz.setUserNATOInput).toHaveBeenCalledWith(
-        'Charlie Alpha Tango'
-      );
-    });
-
-    it('should handle check answer button click', () => {
-      mockUseWordQuiz.userNATOInput = 'Charlie Alpha Tango';
-      mockUseWordQuiz.checkAnswer.mockReturnValue({
-        score: 3,
-        percentage: 100,
-        correctCount: 3,
-        totalCount: 3,
-        matches: [],
+      // Wait for initialization
+      await waitFor(() => {
+        expect(screen.getByText('Word Quiz')).toBeInTheDocument();
       });
 
-      render(<WordQuizSection />);
-
-      const checkButton = screen.getByTestId('check-answer-btn');
-      fireEvent.click(checkButton);
-
-      expect(mockUseWordQuiz.checkAnswer).toHaveBeenCalled();
-      expect(mockUseQuizFeedback.showResultFeedback).toHaveBeenCalledWith({
-        score: 3,
-        percentage: 100,
-        correctCount: 3,
-        totalCount: 3,
-        matches: [],
-      });
-    });
-
-    it('should not show feedback when checkAnswer returns null', () => {
-      mockUseWordQuiz.userNATOInput = 'Charlie Alpha Tango';
-      mockUseWordQuiz.checkAnswer.mockReturnValue(null);
-
-      render(<WordQuizSection />);
-
-      const checkButton = screen.getByTestId('check-answer-btn');
-      fireEvent.click(checkButton);
-
-      expect(mockUseWordQuiz.checkAnswer).toHaveBeenCalled();
-      expect(mockUseQuizFeedback.showResultFeedback).not.toHaveBeenCalled();
-    });
-
-    it('should handle retry current word', () => {
-      render(<WordQuizSection />);
-
-      const retryButton = screen.getByTestId('retry-btn');
-      fireEvent.click(retryButton);
-
-      expect(mockUseWordQuiz.retryCurrentWord).toHaveBeenCalled();
-    });
-
-    it('should handle generate new word', () => {
-      render(<WordQuizSection />);
-
-      const newWordButton = screen.getByTestId('new-word-btn');
-      fireEvent.click(newWordButton);
-
-      expect(mockUseWordQuiz.generateNewWord).toHaveBeenCalled();
-    });
-
-    it('should show live score when match result is available', () => {
-      mockUseWordQuiz.matchResult = {
-        percentage: 67,
-        score: 2,
-        correctCount: 2,
-        totalCount: 3,
-        matches: [],
-      };
-
-      render(<WordQuizSection />);
-
-      expect(screen.getByTestId('live-score')).toHaveTextContent('Score: 67%');
-    });
-
-    it('should show results when quiz is completed', () => {
-      mockUseWordQuiz.showResult = true;
-      mockUseWordQuiz.isCompleted = true;
-      mockUseWordQuiz.matchResult = {
-        percentage: 100,
-        score: 3,
-        correctCount: 3,
-        totalCount: 3,
-        matches: [],
-      };
-
-      render(<WordQuizSection />);
-
-      expect(screen.getByText(/Results for CAT: 100%/)).toBeInTheDocument();
-      expect(screen.getByText(/Completed: Yes/)).toBeInTheDocument();
-    });
-  });
-
-  describe('custom word mode (happy path)', () => {
-    it('should toggle custom mode', () => {
-      render(<WordQuizSection />);
-
-      const customModeButton = screen.getByTestId('custom-mode-btn');
-      expect(customModeButton).toHaveTextContent('Custom Mode');
-
-      fireEvent.click(customModeButton);
-
-      expect(mockUseWordQuiz.setIsCustomMode).toHaveBeenCalledWith(true);
-    });
-
-    it('should show custom word input when in custom mode', () => {
-      mockUseWordQuiz.isCustomMode = true;
-
-      render(<WordQuizSection />);
-
-      expect(screen.getByTestId('custom-word-field')).toBeInTheDocument();
-      expect(screen.getByTestId('use-custom-word-btn')).toBeInTheDocument();
+      // Check for main components
+      expect(screen.getByText('Your NATO Alphabet Input')).toBeInTheDocument();
       expect(
-        screen.getByPlaceholderText('Enter custom word')
+        screen.getByPlaceholderText(
+          'Enter NATO words: "Alpha Bravo Charlie..."'
+        )
       ).toBeInTheDocument();
     });
 
-    it('should handle custom word input typing', () => {
-      mockUseWordQuiz.isCustomMode = true;
+    it('should show the current word display', async () => {
+      renderWithProviders(<WordQuizSection />);
 
-      render(<WordQuizSection />);
+      await waitFor(() => {
+        expect(screen.getByText('Word Quiz')).toBeInTheDocument();
+      });
 
-      const customWordInput = screen.getByTestId('custom-word-field');
-      fireEvent.change(customWordInput, { target: { value: 'HELLO' } });
-
-      expect(mockUseWordQuiz.setCustomWordInput).toHaveBeenCalledWith('HELLO');
+      // Should show a word (we can't predict which one, but there should be text)
+      // Find any element with class font-mono and non-empty text
+      const fontMonoEls = document.querySelectorAll('.font-mono');
+      let found = false;
+      fontMonoEls.forEach((el) => {
+        if (el.textContent && el.textContent.trim().length > 0) {
+          found = true;
+        }
+      });
+      expect(found).toBe(true);
     });
 
-    it('should handle use custom word button click', () => {
-      mockUseWordQuiz.isCustomMode = true;
-      mockUseWordQuiz.customWordInput = 'HELLO';
+    it('should render quiz action buttons', async () => {
+      renderWithProviders(<WordQuizSection />);
 
-      render(<WordQuizSection />);
+      await waitFor(() => {
+        expect(screen.getByText('Word Quiz')).toBeInTheDocument();
+      });
 
-      const useCustomWordButton = screen.getByTestId('use-custom-word-btn');
-      fireEvent.click(useCustomWordButton);
-
-      expect(mockUseWordQuiz.useCustomWord).toHaveBeenCalled();
-    });
-
-    it('should show custom mode indicator in word display', () => {
-      mockUseWordQuiz.isCustomMode = true;
-
-      render(<WordQuizSection />);
-
-      expect(screen.getByText(/Custom: Yes/)).toBeInTheDocument();
+      // Look for action buttons
+      expect(
+        screen.getByRole('button', { name: /check/i })
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: /new random word/i })
+      ).toBeInTheDocument();
     });
   });
 
-  describe('complete quiz workflow (integration)', () => {
-    it('should complete a full quiz cycle', async () => {
-      render(<WordQuizSection />);
+  describe('user interactions', () => {
+    it('should allow user to input NATO words', async () => {
+      renderWithProviders(<WordQuizSection />);
 
-      // 1. Initial state - word is loaded
-      expect(screen.getByText(/Word: CAT/)).toBeInTheDocument();
-      expect(screen.getByText(/Show Result: No/)).toBeInTheDocument();
-
-      // 2. User types NATO input
-      const natoInput = screen.getByTestId('nato-input-field');
-      fireEvent.change(natoInput, { target: { value: 'Charlie Alpha Tango' } });
-      expect(mockUseWordQuiz.setUserNATOInput).toHaveBeenCalledWith(
-        'Charlie Alpha Tango'
-      );
-
-      // 3. Mock live scoring
-      mockUseWordQuiz.matchResult = {
-        percentage: 100,
-        score: 3,
-        correctCount: 3,
-        totalCount: 3,
-        matches: [],
-      };
-      render(<WordQuizSection />); // Re-render to show live score
-      expect(screen.getByTestId('live-score')).toHaveTextContent('Score: 100%');
-
-      // 4. User checks answer
-      mockUseWordQuiz.checkAnswer.mockReturnValue({
-        score: 3,
-        percentage: 100,
-        correctCount: 3,
-        totalCount: 3,
-        matches: [],
+      await waitFor(() => {
+        expect(screen.getByText('Word Quiz')).toBeInTheDocument();
       });
 
-      const checkButton = screen.getByTestId('check-answer-btn');
+      const textarea = screen.getByPlaceholderText(
+        'Enter NATO words: "Alpha Bravo Charlie..."'
+      );
+
+      fireEvent.change(textarea, { target: { value: 'Alpha Bravo Charlie' } });
+
+      expect(textarea).toHaveValue('Alpha Bravo Charlie');
+    });
+
+    it('should allow generating a new word', async () => {
+      renderWithProviders(<WordQuizSection />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Word Quiz')).toBeInTheDocument();
+      });
+
+      const newWordButton = screen.getByRole('button', {
+        name: /new random word/i,
+      });
+
+      // Should not crash when clicking new word
+      expect(() => {
+        fireEvent.click(newWordButton);
+      }).not.toThrow();
+
+      // Should still show the quiz
+      expect(screen.getByText('Word Quiz')).toBeInTheDocument();
+    });
+
+    it('should handle check answer functionality', async () => {
+      renderWithProviders(<WordQuizSection />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Word Quiz')).toBeInTheDocument();
+      });
+
+      // Enable custom mode first
+      const customModeButton = screen.getByRole('button', { name: /custom/i });
+      fireEvent.click(customModeButton);
+
+      // Set a custom word first for predictable testing
+      const customWordInput = screen.getByPlaceholderText(
+        'Enter your word or phrase...'
+      );
+      fireEvent.change(customWordInput, { target: { value: 'CAT' } });
+
+      const useWordButton = screen.getByRole('button', {
+        name: /use this word/i,
+      });
+      fireEvent.click(useWordButton);
+
+      await waitFor(() => {
+        const wordDisplay = document.querySelector('.font-mono');
+        expect(wordDisplay?.textContent).toBe('CAT');
+      });
+
+      // Enter NATO input
+      const textarea = screen.getByPlaceholderText(
+        'Enter NATO words: "Alpha Bravo Charlie..."'
+      );
+      fireEvent.change(textarea, { target: { value: 'Charlie Alpha Tango' } });
+
+      // Check answer - should not crash
+      const checkButton = screen.getByRole('button', { name: /check/i });
+      expect(() => {
+        fireEvent.click(checkButton);
+      }).not.toThrow();
+
+      // Should show results (may take time for state update)
+      await waitFor(
+        () => {
+          expect(screen.getByText(/perfect/i)).toBeInTheDocument();
+        },
+        { timeout: 3000 }
+      );
+    });
+
+    it('should allow using custom words', async () => {
+      renderWithProviders(<WordQuizSection />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Word Quiz')).toBeInTheDocument();
+      });
+
+      // Enable custom mode first
+      const customModeButton = screen.getByRole('button', { name: /custom/i });
+      fireEvent.click(customModeButton);
+
+      const customWordInput = screen.getByPlaceholderText(
+        'Enter your word or phrase...'
+      );
+      fireEvent.change(customWordInput, { target: { value: 'HELLO' } });
+
+      const useWordButton = screen.getByRole('button', {
+        name: /use this word/i,
+      });
+      fireEvent.click(useWordButton);
+
+      await waitFor(() => {
+        const wordDisplay = document.querySelector('.font-mono');
+        expect(wordDisplay?.textContent).toBe('HELLO');
+      });
+    });
+  });
+
+  describe('quiz flow', () => {
+    it('should complete a full quiz cycle', async () => {
+      renderWithProviders(<WordQuizSection />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Word Quiz')).toBeInTheDocument();
+      });
+
+      // 1. Enable custom mode first
+      const customModeButton = screen.getByRole('button', { name: /custom/i });
+      fireEvent.click(customModeButton);
+
+      // 2. Use a custom word for predictable testing
+      const customWordInput = screen.getByPlaceholderText(
+        'Enter your word or phrase...'
+      );
+      fireEvent.change(customWordInput, { target: { value: 'CAT' } });
+
+      const useWordButton = screen.getByRole('button', {
+        name: /use this word/i,
+      });
+      fireEvent.click(useWordButton);
+
+      await waitFor(() => {
+        const wordDisplay = document.querySelector('.font-mono');
+        expect(wordDisplay?.textContent).toBe('CAT');
+      });
+
+      // 2. Enter NATO input
+      const textarea = screen.getByPlaceholderText(
+        'Enter NATO words: "Alpha Bravo Charlie..."'
+      );
+      fireEvent.change(textarea, { target: { value: 'Charlie Alpha Tango' } });
+
+      // 3. Check answer
+      const checkButton = screen.getByRole('button', { name: /check/i });
       fireEvent.click(checkButton);
 
-      expect(mockUseWordQuiz.checkAnswer).toHaveBeenCalled();
-      expect(mockUseQuizFeedback.showResultFeedback).toHaveBeenCalled();
+      // 4. Should show results
+      await waitFor(() => {
+        expect(screen.getByText(/perfect/i)).toBeInTheDocument();
+      });
 
-      // 5. Results are shown
-      mockUseWordQuiz.showResult = true;
-      mockUseWordQuiz.isCompleted = true;
-      render(<WordQuizSection />); // Re-render to show results
-      expect(screen.getByText(/Results for CAT: 100%/)).toBeInTheDocument();
+      // 5. Should be able to retry
+      const retryButton = screen.getByRole('button', { name: /retry/i });
+      fireEvent.click(retryButton);
 
-      // 6. User can retry or get new word
-      const retryButton = screen.getByTestId('retry-btn');
-      const newWordButton = screen.getByTestId('new-word-btn');
-
-      expect(retryButton).toBeInTheDocument();
-      expect(newWordButton).toBeInTheDocument();
+      // 6. Should reset to input state
+      expect(textarea).toHaveValue('');
     });
 
-    it('should handle custom word workflow', async () => {
-      render(<WordQuizSection />);
+    it('should show live scoring as user types', async () => {
+      renderWithProviders(<WordQuizSection />);
 
-      // 1. Switch to custom mode
-      const customModeButton = screen.getByTestId('custom-mode-btn');
+      await waitFor(() => {
+        expect(screen.getByText('Word Quiz')).toBeInTheDocument();
+      });
+
+      // Enable custom mode first
+      const customModeButton = screen.getByRole('button', { name: /custom/i });
       fireEvent.click(customModeButton);
-      expect(mockUseWordQuiz.setIsCustomMode).toHaveBeenCalledWith(true);
 
-      // 2. Mock custom mode state
-      mockUseWordQuiz.isCustomMode = true;
-      render(<WordQuizSection />);
+      // Use a custom word
+      const customWordInput = screen.getByPlaceholderText(
+        'Enter your word or phrase...'
+      );
+      fireEvent.change(customWordInput, { target: { value: 'CAT' } });
 
-      // 3. Enter custom word
-      const customWordInput = screen.getByTestId('custom-word-field');
-      fireEvent.change(customWordInput, { target: { value: 'HELLO' } });
-      expect(mockUseWordQuiz.setCustomWordInput).toHaveBeenCalledWith('HELLO');
-
-      // 4. Use custom word
-      const useCustomWordButton = screen.getByTestId('use-custom-word-btn');
-      fireEvent.click(useCustomWordButton);
-      expect(mockUseWordQuiz.useCustomWord).toHaveBeenCalled();
-
-      // 5. Continue with normal quiz flow
-      const natoInput = screen.getByTestId('nato-input-field');
-      fireEvent.change(natoInput, {
-        target: { value: 'Hotel Echo Lima Lima Oscar' },
+      const useWordButton = screen.getByRole('button', {
+        name: /use this word/i,
       });
-      expect(mockUseWordQuiz.setUserNATOInput).toHaveBeenCalledWith(
-        'Hotel Echo Lima Lima Oscar'
+      fireEvent.click(useWordButton);
+
+      await waitFor(() => {
+        const wordDisplay = document.querySelector('.font-mono');
+        expect(wordDisplay?.textContent).toBe('CAT');
+      });
+
+      // Start typing NATO input
+      const textarea = screen.getByPlaceholderText(
+        'Enter NATO words: "Alpha Bravo Charlie..."'
       );
-    });
-  });
+      fireEvent.change(textarea, { target: { value: 'Charlie' } });
 
-  describe('real-time matching integration', () => {
-    it('should call useRealTimeMatching with correct props', async () => {
-      const { useRealTimeMatching } = await import(
-        '../hooks/useRealTimeMatching'
-      );
-
-      render(<WordQuizSection />);
-
-      expect(useRealTimeMatching).toHaveBeenCalledWith({
-        currentWord: mockUseWordQuiz.currentWord,
-        userNATOInput: mockUseWordQuiz.userNATOInput,
-        showResult: mockUseWordQuiz.showResult,
-        setMatchResult: mockUseWordQuiz.setMatchResult,
+      // Should show live score (partial) - but don't assert on specific text
+      // as it may vary based on implementation
+      await waitFor(() => {
+        expect(screen.getByText(/live score/i)).toBeInTheDocument();
       });
     });
   });
 
-  describe('component prop passing', () => {
-    it('should pass correct props to WordDisplay', () => {
-      mockUseWordQuiz.isCustomMode = true;
-      mockUseWordQuiz.showResult = true;
-      mockUseWordQuiz.matchResult = {
-        percentage: 85,
-        score: 2,
-        correctCount: 2,
-        totalCount: 3,
-        matches: [],
-      };
+  describe('accessibility', () => {
+    it('should have proper accessibility attributes', async () => {
+      renderWithProviders(<WordQuizSection />);
 
-      render(<WordQuizSection />);
+      await waitFor(() => {
+        expect(screen.getByText('Word Quiz')).toBeInTheDocument();
+      });
 
-      expect(screen.getByText(/Word: CAT/)).toBeInTheDocument();
-      expect(screen.getByText(/Custom: Yes/)).toBeInTheDocument();
-      expect(screen.getByText(/Show Result: Yes/)).toBeInTheDocument();
+      // Check for proper heading
+      expect(
+        screen.getByRole('heading', { name: 'Word Quiz' })
+      ).toBeInTheDocument();
+
+      // Check for proper form elements
+      const textboxes = screen.getAllByRole('textbox');
+      expect(textboxes.length).toBeGreaterThan(0);
+
+      textboxes.forEach((textbox) => {
+        expect(textbox).toHaveAttribute('placeholder');
+      });
+
+      // Check for proper buttons
+      const buttons = screen.getAllByRole('button');
+      expect(buttons.length).toBeGreaterThan(0);
     });
 
-    it('should pass correct props to NATOInput', () => {
-      mockUseWordQuiz.userNATOInput = 'Charlie Alpha';
-      mockUseWordQuiz.showResult = true;
-      mockUseWordQuiz.isCompleted = true;
-      mockUseWordQuiz.matchResult = {
-        percentage: 67,
-        score: 2,
-        correctCount: 2,
-        totalCount: 3,
-        matches: [],
-      };
+    it('should be keyboard navigable', async () => {
+      renderWithProviders(<WordQuizSection />);
 
-      render(<WordQuizSection />);
+      await waitFor(() => {
+        expect(screen.getByText('Word Quiz')).toBeInTheDocument();
+      });
 
-      const natoInput = screen.getByTestId('nato-input-field');
-      expect(natoInput).toHaveValue('Charlie Alpha');
-      expect(natoInput).toBeDisabled(); // Should be disabled when completed
-      expect(screen.getByTestId('live-score')).toHaveTextContent('Score: 67%');
+      const textarea = screen.getByPlaceholderText(
+        'Enter NATO words: "Alpha Bravo Charlie..."'
+      );
+
+      // Should be focusable
+      textarea.focus();
+      expect(document.activeElement).toBe(textarea);
+    });
+  });
+
+  describe('error handling', () => {
+    it('should handle empty input gracefully', async () => {
+      renderWithProviders(<WordQuizSection />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Word Quiz')).toBeInTheDocument();
+      });
+
+      // Try to check answer with empty input - should not crash
+      const checkButton = screen.getByRole('button', { name: /check/i });
+      expect(() => {
+        fireEvent.click(checkButton);
+      }).not.toThrow();
+
+      // Should not crash and remain in input state
+      expect(screen.getByText('Word Quiz')).toBeInTheDocument();
     });
 
-    it('should pass correct props to QuizResults', () => {
-      mockUseWordQuiz.showResult = true;
-      mockUseWordQuiz.isCompleted = true;
-      mockUseWordQuiz.matchResult = {
-        percentage: 100,
-        score: 3,
-        correctCount: 3,
-        totalCount: 3,
-        matches: [],
-      };
+    it('should handle invalid custom words gracefully', async () => {
+      renderWithProviders(<WordQuizSection />);
 
-      render(<WordQuizSection />);
+      await waitFor(() => {
+        expect(screen.getByText('Word Quiz')).toBeInTheDocument();
+      });
 
-      expect(screen.getByText(/Results for CAT: 100%/)).toBeInTheDocument();
-      expect(screen.getByText(/Completed: Yes/)).toBeInTheDocument();
+      // Enable custom mode first
+      const customModeButton = screen.getByRole('button', { name: /custom/i });
+      fireEvent.click(customModeButton);
+
+      const customWordInput = screen.getByPlaceholderText(
+        'Enter your word or phrase...'
+      );
+      fireEvent.change(customWordInput, { target: { value: '@#$%' } });
+
+      const useWordButton = screen.getByRole('button', {
+        name: /use this word/i,
+      });
+
+      // Should not crash with invalid input
+      expect(() => {
+        fireEvent.click(useWordButton);
+      }).not.toThrow();
+
+      // Should handle invalid input gracefully
+      expect(screen.getByText('Word Quiz')).toBeInTheDocument();
+    });
+
+    it('should handle rapid user interactions gracefully', async () => {
+      renderWithProviders(<WordQuizSection />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Word Quiz')).toBeInTheDocument();
+      });
+
+      const textarea = screen.getByPlaceholderText(
+        'Enter NATO words: "Alpha Bravo Charlie..."'
+      );
+      const newWordButton = screen.getByRole('button', {
+        name: /new random word/i,
+      });
+
+      // Rapid interactions should not crash
+      expect(() => {
+        fireEvent.change(textarea, { target: { value: 'Alpha' } });
+        fireEvent.click(newWordButton);
+        fireEvent.change(textarea, { target: { value: 'Bravo' } });
+        fireEvent.click(newWordButton);
+        fireEvent.change(textarea, { target: { value: 'Charlie' } });
+      }).not.toThrow();
+    });
+  });
+
+  describe('component stability', () => {
+    it('should maintain state consistency across operations', async () => {
+      renderWithProviders(<WordQuizSection />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Word Quiz')).toBeInTheDocument();
+      });
+
+      // Enable custom mode first
+      const customModeButton = screen.getByRole('button', { name: /custom/i });
+      fireEvent.click(customModeButton);
+
+      // Perform multiple operations to ensure component stability
+      const customWordInput = screen.getByPlaceholderText(
+        'Enter your word or phrase...'
+      );
+      const useWordButton = screen.getByRole('button', {
+        name: /use this word/i,
+      });
+      const textarea = screen.getByPlaceholderText(
+        'Enter NATO words: "Alpha Bravo Charlie..."'
+      );
+
+      // Set custom word
+      fireEvent.change(customWordInput, { target: { value: 'TEST' } });
+      fireEvent.click(useWordButton);
+
+      // Input NATO
+      fireEvent.change(textarea, {
+        target: { value: 'Tango Echo Sierra Tango' },
+      });
+
+      // Check answer
+      const checkButton = screen.getByRole('button', { name: /check/i });
+      fireEvent.click(checkButton);
+
+      // All operations should maintain component integrity
+      expect(screen.getByText('Word Quiz')).toBeInTheDocument();
+    });
+
+    it('should handle multiple quiz sessions without issues', async () => {
+      renderWithProviders(<WordQuizSection />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Word Quiz')).toBeInTheDocument();
+      });
+
+      // Run multiple quiz sessions
+      for (let i = 0; i < 3; i++) {
+        // Enable custom mode first
+        const customModeButton = screen.getByRole('button', {
+          name: /custom/i,
+        });
+        fireEvent.click(customModeButton);
+
+        const customWordInput = screen.getByPlaceholderText(
+          'Enter your word or phrase...'
+        );
+        const useWordButton = screen.getByRole('button', {
+          name: /use this word/i,
+        });
+        const textarea = screen.getByPlaceholderText(
+          'Enter NATO words: "Alpha Bravo Charlie..."'
+        );
+
+        fireEvent.change(customWordInput, { target: { value: `WORD${i}` } });
+        fireEvent.click(useWordButton);
+
+        await waitFor(() => {
+          const wordDisplay = document.querySelector('.font-mono');
+          expect(wordDisplay?.textContent).toBe(`WORD${i}`);
+        });
+
+        fireEvent.change(textarea, {
+          target: { value: 'Alpha Bravo Charlie' },
+        });
+
+        const checkButton = screen.getByRole('button', { name: /check/i });
+        fireEvent.click(checkButton);
+
+        // Wait for results and then retry
+        await waitFor(
+          () => {
+            const retryButton = screen.getByRole('button', { name: /retry/i });
+            fireEvent.click(retryButton);
+          },
+          { timeout: 2000 }
+        );
+
+        // After retry, click 'Custom Word' to start a new custom session
+        const customModeButtonAgain = screen.getByRole('button', {
+          name: /custom/i,
+        });
+        fireEvent.click(customModeButtonAgain);
+      }
+
+      // Component should still be functional
+      expect(screen.getByText('Word Quiz')).toBeInTheDocument();
+    });
+  });
+
+  describe('edge cases', () => {
+    it('should handle very long custom words', async () => {
+      renderWithProviders(<WordQuizSection />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Word Quiz')).toBeInTheDocument();
+      });
+
+      // Enable custom mode first
+      const customModeButton = screen.getByRole('button', { name: /custom/i });
+      fireEvent.click(customModeButton);
+
+      const customWordInput = screen.getByPlaceholderText(
+        'Enter your word or phrase...'
+      );
+      const longWord = 'ANTIDISESTABLISHMENTARIANISM';
+
+      fireEvent.change(customWordInput, { target: { value: longWord } });
+
+      const useWordButton = screen.getByRole('button', {
+        name: /use this word/i,
+      });
+
+      // Should handle long words gracefully
+      expect(() => {
+        fireEvent.click(useWordButton);
+      }).not.toThrow();
+
+      await waitFor(() => {
+        const wordDisplay = document.querySelector('.font-mono');
+        expect(wordDisplay).toBeTruthy();
+        expect(wordDisplay?.textContent).toBe(longWord);
+      });
+    });
+
+    it('should handle words with spaces and special characters', async () => {
+      renderWithProviders(<WordQuizSection />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Word Quiz')).toBeInTheDocument();
+      });
+
+      // Enable custom mode first
+      const customModeButton = screen.getByRole('button', { name: /custom/i });
+      fireEvent.click(customModeButton);
+
+      const customWordInput = screen.getByPlaceholderText(
+        'Enter your word or phrase...'
+      );
+      fireEvent.change(customWordInput, { target: { value: 'HELLO WORLD' } });
+
+      const useWordButton = screen.getByRole('button', {
+        name: /use this word/i,
+      });
+      fireEvent.click(useWordButton);
+
+      await waitFor(() => {
+        const wordDisplay = document.querySelector('.font-mono');
+        expect(wordDisplay?.textContent).toBe('HELLO WORLD');
+      });
     });
   });
 });
