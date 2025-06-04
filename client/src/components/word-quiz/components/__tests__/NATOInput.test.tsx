@@ -1,5 +1,7 @@
+import type { ReactNode } from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { LanguageProvider } from '@/contexts/language-context';
 import { NATOInput } from '../NATOInput';
 
 // Only mock external dependencies that are necessary
@@ -17,6 +19,15 @@ vi.mock('@/hooks/use-speech-recognition', () => ({
   }),
 }));
 
+// Test wrapper with providers
+function TestWrapper({ children }: { children: ReactNode }) {
+  return <LanguageProvider>{children}</LanguageProvider>;
+}
+
+function renderWithProviders(component: ReactNode) {
+  return render(component, { wrapper: TestWrapper });
+}
+
 describe('nATOInput', () => {
   const defaultProps = {
     userNATOInput: '',
@@ -33,7 +44,7 @@ describe('nATOInput', () => {
 
   describe('basic rendering', () => {
     it('should render the component with correct elements', () => {
-      render(<NATOInput {...defaultProps} />);
+      renderWithProviders(<NATOInput {...defaultProps} />);
 
       expect(screen.getByText('Your NATO Alphabet Input')).toBeInTheDocument();
       expect(
@@ -46,14 +57,14 @@ describe('nATOInput', () => {
 
     it('should display current user input', () => {
       const props = { ...defaultProps, userNATOInput: 'Alpha Bravo Charlie' };
-      render(<NATOInput {...props} />);
+      renderWithProviders(<NATOInput {...props} />);
 
       const textarea = screen.getByDisplayValue('Alpha Bravo Charlie');
       expect(textarea).toBeInTheDocument();
     });
 
     it('should show microphone button when speech is supported', () => {
-      render(<NATOInput {...defaultProps} />);
+      renderWithProviders(<NATOInput {...defaultProps} />);
 
       const micButton = screen.getByRole('button');
       expect(micButton).toHaveTextContent('🎤');
@@ -66,7 +77,7 @@ describe('nATOInput', () => {
       const setUserNATOInput = vi.fn();
       const props = { ...defaultProps, setUserNATOInput };
 
-      render(<NATOInput {...props} />);
+      renderWithProviders(<NATOInput {...props} />);
 
       const textarea = screen.getByPlaceholderText(
         'Enter NATO words: "Alpha Bravo Charlie..."'
@@ -83,7 +94,7 @@ describe('nATOInput', () => {
         isCompleted: true,
       };
 
-      render(<NATOInput {...props} />);
+      renderWithProviders(<NATOInput {...props} />);
 
       const textarea = screen.getByPlaceholderText(
         'Enter NATO words: "Alpha Bravo Charlie..."'
@@ -98,7 +109,7 @@ describe('nATOInput', () => {
         isCompleted: false,
       };
 
-      render(<NATOInput {...props} />);
+      renderWithProviders(<NATOInput {...props} />);
 
       const textarea = screen.getByPlaceholderText(
         'Enter NATO words: "Alpha Bravo Charlie..."'
@@ -123,7 +134,7 @@ describe('nATOInput', () => {
         showResult: false,
       };
 
-      render(<NATOInput {...props} />);
+      renderWithProviders(<NATOInput {...props} />);
 
       expect(screen.getByText('Live Score: 2/3 (67%)')).toBeInTheDocument();
     });
@@ -143,7 +154,7 @@ describe('nATOInput', () => {
         showResult: false,
       };
 
-      render(<NATOInput {...props} />);
+      renderWithProviders(<NATOInput {...props} />);
 
       expect(screen.queryByText(/Live Score:/)).not.toBeInTheDocument();
     });
@@ -163,7 +174,7 @@ describe('nATOInput', () => {
         showResult: true,
       };
 
-      render(<NATOInput {...props} />);
+      renderWithProviders(<NATOInput {...props} />);
 
       expect(screen.queryByText(/Live Score:/)).not.toBeInTheDocument();
     });
@@ -171,7 +182,7 @@ describe('nATOInput', () => {
 
   describe('accessibility and user experience', () => {
     it('should have proper textarea attributes', () => {
-      render(<NATOInput {...defaultProps} />);
+      renderWithProviders(<NATOInput {...defaultProps} />);
 
       const textarea = screen.getByRole('textbox');
       expect(textarea).toHaveAttribute(
@@ -183,7 +194,7 @@ describe('nATOInput', () => {
 
     it('should handle empty input gracefully', () => {
       const props = { ...defaultProps, userNATOInput: '' };
-      render(<NATOInput {...props} />);
+      renderWithProviders(<NATOInput {...props} />);
 
       const textarea = screen.getByRole('textbox');
       expect(textarea).toHaveValue('');
@@ -197,7 +208,7 @@ describe('nATOInput', () => {
         isCompleted: true,
       };
 
-      render(<NATOInput {...props} />);
+      renderWithProviders(<NATOInput {...props} />);
 
       const textarea = screen.getByRole('textbox');
       expect(textarea).toBeDisabled();
@@ -213,7 +224,7 @@ describe('nATOInput', () => {
         userNATOInput: longInput,
       };
 
-      render(<NATOInput {...props} />);
+      renderWithProviders(<NATOInput {...props} />);
 
       const textarea = screen.getByDisplayValue(longInput);
       expect(textarea).toBeInTheDocument();
@@ -227,7 +238,7 @@ describe('nATOInput', () => {
   describe('custom mode behavior', () => {
     it('should render normally when isCustomMode is false', () => {
       const props = { ...defaultProps, isCustomMode: false };
-      render(<NATOInput {...props} />);
+      renderWithProviders(<NATOInput {...props} />);
 
       expect(screen.getByText('Your NATO Alphabet Input')).toBeInTheDocument();
       expect(
@@ -239,7 +250,7 @@ describe('nATOInput', () => {
 
     it('should render normally when isCustomMode is true', () => {
       const props = { ...defaultProps, isCustomMode: true };
-      render(<NATOInput {...props} />);
+      renderWithProviders(<NATOInput {...props} />);
 
       expect(screen.getByText('Your NATO Alphabet Input')).toBeInTheDocument();
       expect(
@@ -257,7 +268,7 @@ describe('nATOInput', () => {
         isCustomMode: true,
       };
 
-      render(<NATOInput {...props} />);
+      renderWithProviders(<NATOInput {...props} />);
 
       const textarea = screen.getByPlaceholderText(
         'Enter NATO words: "Alpha Bravo Charlie..."'
@@ -283,7 +294,7 @@ describe('nATOInput', () => {
         isCustomMode: true,
       };
 
-      render(<NATOInput {...props} />);
+      renderWithProviders(<NATOInput {...props} />);
 
       expect(screen.getByText('Live Score: 2/4 (50%)')).toBeInTheDocument();
     });
@@ -335,7 +346,7 @@ describe('nATOInput', () => {
           showResult: false,
         };
 
-        const { unmount } = render(<NATOInput {...props} />);
+        const { unmount } = renderWithProviders(<NATOInput {...props} />);
 
         if (input) {
           expect(screen.getByText(expectedScore)).toBeInTheDocument();
@@ -357,7 +368,7 @@ describe('nATOInput', () => {
         isCompleted: false,
       };
 
-      const { rerender } = render(<NATOInput {...initialProps} />);
+      const { rerender } = renderWithProviders(<NATOInput {...initialProps} />);
 
       // Initial state - input enabled
       const textarea = screen.getByRole('textbox');

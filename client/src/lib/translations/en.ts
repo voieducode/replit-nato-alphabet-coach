@@ -118,4 +118,49 @@ export const en: Translations = {
   speechRate: 'Speech Rate',
   pitch: 'Pitch',
   volume: 'Volume',
+  // Custom Word Input
+  enterCustomWord: 'Enter Custom Word',
+  enterYourWordOrPhrase: 'Enter your word or phrase...',
+  useThisWord: 'Use This Word',
+  // WordDisplay localization
+  currentWordLabel: 'Current Word',
+  customWordLabel: 'Custom',
+  currentWordSpeech: 'Current word is: {word}',
+  difficultyLabels: {
+    easy: 'Easy',
+    medium: 'Medium',
+    hard: 'Hard',
+  },
+  categoryLabels: {
+    animals: 'Animals',
+    places: 'Places',
+    nature: 'Nature',
+    technology: 'Technology',
+    home: 'Home',
+    objects: 'Objects',
+    transport: 'Transport',
+  },
+  // NATO Input specific translations
+  natoInputTitle: 'Your NATO Alphabet Input',
+  natoInputPlaceholder: 'Enter NATO words: "Alpha Bravo Charlie..."',
+  natoInputListening: 'Listening...',
+  natoInputLiveScore: 'Live Score',
+
+  // Quiz Header translations
+  wordQuizInstructions:
+    'Convert the word below to NATO alphabet. Say each NATO word separated by spaces or commas.',
+
+  // Quiz Actions translations
+  retry: 'Retry',
+  checkAnswer: 'Check Answer',
+  newRandomWord: 'New Random Word',
+  cancelCustom: 'Cancel Custom',
+  customWord: 'Custom Word',
+
+  // Quiz Results translations
+  perfect: 'Perfect!',
+  results: 'Results',
+  expectedNato: 'Expected NATO:',
+  play: 'Play',
+  letterByLetter: 'Letter by Letter:',
 };

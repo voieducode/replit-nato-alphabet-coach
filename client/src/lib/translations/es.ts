@@ -118,4 +118,49 @@ export const es: Translations = {
   speechRate: 'Velocidad de la voz',
   pitch: 'Tono',
   volume: 'Volumen',
+  // Custom Word Input
+  enterCustomWord: 'Ingresar palabra personalizada',
+  enterYourWordOrPhrase: 'Ingrese su palabra o frase...',
+  useThisWord: 'Usar esta palabra',
+  // WordDisplay localization
+  currentWordLabel: 'Palabra Actual',
+  customWordLabel: 'Personalizado',
+  currentWordSpeech: 'La palabra actual es: {word}',
+  difficultyLabels: {
+    easy: 'Fácil',
+    medium: 'Medio',
+    hard: 'Difícil',
+  },
+  categoryLabels: {
+    animals: 'Animales',
+    places: 'Lugares',
+    nature: 'Naturaleza',
+    technology: 'Tecnología',
+    home: 'Hogar',
+    objects: 'Objetos',
+    transport: 'Transporte',
+  },
+  // NATO Input specific translations
+  natoInputTitle: 'Tu entrada del alfabeto OTAN',
+  natoInputPlaceholder: 'Introduce palabras OTAN: "Alpha Bravo Charlie..."',
+  natoInputListening: 'Escuchando...',
+  natoInputLiveScore: 'Puntuación en vivo',
+
+  // Quiz Header translations
+  wordQuizInstructions:
+    'Convierte la palabra de abajo al alfabeto OTAN. Di cada palabra OTAN separada por espacios o comas.',
+
+  // Quiz Actions translations
+  retry: 'Reintentar',
+  checkAnswer: 'Verificar respuesta',
+  newRandomWord: 'Nueva palabra aleatoria',
+  cancelCustom: 'Cancelar personalizado',
+  customWord: 'Palabra personalizada',
+
+  // Quiz Results translations
+  perfect: '¡Perfecto!',
+  results: 'Resultados',
+  expectedNato: 'OTAN esperado:',
+  play: 'Reproducir',
+  letterByLetter: 'Letra por letra:',
 };

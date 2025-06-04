@@ -84,4 +84,48 @@ export interface Translations {
   speechRate: string;
   pitch: string;
   volume: string;
+  enterCustomWord: string;
+  enterYourWordOrPhrase: string;
+  useThisWord: string;
+  // WordDisplay localization
+  currentWordLabel: string;
+  customWordLabel: string;
+  currentWordSpeech: string; // e.g., 'Current word is: {word}'
+  difficultyLabels: {
+    easy: string;
+    medium: string;
+    hard: string;
+  };
+  categoryLabels: {
+    animals: string;
+    places: string;
+    nature: string;
+    technology: string;
+    home: string;
+    objects: string;
+    transport: string;
+    [key: string]: string;
+  };
+  // NATO Input specific translations
+  natoInputTitle: string;
+  natoInputPlaceholder: string;
+  natoInputListening: string;
+  natoInputLiveScore: string;
+
+  // Quiz Header translations
+  wordQuizInstructions: string;
+
+  // Quiz Actions translations
+  retry: string;
+  checkAnswer: string;
+  newRandomWord: string;
+  cancelCustom: string;
+  customWord: string;
+
+  // Quiz Results translations
+  perfect: string;
+  results: string;
+  expectedNato: string;
+  play: string;
+  letterByLetter: string;
 }

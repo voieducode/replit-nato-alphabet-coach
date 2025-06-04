@@ -113,4 +113,49 @@ export const zh: Translations = {
   speechRate: '语速',
   pitch: '音调',
   volume: '音量',
+  // Custom Word Input
+  enterCustomWord: '输入自定义单词',
+  enterYourWordOrPhrase: '输入您的单词或短语...',
+  useThisWord: '使用此单词',
+  // WordDisplay localization
+  currentWordLabel: '当前单词',
+  customWordLabel: '自定义',
+  currentWordSpeech: '当前单词是：{word}',
+  difficultyLabels: {
+    easy: '简单',
+    medium: '中等',
+    hard: '困难',
+  },
+  categoryLabels: {
+    animals: '动物',
+    places: '地点',
+    nature: '自然',
+    technology: '科技',
+    home: '家庭',
+    objects: '物品',
+    transport: '交通',
+  },
+  // NATO Input specific translations
+  natoInputTitle: '您的北约字母输入',
+  natoInputPlaceholder: '输入北约字母："Alpha Bravo Charlie..."',
+  natoInputListening: '正在听取...',
+  natoInputLiveScore: '实时得分',
+
+  // Quiz Header translations
+  wordQuizInstructions:
+    '将下面的单词转换为北约字母表。每个北约单词用空格或逗号分隔。',
+
+  // Quiz Actions translations
+  retry: '重试',
+  checkAnswer: '检查答案',
+  newRandomWord: '新随机单词',
+  cancelCustom: '取消自定义',
+  customWord: '自定义单词',
+
+  // Quiz Results translations
+  perfect: '完美！',
+  results: '结果',
+  expectedNato: '预期的北约：',
+  play: '播放',
+  letterByLetter: '逐个字母：',
 };

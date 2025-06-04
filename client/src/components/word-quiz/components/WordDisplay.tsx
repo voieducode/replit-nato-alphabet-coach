@@ -4,6 +4,7 @@ import { Volume2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useLanguage } from '@/hooks/use-language';
 import { useSpeechSynthesis } from '@/hooks/use-speech-synthesis';
 import { cn } from '@/lib/utils';
 
@@ -21,17 +22,19 @@ export function WordDisplay({
   showResult,
 }: WordDisplayProps) {
   const { speak } = useSpeechSynthesis();
+  const { translations } = useLanguage();
 
   const speakCurrentWord = () => {
     const letters = currentWord.word.split('').join(' ');
-    speak(`Current word is: ${letters}`);
+    const phrase = translations.currentWordSpeech.replace('{word}', letters);
+    speak(phrase);
   };
 
   return (
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="text-center flex items-center justify-center gap-2">
-          Current Word
+          {translations.currentWordLabel}
           <Button
             variant="ghost"
             size="sm"
@@ -75,14 +78,18 @@ export function WordDisplay({
           </div>
           <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
             <Badge variant="outline" className="capitalize">
-              {currentWord.difficulty}
+              {translations.difficultyLabels[currentWord.difficulty] ||
+                currentWord.difficulty}
             </Badge>
             {currentWord.category && (
               <Badge variant="secondary" className="capitalize">
-                {currentWord.category}
+                {translations.categoryLabels[currentWord.category] ||
+                  currentWord.category}
               </Badge>
             )}
-            {isCustomMode && <Badge variant="secondary">Custom</Badge>}
+            {isCustomMode && (
+              <Badge variant="secondary">{translations.customWordLabel}</Badge>
+            )}
           </div>
         </div>
       </CardContent>

@@ -116,4 +116,49 @@ export const ar: Translations = {
   speechRate: 'معدل الكلام',
   pitch: 'حدة الصوت',
   volume: 'مستوى الصوت',
+  // Custom Word Input
+  enterCustomWord: 'أدخل كلمة مخصصة',
+  enterYourWordOrPhrase: 'أدخل كلمتك أو عبارتك...',
+  useThisWord: 'استخدم هذه الكلمة',
+  // WordDisplay localization
+  currentWordLabel: 'الكلمة الحالية',
+  customWordLabel: 'مخصص',
+  currentWordSpeech: 'الكلمة الحالية هي: {word}',
+  difficultyLabels: {
+    easy: 'سهل',
+    medium: 'متوسط',
+    hard: 'صعب',
+  },
+  categoryLabels: {
+    animals: 'الحيوانات',
+    places: 'الأماكن',
+    nature: 'الطبيعة',
+    technology: 'التكنولوجيا',
+    home: 'المنزل',
+    objects: 'الأشياء',
+    transport: 'النقل',
+  },
+  // NATO Input specific translations
+  natoInputTitle: 'إدخال أبجدية الناتو الخاصة بك',
+  natoInputPlaceholder: 'أدخل كلمات الناتو: "Alpha Bravo Charlie..."',
+  natoInputListening: 'جاري الاستماع...',
+  natoInputLiveScore: 'النتيجة المباشرة',
+
+  // Quiz Header translations
+  wordQuizInstructions:
+    'قم بتحويل الكلمة أدناه إلى أبجدية الناتو. قل كل كلمة ناتو مفصولة بمسافات أو فواصل.',
+
+  // Quiz Actions translations
+  retry: 'إعادة المحاولة',
+  checkAnswer: 'فحص الإجابة',
+  newRandomWord: 'كلمة عشوائية جديدة',
+  cancelCustom: 'إلغاء المخصص',
+  customWord: 'كلمة مخصصة',
+
+  // Quiz Results translations
+  perfect: 'مثالي!',
+  results: 'النتائج',
+  expectedNato: 'الناتو المتوقع:',
+  play: 'تشغيل',
+  letterByLetter: 'حرف بحرف:',
 };

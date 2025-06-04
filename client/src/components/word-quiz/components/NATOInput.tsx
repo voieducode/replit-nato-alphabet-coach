@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
+import { useLanguage } from '@/hooks/use-language';
 import { useSpeechRecognition } from '@/hooks/use-speech-recognition';
 import { cn } from '@/lib/utils';
 import { useAutoResizeTextarea } from '../hooks/useAutoResizeTextarea';
@@ -24,6 +25,7 @@ export function NATOInput({
   matchResult,
   isCustomMode,
 }: NATOInputProps) {
+  const { translations } = useLanguage();
   const textareaRef = useAutoResizeTextarea(userNATOInput);
 
   // Focus textarea when component mounts, when results are hidden, or after retry
@@ -67,7 +69,7 @@ export function NATOInput({
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="text-sm font-medium">
-          Your NATO Alphabet Input
+          {translations.natoInputTitle}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -76,7 +78,7 @@ export function NATOInput({
             ref={textareaRef}
             value={userNATOInput}
             onChange={(e) => setUserNATOInput(e.target.value)}
-            placeholder={`Enter NATO words: "Alpha Bravo Charlie..."`}
+            placeholder={translations.natoInputPlaceholder}
             className={cn(
               'text-lg p-4 pr-12 resize-none overflow-hidden',
               isListening && 'border-blue-300 bg-blue-50',
@@ -106,7 +108,8 @@ export function NATOInput({
         {/* Speech Status */}
         {isListening && (
           <div className="text-sm text-blue-600 bg-blue-50 p-2 rounded border">
-            🎤 Listening... {interimTranscript && `(${interimTranscript})`}
+            🎤 {translations.natoInputListening}{' '}
+            {interimTranscript && `(${interimTranscript})`}
           </div>
         )}
 
@@ -127,8 +130,8 @@ export function NATOInput({
         {/* Real-time Score */}
         {matchResult && userNATOInput && !showResult && (
           <div className="text-sm text-center p-2 bg-gray-50 rounded">
-            Live Score: {matchResult.correctCount}/{matchResult.totalCount} (
-            {matchResult.percentage}%)
+            {translations.natoInputLiveScore}: {matchResult.correctCount}/
+            {matchResult.totalCount} ({matchResult.percentage}%)
           </div>
         )}
       </CardContent>

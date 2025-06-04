@@ -119,4 +119,49 @@ export const de: Translations = {
   speechRate: 'Sprachgeschwindigkeit',
   pitch: 'Tonhöhe',
   volume: 'Lautstärke',
+  // Custom Word Input
+  enterCustomWord: 'Benutzerdefiniertes Wort eingeben',
+  enterYourWordOrPhrase: 'Geben Sie Ihr Wort oder Ihre Phrase ein...',
+  useThisWord: 'Dieses Wort verwenden',
+  // WordDisplay localization
+  currentWordLabel: 'Aktuelles Wort',
+  customWordLabel: 'Benutzerdefiniert',
+  currentWordSpeech: 'Aktuelles Wort ist: {word}',
+  difficultyLabels: {
+    easy: 'Einfach',
+    medium: 'Mittel',
+    hard: 'Schwierig',
+  },
+  categoryLabels: {
+    animals: 'Tiere',
+    places: 'Orte',
+    nature: 'Natur',
+    technology: 'Technologie',
+    home: 'Zuhause',
+    objects: 'Objekte',
+    transport: 'Transport',
+  },
+  // NATO Input specific translations
+  natoInputTitle: 'Ihre NATO-Alphabet-Eingabe',
+  natoInputPlaceholder: 'NATO-Wörter eingeben: "Alpha Bravo Charlie..."',
+  natoInputListening: 'Zuhören...',
+  natoInputLiveScore: 'Live-Punktzahl',
+
+  // Quiz Header translations
+  wordQuizInstructions:
+    'Konvertieren Sie das Wort unten in das NATO-Alphabet. Sagen Sie jedes NATO-Wort getrennt durch Leerzeichen oder Kommas.',
+
+  // Quiz Actions translations
+  retry: 'Wiederholen',
+  checkAnswer: 'Antwort prüfen',
+  newRandomWord: 'Neues zufälliges Wort',
+  cancelCustom: 'Benutzerdefiniert abbrechen',
+  customWord: 'Benutzerdefiniertes Wort',
+
+  // Quiz Results translations
+  perfect: 'Perfekt!',
+  results: 'Ergebnisse',
+  expectedNato: 'Erwartetes NATO:',
+  play: 'Abspielen',
+  letterByLetter: 'Buchstabe für Buchstabe:',
 };

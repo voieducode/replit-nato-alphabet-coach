@@ -3,6 +3,7 @@ import type { WordMatchResult } from '@/lib/word-matching';
 import { Volume2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useLanguage } from '@/hooks/use-language';
 import { useSpeechSynthesis } from '@/hooks/use-speech-synthesis';
 import { cn } from '@/lib/utils';
 import { formatExpectedNATO } from '@/lib/word-matching';
@@ -21,6 +22,7 @@ export function QuizResults({
   currentWord,
 }: QuizResultsProps) {
   const { speak } = useSpeechSynthesis();
+  const { translations } = useLanguage();
 
   const speakExpectedNATO = () => {
     const expectedNATO = formatExpectedNATO(currentWord.word);
@@ -47,7 +49,9 @@ export function QuizResults({
             isCompleted ? 'text-green-700' : 'text-yellow-700'
           )}
         >
-          {isCompleted ? '🎉 Perfect!' : '📊 Results'}
+          {isCompleted
+            ? `🎉 ${translations.perfect}`
+            : `📊 ${translations.results}`}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -56,14 +60,15 @@ export function QuizResults({
             {matchResult.percentage}%
           </div>
           <div className="text-sm text-gray-600">
-            {matchResult.correctCount} of {matchResult.totalCount} correct
+            {matchResult.correctCount} of {matchResult.totalCount}{' '}
+            {translations.correct}
           </div>
         </div>
 
         {/* Expected Answer */}
         <div className="bg-white p-3 rounded border">
           <div className="text-sm font-medium text-gray-700 mb-1">
-            Expected NATO:
+            {translations.expectedNato}
           </div>
           <div className="font-mono text-sm">
             {formatExpectedNATO(currentWord.word)}
@@ -75,14 +80,14 @@ export function QuizResults({
             className="mt-2"
           >
             <Volume2 className="h-3 w-3 mr-1" />
-            Play
+            {translations.play}
           </Button>
         </div>
 
         {/* Detailed Breakdown */}
         <div className="bg-white p-3 rounded border">
           <div className="text-sm font-medium text-gray-700 mb-2">
-            Letter by Letter:
+            {translations.letterByLetter}
           </div>
           <div className="grid grid-cols-1 gap-1 text-sm font-mono">
             {matchResult.matches.map((match, index) => (

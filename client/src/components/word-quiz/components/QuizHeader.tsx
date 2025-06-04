@@ -9,8 +9,7 @@ export function QuizHeader() {
         {translations.wordQuiz}
       </h2>
       <p className="text-gray-600 text-sm">
-        Convert the word below to NATO alphabet. Say each NATO word separated by
-        spaces or commas.
+        {translations.wordQuizInstructions}
       </p>
     </div>
   );

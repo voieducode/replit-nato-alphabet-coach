@@ -116,4 +116,49 @@ export const sw: Translations = {
   speechRate: 'Kiwango cha usemi',
   pitch: 'Lami',
   volume: 'Sauti',
+  // Custom Word Input
+  enterCustomWord: 'Ingiza Neno Maalum',
+  enterYourWordOrPhrase: 'Ingiza neno au kifungu chako...',
+  useThisWord: 'Tumia Neno Hili',
+  // WordDisplay localization
+  currentWordLabel: 'Neno la Sasa',
+  customWordLabel: 'Maalum',
+  currentWordSpeech: 'Neno la sasa ni: {word}',
+  difficultyLabels: {
+    easy: 'Rahisi',
+    medium: 'Wastani',
+    hard: 'Gumu',
+  },
+  categoryLabels: {
+    animals: 'Wanyamapori',
+    places: 'Maeneo',
+    nature: 'Mazingira',
+    technology: 'Teknolojia',
+    home: 'Nyumbani',
+    objects: 'Vitu',
+    transport: 'Usafiri',
+  },
+  // NATO Input specific translations
+  natoInputTitle: 'Uingizaji wako wa Alfabeti ya NATO',
+  natoInputPlaceholder: 'Ingiza maneno ya NATO: "Alpha Bravo Charlie..."',
+  natoInputListening: 'Inasikiliza...',
+  natoInputLiveScore: 'Alama za Moja Kwa Moja',
+
+  // Quiz Header translations
+  wordQuizInstructions:
+    'Badilisha neno hapa chini kuwa alfabeti ya NATO. Sema kila neno la NATO likitenganishwa na nafasi au vikoma.',
+
+  // Quiz Actions translations
+  retry: 'Jaribu Tena',
+  checkAnswer: 'Angalia Jibu',
+  newRandomWord: 'Neno Jipya la Nasibu',
+  cancelCustom: 'Ghairi Maalum',
+  customWord: 'Neno Maalum',
+
+  // Quiz Results translations
+  perfect: 'Kamili!',
+  results: 'Matokeo',
+  expectedNato: 'NATO Inayotarajiwa:',
+  play: 'Cheza',
+  letterByLetter: 'Herufi kwa Herufi:',
 };

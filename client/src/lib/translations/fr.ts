@@ -119,4 +119,49 @@ export const fr: Translations = {
   speechRate: 'Vitesse de la voix',
   pitch: 'Hauteur',
   volume: 'Volume',
+  // Custom Word Input
+  enterCustomWord: 'Entrer un mot personnalisé',
+  enterYourWordOrPhrase: 'Entrez votre mot ou phrase...',
+  useThisWord: 'Utiliser ce mot',
+  // WordDisplay localization
+  currentWordLabel: 'Mot Actuel',
+  customWordLabel: 'Personnalisé',
+  currentWordSpeech: 'Le mot actuel est : {word}',
+  difficultyLabels: {
+    easy: 'Facile',
+    medium: 'Moyen',
+    hard: 'Difficile',
+  },
+  categoryLabels: {
+    animals: 'Animaux',
+    places: 'Lieux',
+    nature: 'Nature',
+    technology: 'Technologie',
+    home: 'Maison',
+    objects: 'Objets',
+    transport: 'Transport',
+  },
+  // NATO Input specific translations
+  natoInputTitle: "Votre saisie de l'alphabet OTAN",
+  natoInputPlaceholder: 'Entrez les mots OTAN : "Alpha Bravo Charlie..."',
+  natoInputListening: 'Écoute...',
+  natoInputLiveScore: 'Score en direct',
+
+  // Quiz Header translations
+  wordQuizInstructions:
+    'Convertissez le mot ci-dessous en alphabet OTAN. Dites chaque mot OTAN séparé par des espaces ou des virgules.',
+
+  // Quiz Actions translations
+  retry: 'Réessayer',
+  checkAnswer: 'Vérifier la réponse',
+  newRandomWord: 'Nouveau mot aléatoire',
+  cancelCustom: 'Annuler personnalisé',
+  customWord: 'Mot personnalisé',
+
+  // Quiz Results translations
+  perfect: 'Parfait !',
+  results: 'Résultats',
+  expectedNato: 'OTAN attendu :',
+  play: 'Jouer',
+  letterByLetter: 'Lettre par lettre :',
 };
