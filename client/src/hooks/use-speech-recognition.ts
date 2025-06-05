@@ -446,97 +446,80 @@ export function useSpeechRecognition(
     setIsProcessing(false);
   }, [debugLog]);
 
-  // Initialize speech recognition
-  const initializeSpeechRecognition = useCallback(() => {
-    if (isInitializedRef.current) {
-      return speechSupported;
-    }
-
-    debugLog('Initializing speech recognition...');
-
-    const SpeechRecognition =
-      (window as any).SpeechRecognition ||
-      (window as any).webkitSpeechRecognition;
-
-    if (!SpeechRecognition) {
-      debugLog('Speech Recognition API not supported');
-      isInitializedRef.current = true;
-      setSpeechSupportedSafely(false);
-      setErrorSafely('Speech recognition not supported in this browser');
-      return false;
-    }
-
-    try {
-      const recognition = new SpeechRecognition();
-      recognition.continuous = continuous;
-      recognition.interimResults = interimResults;
-      recognition.maxAlternatives = maxAlternatives;
-      recognition.lang = language;
-
-      recognition.onstart = handleStart;
-      recognition.onresult = handleResult;
-      recognition.onerror = handleError;
-      recognition.onend = handleEnd;
-
-      // Additional events for better feedback
-      if (recognition.onspeechstart !== undefined) {
-        recognition.onspeechstart = handleSpeechStart;
-      }
-      if (recognition.onspeechend !== undefined) {
-        recognition.onspeechend = handleSpeechEnd;
-      }
-
-      recognitionRef.current = recognition;
-      isInitializedRef.current = true;
-      setSpeechSupportedSafely(true);
-
-      debugLog('Speech recognition initialized successfully', {
-        continuous,
-        interimResults,
-        maxAlternatives,
-        language,
-        confidenceThreshold,
-      });
-
-      return true;
-    } catch (error) {
-      debugLog('Failed to initialize speech recognition:', error);
-      setErrorSafely('Failed to initialize speech recognition');
-      toast({
-        title: 'Speech Recognition Error',
-        description: 'Failed to initialize speech recognition.',
-        variant: 'destructive',
-      });
-      isInitializedRef.current = true;
-      setSpeechSupportedSafely(false);
-      return false;
-    }
-  }, [
-    speechSupported,
-    continuous,
-    interimResults,
-    maxAlternatives,
-    language,
-    confidenceThreshold,
-    handleStart,
-    handleResult,
-    handleError,
-    handleEnd,
-    handleSpeechStart,
-    handleSpeechEnd,
-    toast,
-    debugLog,
-    setSpeechSupportedSafely,
-    setErrorSafely,
-  ]);
-
-  // Initialize once on mount
+  // Initialize once on mount - ONLY run this effect once
   useEffect(() => {
-    initializeSpeechRecognition();
+    const initialize = () => {
+      if (isInitializedRef.current) {
+        return speechSupported;
+      }
+
+      debugLog('Initializing speech recognition...');
+
+      const SpeechRecognition =
+        (window as any).SpeechRecognition ||
+        (window as any).webkitSpeechRecognition;
+
+      if (!SpeechRecognition) {
+        debugLog('Speech Recognition API not supported');
+        isInitializedRef.current = true;
+        setSpeechSupported(false);
+        setError('Speech recognition not supported in this browser');
+        return false;
+      }
+
+      try {
+        const recognition = new SpeechRecognition();
+        recognition.continuous = continuous;
+        recognition.interimResults = interimResults;
+        recognition.maxAlternatives = maxAlternatives;
+        recognition.lang = language;
+
+        recognition.onstart = handleStart;
+        recognition.onresult = handleResult;
+        recognition.onerror = handleError;
+        recognition.onend = handleEnd;
+
+        // Additional events for better feedback
+        if (recognition.onspeechstart !== undefined) {
+          recognition.onspeechstart = handleSpeechStart;
+        }
+        if (recognition.onspeechend !== undefined) {
+          recognition.onspeechend = handleSpeechEnd;
+        }
+
+        recognitionRef.current = recognition;
+        isInitializedRef.current = true;
+        setSpeechSupported(true);
+
+        debugLog('Speech recognition initialized successfully', {
+          continuous,
+          interimResults,
+          maxAlternatives,
+          language,
+          confidenceThreshold,
+        });
+
+        return true;
+      } catch (error) {
+        debugLog('Failed to initialize speech recognition:', error);
+        setError('Failed to initialize speech recognition');
+        toast({
+          title: 'Speech Recognition Error',
+          description: 'Failed to initialize speech recognition.',
+          variant: 'destructive',
+        });
+        isInitializedRef.current = true;
+        setSpeechSupported(false);
+        return false;
+      }
+    };
+
+    initialize();
 
     return () => {
       debugLog('Cleaning up speech recognition');
       shouldRestartRef.current = false;
+      isManualStopRef.current = true; // Prevent any restart attempts during cleanup
 
       if (restartTimeoutRef.current) {
         clearTimeout(restartTimeoutRef.current);
@@ -552,10 +535,22 @@ export function useSpeechRecognition(
         recognitionRef.current = null;
       }
 
-      stopAudioMonitoring();
+      // Clean up audio monitoring
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((track) => track.stop());
+        streamRef.current = null;
+      }
+      if (audioContextRef.current) {
+        audioContextRef.current.close();
+        audioContextRef.current = null;
+      }
+      microphoneRef.current = null;
+      analyserRef.current = null;
+      setAudioLevel(0);
+
       isInitializedRef.current = false;
     };
-  }, [debugLog, initializeSpeechRecognition, stopAudioMonitoring]);
+  }, []); // Empty dependency array - only run once on mount
 
   const startListening = useCallback(() => {
     debugLog('startListening called', {
