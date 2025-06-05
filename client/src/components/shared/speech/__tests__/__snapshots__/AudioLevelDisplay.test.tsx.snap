@@ -1,0 +1,11 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`audioLevelDisplay > performance and accessibility > should not cause layout shifts when toggling visibility 1`] = `
+<body>
+  
+  
+
+
+  <div />
+</body>
+`;
