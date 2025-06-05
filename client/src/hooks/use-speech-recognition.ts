@@ -118,6 +118,8 @@ export function useSpeechRecognition(
   const onTranscriptReceivedRef = useRef(onTranscriptReceived);
   const shouldRestartRef = useRef(false);
   const restartTimeoutRef = useRef<number | null>(null);
+  const isManualStopRef = useRef(false);
+  const lastStartTimeRef = useRef<number>(0);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const microphoneRef = useRef<MediaStreamAudioSourceNode | null>(null);
@@ -300,30 +302,64 @@ export function useSpeechRecognition(
   );
 
   const handleEnd = useCallback(() => {
+    const now = Date.now();
+    const timeSinceLastStart = now - lastStartTimeRef.current;
+
     debugLog(
       'Speech recognition ended, autoRestart:',
       autoRestart,
       'shouldRestart:',
-      shouldRestartRef.current
+      shouldRestartRef.current,
+      'isManualStop:',
+      isManualStopRef.current,
+      'timeSinceLastStart:',
+      timeSinceLastStart
     );
+
     setIsListening(false);
     setIsProcessing(false);
     setInterimTranscript('');
     stopAudioMonitoring();
 
-    // Auto-restart if configured and we should restart
-    if (autoRestart && shouldRestartRef.current && recognitionRef.current) {
-      debugLog('Auto-restarting speech recognition in 500ms');
+    // Only auto-restart if:
+    // 1. autoRestart is enabled
+    // 2. shouldRestart is true (not manually stopped)
+    // 3. it's not a manual stop
+    // 4. enough time has passed since last start (prevent rapid restarts)
+    // 5. recognition instance still exists
+    if (
+      autoRestart &&
+      shouldRestartRef.current &&
+      !isManualStopRef.current &&
+      timeSinceLastStart > 1000 && // At least 1 second since last start
+      recognitionRef.current
+    ) {
+      debugLog('Auto-restarting speech recognition in 1000ms');
       restartTimeoutRef.current = window.setTimeout(() => {
-        if (shouldRestartRef.current && recognitionRef.current) {
+        if (
+          shouldRestartRef.current &&
+          !isManualStopRef.current &&
+          recognitionRef.current
+        ) {
           try {
+            lastStartTimeRef.current = Date.now();
             recognitionRef.current.start();
           } catch (error) {
             debugLog('Error restarting speech recognition:', error);
             setError('Failed to restart speech recognition');
+            shouldRestartRef.current = false; // Stop trying to restart
           }
         }
-      }, 500);
+      }, 1000); // Increased delay to prevent rapid restarts
+    } else {
+      debugLog('Skipping auto-restart due to conditions not met');
+    }
+
+    // Reset manual stop flag after a delay
+    if (isManualStopRef.current) {
+      setTimeout(() => {
+        isManualStopRef.current = false;
+      }, 2000);
     }
   }, [autoRestart, debugLog, stopAudioMonitoring]);
 
@@ -551,6 +587,9 @@ export function useSpeechRecognition(
       restartTimeoutRef.current = null;
     }
 
+    // Reset manual stop flag and update timing
+    isManualStopRef.current = false;
+    lastStartTimeRef.current = Date.now();
     shouldRestartRef.current = true;
     setError(null);
     setCurrentTranscript('');
@@ -568,6 +607,9 @@ export function useSpeechRecognition(
 
   const stopListening = useCallback(() => {
     debugLog('stopListening called');
+
+    // Mark this as a manual stop to prevent auto-restart
+    isManualStopRef.current = true;
     shouldRestartRef.current = false;
 
     // Clear any restart timeouts
