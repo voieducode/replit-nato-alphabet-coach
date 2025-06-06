@@ -1,3 +1,5 @@
+import React from 'react';
+import { getDebugLog } from '../lib/debug-logger';
 import { CustomWordInput } from './word-quiz/components/CustomWordInput';
 import { NATOInput } from './word-quiz/components/NATOInput';
 import { QuizActions } from './word-quiz/components/QuizActions';
@@ -9,6 +11,20 @@ import { useRealTimeMatching } from './word-quiz/hooks/useRealTimeMatching';
 import { useWordQuiz } from './word-quiz/hooks/useWordQuiz';
 
 export default function WordQuizSection() {
+  function downloadLog() {
+    const blob = new Blob([getDebugLog().join('\n')], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'debug-log.txt';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 100);
+  }
+
   const quiz = useWordQuiz();
   const { showResultFeedback } = useQuizFeedback();
 
@@ -41,14 +57,12 @@ export default function WordQuizSection() {
   return (
     <div className="p-4 space-y-6">
       <QuizHeader />
-
       <WordDisplay
         currentWord={quiz.currentWord}
         isCustomMode={quiz.isCustomMode}
         matchResult={quiz.matchResult}
         showResult={quiz.showResult}
       />
-
       <NATOInput
         userNATOInput={quiz.userNATOInput}
         setUserNATOInput={quiz.setUserNATOInput}
@@ -57,14 +71,12 @@ export default function WordQuizSection() {
         matchResult={quiz.matchResult}
         isCustomMode={quiz.isCustomMode}
       />
-
       <QuizResults
         showResult={quiz.showResult}
         matchResult={quiz.matchResult}
         isCompleted={quiz.isCompleted}
         currentWord={quiz.currentWord}
       />
-
       <QuizActions
         retryCurrentWord={quiz.retryCurrentWord}
         checkAnswer={handleCheckAnswer}
@@ -75,13 +87,22 @@ export default function WordQuizSection() {
         isCompleted={quiz.isCompleted}
         isCustomMode={quiz.isCustomMode}
       />
-
       <CustomWordInput
         isCustomMode={quiz.isCustomMode}
         customWordInput={quiz.customWordInput}
         setCustomWordInput={quiz.setCustomWordInput}
         handleCustomWord={quiz.handleCustomWord}
       />
+      {/* Debug log download button */}
+      <div className="pt-4 text-right">
+        <button
+          type="button"
+          className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 text-xs text-gray-700 border border-gray-300"
+          onClick={downloadLog}
+        >
+          Download Debug Log
+        </button>
+      </div>
     </div>
   );
 }

@@ -78,6 +78,7 @@ export const AnswerInput = memo(
       clearError,
     } = useSpeechRecognition(
       (transcript) => {
+        // Ensure complete overwrite of the input value
         setUserAnswer(transcript);
       },
       {
@@ -177,6 +178,8 @@ export const AnswerInput = memo(
                 if (isListening) {
                   stopListening();
                 } else {
+                  // Clear the input when starting speech recognition to indicate overwrite behavior
+                  setUserAnswer('');
                   startListening();
                 }
               }}
