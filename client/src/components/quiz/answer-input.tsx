@@ -1,7 +1,8 @@
 import type { Translations } from '@/lib/i18n';
 import { Lightbulb, Volume2 } from 'lucide-react';
-import React, { memo, useEffect, useRef } from 'react';
+import React, { memo, useEffect, useRef, useState } from 'react';
 import {
+  AndroidTroubleshoot,
   SpeechInputButton,
   SpeechStatusDisplay,
 } from '@/components/shared/speech';
@@ -12,6 +13,26 @@ import { useSpeechSynthesis } from '@/hooks/use-speech-synthesis';
 import { useToast } from '@/hooks/use-toast';
 import { getHintForLetter } from '@/lib/spaced-repetition';
 import { cn } from '@/lib/utils';
+
+// Helper functions for Android detection
+function isAndroid(): boolean {
+  return /Android/i.test(navigator.userAgent);
+}
+
+function isSecureContext(): boolean {
+  return (
+    window.isSecureContext ||
+    location.protocol === 'https:' ||
+    location.hostname === 'localhost'
+  );
+}
+
+function hasUserGesture(): boolean {
+  return (
+    document.hasFocus() &&
+    Date.now() - (window as any).__lastUserInteraction < 5000
+  );
+}
 
 interface AnswerInputProps {
   letter: string;
@@ -40,6 +61,8 @@ export const AnswerInput = memo(
     const inputRef = useRef<HTMLInputElement>(null);
     const { speak } = useSpeechSynthesis();
     const { toast } = useToast();
+    const [showAndroidTroubleshoot, setShowAndroidTroubleshoot] =
+      useState(false);
 
     // Use our enhanced speech recognition hook with debug mode enabled
     const {
@@ -180,6 +203,25 @@ export const AnswerInput = memo(
             }}
           />
 
+          {/* Android Troubleshoot Component */}
+          {(error || showAndroidTroubleshoot) && (
+            <div className="mt-3">
+              <AndroidTroubleshoot
+                isAndroid={isAndroid()}
+                isSecureContext={isSecureContext()}
+                hasUserGesture={hasUserGesture()}
+                onRetry={() => {
+                  clearError();
+                  setShowAndroidTroubleshoot(false);
+                  startListening();
+                }}
+                onDismiss={() => {
+                  setShowAndroidTroubleshoot(false);
+                }}
+              />
+            </div>
+          )}
+
           {/* Microphone Test Button */}
           {speechSupported && !isListening && !showResult && (
             <div className="mt-2">
@@ -196,6 +238,12 @@ export const AnswerInput = memo(
                         "Microphone test successful! You're ready to use voice input.",
                       variant: 'default',
                     });
+                    setShowAndroidTroubleshoot(false);
+                  } else {
+                    // Microphone test failed, show troubleshoot for Android users
+                    if (isAndroid()) {
+                      setShowAndroidTroubleshoot(true);
+                    }
                   }
                 }}
                 className="text-xs"

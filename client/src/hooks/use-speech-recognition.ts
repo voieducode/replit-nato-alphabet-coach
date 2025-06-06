@@ -44,6 +44,41 @@ interface SpeechRecognitionHookResult {
   clearError: () => void;
 }
 
+// Detect if we're on Android
+function isAndroid(): boolean {
+  return /Android/i.test(navigator.userAgent);
+}
+
+// Detect if we're on HTTPS (required for microphone on Android)
+function isSecureContext(): boolean {
+  return (
+    window.isSecureContext ||
+    location.protocol === 'https:' ||
+    location.hostname === 'localhost'
+  );
+}
+
+// Check if we have user gesture (required for microphone access on Android)
+function hasUserGesture(): boolean {
+  // Simple check - if we're in an event handler from user interaction
+  return (
+    document.hasFocus() &&
+    Date.now() - (window as any).__lastUserInteraction < 5000
+  );
+}
+
+// Track user interactions for gesture detection
+function trackUserGesture() {
+  (window as any).__lastUserInteraction = Date.now();
+}
+
+// Initialize gesture tracking
+if (typeof window !== 'undefined') {
+  ['click', 'touchstart', 'keydown'].forEach((event) => {
+    document.addEventListener(event, trackUserGesture, { passive: true });
+  });
+}
+
 // Detect browser language with fallback
 function detectLanguage(): string {
   const browserLang = navigator.language || navigator.languages?.[0] || 'en-US';
@@ -221,17 +256,114 @@ export function useSpeechRecognition(
 
   // Test microphone access
   const testMicrophone = useCallback(async (): Promise<boolean> => {
+    debugLog('Testing microphone access', {
+      isAndroid: isAndroid(),
+      isSecureContext: isSecureContext(),
+      hasUserGesture: hasUserGesture(),
+    });
+
+    // Android-specific checks before attempting microphone access
+    if (isAndroid()) {
+      if (!isSecureContext()) {
+        debugLog('Microphone test failed: HTTPS required on Android');
+        setError('HTTPS is required for microphone access on Android devices');
+        toast({
+          title: 'HTTPS Required',
+          description:
+            'Microphone access requires a secure connection on Android devices.',
+          variant: 'destructive',
+        });
+        return false;
+      }
+
+      if (!hasUserGesture()) {
+        debugLog('Microphone test failed: User gesture required on Android');
+        setError('User interaction required before testing microphone');
+        toast({
+          title: 'User Interaction Required',
+          description:
+            'Please interact with the page before testing microphone.',
+          variant: 'destructive',
+        });
+        return false;
+      }
+    }
+
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+          // Android-specific optimizations
+          ...(isAndroid() && {
+            sampleRate: 16000,
+            channelCount: 1,
+          }),
+        },
+      });
+
+      // Test that we actually get audio data
+      const audioContext = new (window.AudioContext ||
+        (window as any).webkitAudioContext)();
+      const source = audioContext.createMediaStreamSource(stream);
+      const analyser = audioContext.createAnalyser();
+      source.connect(analyser);
+
+      // Quick test to see if audio data is flowing
+      const dataArray = new Uint8Array(analyser.frequencyBinCount);
+      analyser.getByteFrequencyData(dataArray);
+
+      // Clean up
       stream.getTracks().forEach((track) => track.stop());
+      audioContext.close();
+
       debugLog('Microphone test successful');
       return true;
     } catch (error) {
       debugLog('Microphone test failed:', error);
-      setError('Microphone access denied or not available');
+
+      if (isAndroid()) {
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
+        if (
+          errorMessage.includes('NotAllowedError') ||
+          errorMessage.includes('Permission denied')
+        ) {
+          setError(
+            'Microphone permission denied. Please enable microphone access in browser settings.'
+          );
+          toast({
+            title: 'Microphone Permission Denied',
+            description:
+              'Go to browser settings and allow microphone access for this site.',
+            variant: 'destructive',
+          });
+        } else if (errorMessage.includes('NotFoundError')) {
+          setError('No microphone found on this Android device');
+          toast({
+            title: 'No Microphone Found',
+            description:
+              'This Android device does not have a microphone or it is not accessible.',
+            variant: 'destructive',
+          });
+        } else if (errorMessage.includes('NotReadableError')) {
+          setError('Microphone is being used by another application');
+          toast({
+            title: 'Microphone In Use',
+            description:
+              'The microphone is being used by another app. Please close other apps and try again.',
+            variant: 'destructive',
+          });
+        } else {
+          setError(`Android microphone error: ${errorMessage}`);
+        }
+      } else {
+        setError('Microphone access denied or not available');
+      }
       return false;
     }
-  }, [debugLog]);
+  }, [debugLog, toast]);
 
   // Enhanced event handlers
   const handleStart = useCallback(() => {
@@ -557,6 +689,9 @@ export function useSpeechRecognition(
       speechSupported,
       isListening,
       recognitionRef: !!recognitionRef.current,
+      isAndroid: isAndroid(),
+      isSecureContext: isSecureContext(),
+      hasUserGesture: hasUserGesture(),
     });
 
     if (!speechSupported) {
@@ -574,6 +709,33 @@ export function useSpeechRecognition(
     if (isListening) {
       debugLog('Already listening');
       return;
+    }
+
+    // Android-specific validations
+    if (isAndroid()) {
+      if (!isSecureContext()) {
+        debugLog('Android requires HTTPS for microphone access');
+        setError('HTTPS is required for microphone access on Android devices');
+        toast({
+          title: 'HTTPS Required',
+          description:
+            'Voice input requires a secure connection on Android. Please use HTTPS.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      if (!hasUserGesture()) {
+        debugLog('Android requires user gesture for microphone access');
+        setError('User interaction required before using microphone');
+        toast({
+          title: 'User Interaction Required',
+          description:
+            'Please tap the microphone button to enable voice input.',
+          variant: 'destructive',
+        });
+        return;
+      }
     }
 
     // Clear any previous timeouts
@@ -596,9 +758,45 @@ export function useSpeechRecognition(
     } catch (error) {
       debugLog('Error starting speech recognition:', error);
       setIsListening(false);
-      setError('Failed to start speech recognition');
+
+      // Enhanced error handling for Android
+      if (isAndroid()) {
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
+        if (
+          errorMessage.includes('not-allowed') ||
+          errorMessage.includes('denied')
+        ) {
+          setError(
+            'Microphone permission denied. Please enable microphone access in browser settings.'
+          );
+          toast({
+            title: 'Microphone Permission Required',
+            description:
+              'Go to browser settings and allow microphone access for this site.',
+            variant: 'destructive',
+          });
+        } else if (
+          errorMessage.includes('network') ||
+          errorMessage.includes('offline')
+        ) {
+          setError(
+            'Network connection required for speech recognition on Android'
+          );
+          toast({
+            title: 'Network Required',
+            description:
+              'Speech recognition requires an active internet connection.',
+            variant: 'destructive',
+          });
+        } else {
+          setError(`Android microphone error: ${errorMessage}`);
+        }
+      } else {
+        setError('Failed to start speech recognition');
+      }
     }
-  }, [speechSupported, isListening, debugLog]);
+  }, [speechSupported, isListening, debugLog, toast]);
 
   const stopListening = useCallback(() => {
     debugLog('stopListening called');
