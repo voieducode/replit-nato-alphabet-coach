@@ -1,5 +1,6 @@
 import React from 'react';
 import { getDebugLog } from '../lib/debug-logger';
+import { Button } from './ui/button';
 import { CustomWordInput } from './word-quiz/components/CustomWordInput';
 import { NATOInput } from './word-quiz/components/NATOInput';
 import { QuizActions } from './word-quiz/components/QuizActions';
@@ -95,13 +96,15 @@ export default function WordQuizSection() {
       />
       {/* Debug log download button */}
       <div className="pt-4 text-right">
-        <button
+        <Button
           type="button"
-          className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 text-xs text-gray-700 border border-gray-300"
+          variant="secondary"
+          size="sm"
+          className="text-xs"
           onClick={downloadLog}
         >
           Download Debug Log
-        </button>
+        </Button>
       </div>
     </div>
   );

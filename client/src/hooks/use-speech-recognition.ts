@@ -102,6 +102,62 @@ function isAndroid(): boolean {
   return getAndroidInfo().isAndroid;
 }
 
+// Enhanced iOS detection with detailed info
+function getIOSInfo(): {
+  isIOS: boolean;
+  isSafari: boolean;
+  isEdge: boolean;
+  iosVersion: string | null;
+  safariVersion: string | null;
+  isWebView: boolean;
+} {
+  const ua = navigator.userAgent;
+  const isIOS =
+    /iPad|iPhone|iPod/.test(ua) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+  let iosVersion = null;
+  let safariVersion = null;
+  let isSafari = false;
+  let isEdge = false;
+  let isWebView = false;
+
+  if (isIOS) {
+    // Extract iOS version
+    const iosMatch = ua.match(/OS (\d+_\d+)/);
+    iosVersion = iosMatch ? iosMatch[1].replace('_', '.') : null;
+
+    // Detect Safari
+    isSafari = /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS/.test(ua);
+
+    // Detect Edge
+    isEdge = /EdgiOS/.test(ua);
+
+    // Extract Safari version
+    if (isSafari) {
+      const safariMatch = ua.match(/Version\/([\d.]+)/);
+      safariVersion = safariMatch ? safariMatch[1] : null;
+    }
+
+    // Detect WebView (apps embedding web content)
+    isWebView = !isSafari && !isEdge && !/CriOS|FxiOS/.test(ua);
+  }
+
+  return {
+    isIOS,
+    isSafari,
+    isEdge,
+    iosVersion,
+    safariVersion,
+    isWebView,
+  };
+}
+
+// Simple iOS check for backward compatibility
+function isIOS(): boolean {
+  return getIOSInfo().isIOS;
+}
+
 // Enhanced security context detection
 function getSecurityContext(): {
   isSecure: boolean;
@@ -410,20 +466,152 @@ export function useSpeechRecognition(
     }
   }, [isListening]);
 
-  // Stop audio monitoring
-  const stopAudioMonitoring = useCallback(() => {
+  // Stop audio monitoring with iOS-specific cleanup
+  const stopAudioMonitoring = useCallback(async () => {
+    const iosInfo = getIOSInfo();
+
+    logDebug('🛑 Stopping audio monitoring', {
+      hasStream: !!streamRef.current,
+      hasAudioContext: !!audioContextRef.current,
+      audioContextState: audioContextRef.current?.state,
+      isIOS: iosInfo.isIOS,
+      browser: iosInfo.isSafari ? 'Safari' : iosInfo.isEdge ? 'Edge' : 'Other',
+    });
+
+    // Enhanced stream cleanup for iOS
     if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => track.stop());
+      const tracks = streamRef.current.getTracks();
+
+      logDebug('🎵 Cleaning up media stream tracks', {
+        trackCount: tracks.length,
+        trackDetails: tracks.map((track) => ({
+          id: track.id,
+          kind: track.kind,
+          enabled: track.enabled,
+          muted: track.muted,
+          readyState: track.readyState,
+        })),
+      });
+
+      // iOS requires explicit track cleanup
+      tracks.forEach((track) => {
+        try {
+          logDebug(`🔌 Stopping track: ${track.kind} (${track.id})`);
+
+          // iOS-specific cleanup sequence
+          if (iosInfo.isIOS) {
+            track.enabled = false; // Disable before stopping on iOS
+
+            // Add small delay for iOS to process the disable
+            setTimeout(() => {
+              track.stop();
+            }, 10);
+          } else {
+            track.stop();
+          }
+        } catch (error) {
+          logDebug(`❌ Error stopping track ${track.id}: ${String(error)}`);
+        }
+      });
+
       streamRef.current = null;
+      logDebug('✅ Media stream cleaned up');
     }
+
+    // Enhanced AudioContext cleanup for iOS
     if (audioContextRef.current) {
-      audioContextRef.current.close();
+      const audioContext = audioContextRef.current;
+
+      logDebug('🔊 Cleaning up AudioContext', {
+        currentState: audioContext.state,
+        sampleRate: audioContext.sampleRate,
+        isIOS: iosInfo.isIOS,
+      });
+
+      try {
+        // Disconnect all nodes first
+        if (microphoneRef.current) {
+          try {
+            microphoneRef.current.disconnect();
+            logDebug('🎤 Microphone node disconnected');
+          } catch (error) {
+            logDebug(`⚠️ Error disconnecting microphone: ${String(error)}`);
+          }
+        }
+
+        if (analyserRef.current) {
+          try {
+            analyserRef.current.disconnect();
+            logDebug('📊 Analyser node disconnected');
+          } catch (error) {
+            logDebug(`⚠️ Error disconnecting analyser: ${String(error)}`);
+          }
+        }
+
+        // iOS-specific AudioContext cleanup sequence
+        if (iosInfo.isIOS) {
+          logDebug('🍎 iOS detected - using enhanced cleanup sequence');
+
+          // Step 1: Suspend the context first on iOS
+          if (audioContext.state === 'running') {
+            try {
+              await audioContext.suspend();
+              logDebug('⏸️ AudioContext suspended');
+            } catch (error) {
+              logDebug(`⚠️ Error suspending AudioContext: ${String(error)}`);
+            }
+          }
+
+          // Step 2: Wait a bit for iOS to process the suspension
+          await new Promise((resolve) => setTimeout(resolve, 50));
+
+          // Step 3: Close the context
+          if (audioContext.state !== 'closed') {
+            try {
+              await audioContext.close();
+              logDebug('🔒 AudioContext closed');
+            } catch (error) {
+              logDebug(`⚠️ Error closing AudioContext: ${String(error)}`);
+            }
+          }
+
+          // Step 4: Additional delay for iOS resource cleanup
+          await new Promise((resolve) => setTimeout(resolve, 100));
+        } else {
+          // Standard cleanup for non-iOS
+          if (audioContext.state !== 'closed') {
+            try {
+              await audioContext.close();
+              logDebug('🔒 AudioContext closed (non-iOS)');
+            } catch (error) {
+              logDebug(`⚠️ Error closing AudioContext: ${String(error)}`);
+            }
+          }
+        }
+      } catch (error) {
+        logDebug(`❌ Error during AudioContext cleanup: ${String(error)}`);
+      }
+
       audioContextRef.current = null;
+      logDebug('✅ AudioContext reference cleared');
     }
+
+    // Clear all audio-related refs
     microphoneRef.current = null;
     analyserRef.current = null;
     setAudioLevel(0);
-    logDebug('Audio monitoring stopped');
+
+    // iOS-specific: Force garbage collection hint
+    if (iosInfo.isIOS && (window as any).gc) {
+      try {
+        (window as any).gc();
+        logDebug('🗑️ iOS garbage collection triggered');
+      } catch (error) {
+        // Ignore - gc() is not always available
+      }
+    }
+
+    logDebug('✅ Audio monitoring stopped with enhanced iOS cleanup');
   }, []);
 
   // Test microphone access
@@ -971,6 +1159,7 @@ export function useSpeechRecognition(
 
   const startListening = useCallback(async () => {
     const androidInfo = getAndroidInfo();
+    const iosInfo = getIOSInfo();
     const securityContext = getSecurityContext();
     const gestureInfo = getUserGestureInfo();
     const networkInfo = getNetworkInfo();
@@ -988,6 +1177,7 @@ export function useSpeechRecognition(
         },
         environment: {
           ...androidInfo,
+          ...iosInfo,
           ...securityContext,
           ...gestureInfo,
           ...networkInfo,
@@ -1019,7 +1209,66 @@ export function useSpeechRecognition(
       return;
     }
 
-    // Get fresh media devices info for Android debugging
+    // iOS-specific: Wait for cleanup completion before starting
+    if (iosInfo.isIOS && audioContextRef.current) {
+      logDebug('🍎 iOS cleanup in progress - waiting for completion');
+      await new Promise((resolve) => setTimeout(resolve, 200));
+    }
+
+    // iOS-specific: Recreate Speech Recognition instance for reliability
+    if (iosInfo.isIOS) {
+      logDebug(
+        '🍎 iOS detected - recreating Speech Recognition instance for clean start'
+      );
+
+      const SpeechRecognition =
+        (window as any).SpeechRecognition ||
+        (window as any).webkitSpeechRecognition;
+
+      if (SpeechRecognition) {
+        try {
+          // Abort old instance if it exists
+          if (recognitionRef.current) {
+            try {
+              recognitionRef.current.abort();
+            } catch (error) {
+              logDebug(`⚠️ Error aborting old recognition: ${String(error)}`);
+            }
+          }
+
+          // Create fresh instance
+          const recognition = new SpeechRecognition();
+          recognition.continuous = continuous;
+          recognition.interimResults = interimResults;
+          recognition.maxAlternatives = maxAlternatives;
+          recognition.lang = language;
+
+          recognition.onstart = handleStart;
+          recognition.onresult = handleResult;
+          recognition.onerror = handleError;
+          recognition.onend = handleEnd;
+
+          // Additional events for better feedback
+          if (recognition.onspeechstart !== undefined) {
+            recognition.onspeechstart = handleSpeechStart;
+          }
+          if (recognition.onspeechend !== undefined) {
+            recognition.onspeechend = handleSpeechEnd;
+          }
+
+          recognitionRef.current = recognition;
+          logDebug('✅ Fresh Speech Recognition instance created for iOS');
+        } catch (error) {
+          logDebug(
+            `❌ Failed to recreate Speech Recognition instance: ${String(error)}`
+          );
+          setError('Failed to initialize speech recognition');
+          return;
+        }
+      }
+    }
+
+    // Get fresh media devices info for comprehensive debugging
     const mediaDevicesInfo = await getMediaDevicesInfo();
 
     // Android-specific comprehensive validation
@@ -1127,6 +1376,106 @@ export function useSpeechRecognition(
       });
     }
 
+    // iOS-specific comprehensive validation
+    if (iosInfo.isIOS) {
+      logDebug('🍎 iOS device detected - performing comprehensive validation', {
+        deviceInfo: {
+          iosVersion: iosInfo.iosVersion,
+          browser: iosInfo.isSafari
+            ? 'Safari'
+            : iosInfo.isEdge
+              ? 'Edge'
+              : 'Other',
+          safariVersion: iosInfo.safariVersion,
+          isWebView: iosInfo.isWebView,
+        },
+        capabilities: {
+          ...mediaDevicesInfo,
+          speechRecognitionAPI: !!recognitionRef.current,
+          audioContextSupported: !!(
+            window.AudioContext || (window as any).webkitAudioContext
+          ),
+        },
+      });
+
+      if (!securityContext.isSecure) {
+        logDebug('❌ iOS security check failed - HTTPS required', {
+          currentContext: securityContext,
+          requirement: 'HTTPS or localhost for microphone access on iOS',
+        });
+        setError('HTTPS is required for microphone access on iOS devices');
+        toast({
+          title: 'HTTPS Required',
+          description:
+            'Voice input requires a secure connection on iOS. Please use HTTPS.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      if (!gestureInfo.hasGesture) {
+        logDebug('❌ iOS gesture check failed - user interaction required', {
+          gestureInfo,
+          requirement:
+            'Recent user interaction (within 5 seconds) required for microphone access',
+        });
+        setError('User interaction required before using microphone');
+        toast({
+          title: 'User Interaction Required',
+          description:
+            'Please tap the microphone button to enable voice input.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      if (!networkInfo.online) {
+        logDebug('❌ iOS network check failed - offline detected', {
+          networkInfo,
+          requirement: 'Internet connection required for speech recognition',
+        });
+        setError('Internet connection required for speech recognition');
+        toast({
+          title: 'Network Required',
+          description:
+            'Speech recognition requires an active internet connection.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Check for known iOS issues
+      const potentialIssues = [];
+      if (iosInfo.iosVersion && Number.parseFloat(iosInfo.iosVersion) < 14.0) {
+        potentialIssues.push(
+          'iOS version may be too old for reliable speech recognition'
+        );
+      }
+      if (iosInfo.isWebView) {
+        potentialIssues.push(
+          'WebView environment may have limited speech recognition support'
+        );
+      }
+      if (mediaDevicesInfo.audioInputDevices === 0) {
+        potentialIssues.push('No audio input devices detected');
+      }
+
+      if (potentialIssues.length > 0) {
+        logDebug('⚠️ iOS compatibility issues detected', {
+          issues: potentialIssues,
+          recommendation: 'May experience reduced functionality',
+        });
+      }
+
+      logDebug('✅ iOS validation passed - all requirements met', {
+        secureContext: true,
+        userGesture: true,
+        networkOnline: true,
+        audioDevices: mediaDevicesInfo.audioInputDevices,
+        microphonePermission: mediaDevicesInfo.permissions.microphone,
+      });
+    }
+
     // Clear any previous timeouts
     if (restartTimeoutRef.current) {
       clearTimeout(restartTimeoutRef.current);
@@ -1143,13 +1492,49 @@ export function useSpeechRecognition(
 
     try {
       logDebug('Starting speech recognition...');
-      recognitionRef.current.start();
+      if (recognitionRef.current) {
+        recognitionRef.current.start();
+      } else {
+        throw new Error('Speech recognition instance is null');
+      }
     } catch (error) {
       logDebug(`Error starting speech recognition: ${String(error)}`);
       setIsListening(false);
 
+      // Enhanced error handling for iOS
+      if (iosInfo.isIOS) {
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
+        if (
+          errorMessage.includes('not-allowed') ||
+          errorMessage.includes('denied')
+        ) {
+          setError(
+            'Microphone permission denied. Please enable microphone access in browser settings.'
+          );
+          toast({
+            title: 'Microphone Permission Required',
+            description:
+              'Go to Safari settings and allow microphone access for this site.',
+            variant: 'destructive',
+          });
+        } else if (
+          errorMessage.includes('network') ||
+          errorMessage.includes('offline')
+        ) {
+          setError('Network connection required for speech recognition on iOS');
+          toast({
+            title: 'Network Required',
+            description:
+              'Speech recognition requires an active internet connection.',
+            variant: 'destructive',
+          });
+        } else {
+          setError(`iOS speech recognition error: ${errorMessage}`);
+        }
+      }
       // Enhanced error handling for Android
-      if (isAndroid()) {
+      else if (isAndroid()) {
         const errorMessage =
           error instanceof Error ? error.message : String(error);
         if (
