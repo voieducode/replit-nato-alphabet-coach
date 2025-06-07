@@ -1,0 +1,12 @@
+<svg width="180" height="180" viewBox="0 0 180 180" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="90" cy="90" r="85" fill="#1e40af" stroke="#ffffff" stroke-width="5" />
+  
+  <!-- Letter N -->
+  <path d="M60 45L60 135M60 45L90 135M60 45H75M90 135H75M90 45V135" stroke="#ffffff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" />
+  
+  <!-- Radio signal arcs -->
+  <path d="M110 67.5C120 67.5 130 77.5 130 87.5" stroke="#ffffff" stroke-width="7" stroke-linecap="round" />
+  <path d="M110 90C125 90 140 105 140 120" stroke="#ffffff" stroke-width="7" stroke-linecap="round" />
+  <path d="M110 45C140 45 165 70 165 100" stroke="#ffffff" stroke-width="7" stroke-linecap="round" />
+</svg>

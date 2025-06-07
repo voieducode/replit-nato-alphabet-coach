@@ -1,0 +1,12 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="240" fill="#1e40af" stroke="#ffffff" stroke-width="16" />
+  
+  <!-- Letter N -->
+  <path d="M171 128L171 384M171 128L256 384M171 128H213M256 384H213M256 128V384" stroke="#ffffff" stroke-width="26" stroke-linecap="round" stroke-linejoin="round" />
+  
+  <!-- Radio signal arcs -->
+  <path d="M320 192C346 192 372 218 372 244" stroke="#ffffff" stroke-width="18" stroke-linecap="round" />
+  <path d="M320 256C360 256 400 296 400 336" stroke="#ffffff" stroke-width="18" stroke-linecap="round" />
+  <path d="M320 128C400 128 464 192 464 272" stroke="#ffffff" stroke-width="18" stroke-linecap="round" />
+</svg>

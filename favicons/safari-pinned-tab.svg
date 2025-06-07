@@ -1,0 +1,17 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN"
+ "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+<svg version="1.0" xmlns="http://www.w3.org/2000/svg"
+ width="16.000000pt" height="16.000000pt" viewBox="0 0 16.000000 16.000000"
+ preserveAspectRatio="xMidYMid meet">
+<metadata>
+Created by Copilot for NATO Alphabet Coach
+</metadata>
+<g transform="translate(0.000000,16.000000) scale(0.003125,-0.003125)"
+fill="#000000" stroke="none">
+<path d="M800 2560 l0 -1920 l880 0 l-880 1920 l880 0 l0 -1920" />
+<path d="M3200 960 c128 0 240 112 240 240 c-128 0 -240 -112 -240 -240" />
+<path d="M3200 1600 c320 0 640 320 640 640 c-320 0 -640 -320 -640 -640" />
+<path d="M3200 640 c640 0 1120 480 1120 1120 c-640 0 -1120 -480 -1120 -1120" />
+</g>
+</svg>
