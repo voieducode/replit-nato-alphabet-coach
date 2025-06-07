@@ -1,5 +1,9 @@
+import type { QuizAction } from '@/components/shared/quiz';
+
 import { Dice6, Edit3, RotateCcw } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+
+import { useMemo } from 'react';
+import { QuizActionButtons } from '@/components/shared/quiz';
 import { useLanguage } from '@/hooks/use-language';
 
 interface QuizActionsProps {
@@ -25,37 +29,70 @@ export function QuizActions({
 }: QuizActionsProps) {
   const { translations } = useLanguage();
 
-  return (
-    <>
-      {/* Action Buttons */}
-      <div className="grid grid-cols-2 gap-3">
-        <Button onClick={retryCurrentWord} variant="outline" className="w-full">
-          <RotateCcw className="h-4 w-4 mr-2" />
-          {translations.retry}
-        </Button>
-        <Button
-          onClick={checkAnswer}
-          className="w-full"
-          disabled={!userNATOInput.trim() || (showResult && isCompleted)}
-        >
-          {translations.checkAnswer}
-        </Button>
-      </div>
+  const actions = useMemo((): QuizAction[][] => {
+    // First row: Retry and Check Answer
+    const firstRowActions: QuizAction[] = [
+      {
+        id: 'retry',
+        label: 'retry',
+        onClick: retryCurrentWord,
+        variant: 'outline',
+        icon: RotateCcw,
+      },
+      {
+        id: 'check',
+        label: 'checkAnswer',
+        onClick: checkAnswer,
+        variant: 'default',
+        disabled: !userNATOInput.trim() || (showResult && isCompleted),
+      },
+    ];
 
-      <div className="grid grid-cols-2 gap-3">
-        <Button onClick={generateNewWord} variant="outline" className="w-full">
-          <Dice6 className="h-4 w-4 mr-2" />
-          {translations.newRandomWord}
-        </Button>
-        <Button
-          onClick={() => setIsCustomMode(!isCustomMode)}
-          variant="outline"
-          className="w-full"
-        >
-          <Edit3 className="h-4 w-4 mr-2" />
-          {isCustomMode ? translations.cancelCustom : translations.customWord}
-        </Button>
-      </div>
-    </>
+    // Second row: Generate New Word and Custom Mode
+    const secondRowActions: QuizAction[] = [
+      {
+        id: 'generate',
+        label: 'newRandomWord',
+        onClick: generateNewWord,
+        variant: 'outline',
+        icon: Dice6,
+      },
+      {
+        id: 'custom',
+        label: isCustomMode ? 'cancelCustom' : 'customWord',
+        onClick: () => setIsCustomMode(!isCustomMode),
+        variant: 'outline',
+        icon: Edit3,
+      },
+    ];
+
+    return [firstRowActions, secondRowActions];
+  }, [
+    retryCurrentWord,
+    checkAnswer,
+    generateNewWord,
+    setIsCustomMode,
+    userNATOInput,
+    showResult,
+    isCompleted,
+    isCustomMode,
+    translations,
+  ]);
+
+  return (
+    <div className="space-y-3">
+      {actions.map((rowActions, index) => (
+        <QuizActionButtons
+          key={`row-${index}`}
+          actions={rowActions}
+          translations={translations}
+          layout={{
+            columns: 2,
+            gap: 'md',
+            buttonWidth: 'full',
+          }}
+        />
+      ))}
+    </div>
   );
 }

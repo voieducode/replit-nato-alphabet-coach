@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks-extra/no-direct-set-state-in-use-effect */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { logDebug } from '../lib/debug-logger';
@@ -153,11 +154,6 @@ function getIOSInfo(): {
   };
 }
 
-// Simple iOS check for backward compatibility
-function isIOS(): boolean {
-  return getIOSInfo().isIOS;
-}
-
 // Enhanced security context detection
 function getSecurityContext(): {
   isSecure: boolean;
@@ -198,11 +194,6 @@ function getSecurityContext(): {
   };
 }
 
-// Detect if we're on HTTPS (required for microphone on Android)
-function isSecureContext(): boolean {
-  return getSecurityContext().isSecure;
-}
-
 // Enhanced user gesture detection with timing info
 function getUserGestureInfo(): {
   hasGesture: boolean;
@@ -235,11 +226,6 @@ function getUserGestureInfo(): {
     documentHasFocus,
     gestureDetails,
   };
-}
-
-// Check if we have user gesture (required for microphone access on Android)
-function hasUserGesture(): boolean {
-  return getUserGestureInfo().hasGesture;
 }
 
 // Get network connection info
@@ -295,6 +281,7 @@ async function getMediaDevicesInfo(): Promise<{
         micPermission = permission.state;
       }
     } catch (e) {
+      logDebug(`Failed to query microphone permission: ${String(e)}`);
       micPermission = 'query-failed';
     }
 
@@ -304,6 +291,7 @@ async function getMediaDevicesInfo(): Promise<{
       permissions: { microphone: micPermission },
     };
   } catch (error) {
+    logDebug(`Failed to get media devices info: ${String(error)}`);
     return {
       available: false,
       audioInputDevices: 0,
@@ -606,6 +594,7 @@ export function useSpeechRecognition(
       try {
         (window as any).gc();
         logDebug('🗑️ iOS garbage collection triggered');
+        // eslint-disable-next-line unused-imports/no-unused-vars
       } catch (error) {
         // Ignore - gc() is not always available
       }
@@ -1155,6 +1144,7 @@ export function useSpeechRecognition(
 
       isInitializedRef.current = false;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty dependency array - only run once on mount
 
   const startListening = useCallback(async () => {
@@ -1570,6 +1560,7 @@ export function useSpeechRecognition(
         setError('Failed to start speech recognition');
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [speechSupported, isListening]);
 
   const stopListening = useCallback(() => {
