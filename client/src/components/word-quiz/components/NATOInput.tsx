@@ -1,5 +1,5 @@
 import type { WordMatchResult } from '@/lib/word-matching';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import {
   SpeechInputButton,
   SpeechStatusDisplay,
@@ -53,21 +53,23 @@ export function NATOInput({
     startListening,
     stopListening,
     clearError,
-  } = useSpeechRecognition(
-    (transcript) => {
+  } = useSpeechRecognition({
+    continuous: true,
+    interimResults: true,
+    autoRestart: true,
+    confidenceThreshold: 0.5,
+  });
+
+  // Add effect to watch for transcript changes
+  useEffect(() => {
+    if (interimTranscript) {
       // Add a space between existing content and new dictated text if needed
       const needsSpace =
         userNATOInput.length > 0 && !userNATOInput.endsWith(' ');
       const separator = needsSpace ? ' ' : '';
-      setUserNATOInput(userNATOInput + separator + transcript);
-    },
-    {
-      continuous: true,
-      interimResults: true,
-      autoRestart: true,
-      confidenceThreshold: 0.5,
+      setUserNATOInput(userNATOInput + separator + interimTranscript);
     }
-  );
+  }, [interimTranscript, userNATOInput, setUserNATOInput]);
 
   return (
     <Card>

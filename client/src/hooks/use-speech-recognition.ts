@@ -1,377 +1,58 @@
 /* eslint-disable react-hooks-extra/no-direct-set-state-in-use-effect */
+// Import types from our types module
+import type {
+  SpeechRecognitionConfig,
+  SpeechRecognitionHookResult,
+  SpeechRecognitionInstance,
+} from './speech/speech-recognition-types';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
+
 import { logDebug } from '../lib/debug-logger';
 
-// TypeScript doesn't have built-in types for SpeechRecognition
-interface SpeechRecognitionInstance {
-  continuous: boolean;
-  interimResults: boolean;
-  maxAlternatives: number;
-  lang: string;
-  onstart: () => void;
-  onresult: (event: any) => void;
-  onerror: (event: any) => void;
-  onend: () => void;
-  onspeechstart?: () => void;
-  onspeechend?: () => void;
-  onaudiostart?: () => void;
-  onaudioend?: () => void;
-  start: () => void;
-  stop: () => void;
-  abort: () => void;
-}
+// Import audio monitoring utilities
+import {
+  setupAudioMonitoring,
+  startAudioLevelMonitoring,
+  stopAudioMonitoring,
+} from './speech/audio-monitoring';
 
-interface SpeechRecognitionConfig {
-  continuous?: boolean;
-  interimResults?: boolean;
-  maxAlternatives?: number;
-  language?: string;
-  confidenceThreshold?: number;
-  autoRestart?: boolean;
-  debugMode?: boolean;
-}
+// Import platform detection utilities
+import {
+  getAndroidInfo,
+  getBrowserInfo,
+  getIOSInfo,
+  isSpeechRecognitionSupported,
+} from './speech/platform-detection';
 
-interface SpeechRecognitionHookResult {
-  isListening: boolean;
-  isProcessing: boolean;
-  speechSupported: boolean;
-  currentTranscript: string;
-  interimTranscript: string;
-  audioLevel: number;
-  error: string | null;
-  startListening: () => void;
-  stopListening: () => void;
-  testMicrophone: () => Promise<boolean>;
-  clearError: () => void;
-}
-
-// Enhanced Android detection with detailed info
-function getAndroidInfo(): {
-  isAndroid: boolean;
-  androidVersion: string | null;
-  chromeVersion: string | null;
-  isWebView: boolean;
-  browser: string;
-} {
-  const ua = navigator.userAgent;
-  const isAndroid = /Android/i.test(ua);
-
-  let androidVersion = null;
-  let chromeVersion = null;
-  let isWebView = false;
-  let browser = 'unknown';
-
-  if (isAndroid) {
-    // Extract Android version
-    const androidMatch = ua.match(/Android\s+([\d.]+)/i);
-    androidVersion = androidMatch ? androidMatch[1] : null;
-
-    // Extract Chrome version
-    const chromeMatch = ua.match(/Chrome\/([\d.]+)/i);
-    chromeVersion = chromeMatch ? chromeMatch[1] : null;
-
-    // Detect WebView
-    isWebView =
-      ua.includes('wv') || (ua.includes('Version/') && ua.includes('Chrome'));
-
-    // Determine browser
-    if (ua.includes('Chrome/') && !ua.includes('Edg/')) {
-      browser = isWebView ? 'WebView' : 'Chrome';
-    } else if (ua.includes('Firefox/')) {
-      browser = 'Firefox';
-    } else if (ua.includes('Opera/') || ua.includes('OPR/')) {
-      browser = 'Opera';
-    } else if (ua.includes('Samsung')) {
-      browser = 'Samsung Internet';
-    } else {
-      browser = 'Other';
-    }
-  }
-
-  return {
-    isAndroid,
-    androidVersion,
-    chromeVersion,
-    isWebView,
-    browser,
-  };
-}
-
-// Simple Android check for backward compatibility
-function isAndroid(): boolean {
-  return getAndroidInfo().isAndroid;
-}
-
-// Enhanced iOS detection with detailed info
-function getIOSInfo(): {
-  isIOS: boolean;
-  isSafari: boolean;
-  isEdge: boolean;
-  iosVersion: string | null;
-  safariVersion: string | null;
-  isWebView: boolean;
-} {
-  const ua = navigator.userAgent;
-  const isIOS =
-    /iPad|iPhone|iPod/.test(ua) ||
-    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-
-  let iosVersion = null;
-  let safariVersion = null;
-  let isSafari = false;
-  let isEdge = false;
-  let isWebView = false;
-
-  if (isIOS) {
-    // Extract iOS version
-    const iosMatch = ua.match(/OS (\d+_\d+)/);
-    iosVersion = iosMatch ? iosMatch[1].replace('_', '.') : null;
-
-    // Detect Safari
-    isSafari = /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS/.test(ua);
-
-    // Detect Edge
-    isEdge = /EdgiOS/.test(ua);
-
-    // Extract Safari version
-    if (isSafari) {
-      const safariMatch = ua.match(/Version\/([\d.]+)/);
-      safariVersion = safariMatch ? safariMatch[1] : null;
-    }
-
-    // Detect WebView (apps embedding web content)
-    isWebView = !isSafari && !isEdge && !/CriOS|FxiOS/.test(ua);
-  }
-
-  return {
-    isIOS,
-    isSafari,
-    isEdge,
-    iosVersion,
-    safariVersion,
-    isWebView,
-  };
-}
-
-// Enhanced security context detection
-function getSecurityContext(): {
-  isSecure: boolean;
-  protocol: string;
-  hostname: string;
-  port: string;
-  isLocalhost: boolean;
-  details: string[];
-} {
-  const isSecure =
-    window.isSecureContext ||
-    location.protocol === 'https:' ||
-    location.hostname === 'localhost' ||
-    location.hostname === '127.0.0.1';
-
-  const details = [];
-  if (window.isSecureContext) {
-    details.push('window.isSecureContext=true');
-  }
-  if (location.protocol === 'https:') {
-    details.push('HTTPS protocol');
-  }
-  if (location.hostname === 'localhost') {
-    details.push('localhost hostname');
-  }
-  if (location.hostname === '127.0.0.1') {
-    details.push('127.0.0.1 hostname');
-  }
-
-  return {
-    isSecure,
-    protocol: location.protocol,
-    hostname: location.hostname,
-    port: location.port || 'default',
-    isLocalhost:
-      location.hostname === 'localhost' || location.hostname === '127.0.0.1',
-    details,
-  };
-}
-
-// Enhanced user gesture detection with timing info
-function getUserGestureInfo(): {
-  hasGesture: boolean;
-  lastInteraction: number;
-  timeSinceInteraction: number;
-  documentHasFocus: boolean;
-  gestureDetails: string[];
-} {
-  const now = Date.now();
-  const lastInteraction = (window as any).__lastUserInteraction || 0;
-  const timeSinceInteraction = now - lastInteraction;
-  const documentHasFocus = document.hasFocus();
-  const hasGesture = documentHasFocus && timeSinceInteraction < 5000;
-
-  const gestureDetails = [];
-  if (documentHasFocus) {
-    gestureDetails.push('document has focus');
-  }
-  if (lastInteraction > 0) {
-    gestureDetails.push(`last interaction: ${timeSinceInteraction}ms ago`);
-  }
-  if (hasGesture) {
-    gestureDetails.push('valid user gesture');
-  }
-
-  return {
-    hasGesture,
-    lastInteraction,
-    timeSinceInteraction,
-    documentHasFocus,
-    gestureDetails,
-  };
-}
-
-// Get network connection info
-function getNetworkInfo(): {
-  online: boolean;
-  connectionType: string;
-  effectiveType: string;
-  downlink: number | null;
-  rtt: number | null;
-} {
-  const connection =
-    (navigator as any).connection ||
-    (navigator as any).mozConnection ||
-    (navigator as any).webkitConnection;
-
-  return {
-    online: navigator.onLine,
-    connectionType: connection?.type || 'unknown',
-    effectiveType: connection?.effectiveType || 'unknown',
-    downlink: connection?.downlink || null,
-    rtt: connection?.rtt || null,
-  };
-}
-
-// Get media devices info
-async function getMediaDevicesInfo(): Promise<{
-  available: boolean;
-  audioInputDevices: number;
-  permissions: {
-    microphone: string;
-  };
-}> {
-  try {
-    if (!navigator.mediaDevices) {
-      return {
-        available: false,
-        audioInputDevices: 0,
-        permissions: { microphone: 'unavailable' },
-      };
-    }
-
-    const devices = await navigator.mediaDevices.enumerateDevices();
-    const audioInputDevices = devices.filter(
-      (d) => d.kind === 'audioinput'
-    ).length;
-
-    let micPermission = 'unknown';
-    try {
-      if (navigator.permissions) {
-        const permission = await navigator.permissions.query({
-          name: 'microphone' as PermissionName,
-        });
-        micPermission = permission.state;
-      }
-    } catch (e) {
-      logDebug(`Failed to query microphone permission: ${String(e)}`);
-      micPermission = 'query-failed';
-    }
-
-    return {
-      available: true,
-      audioInputDevices,
-      permissions: { microphone: micPermission },
-    };
-  } catch (error) {
-    logDebug(`Failed to get media devices info: ${String(error)}`);
-    return {
-      available: false,
-      audioInputDevices: 0,
-      permissions: { microphone: 'error' },
-    };
-  }
-}
-
-// Track user interactions for gesture detection
-function trackUserGesture() {
-  (window as any).__lastUserInteraction = Date.now();
-}
-
-// Initialize gesture tracking
-if (typeof window !== 'undefined') {
-  ['click', 'touchstart', 'keydown'].forEach((event) => {
-    document.addEventListener(event, trackUserGesture, { passive: true });
-  });
-}
-
-// Detect browser language with fallback
-function detectLanguage(): string {
-  const browserLang = navigator.language || navigator.languages?.[0] || 'en-US';
-
-  // Map common language codes to speech recognition supported languages
-  const langMap: Record<string, string> = {
-    en: 'en-US',
-    'en-GB': 'en-GB',
-    'en-AU': 'en-AU',
-    'en-CA': 'en-CA',
-    es: 'es-ES',
-    'es-MX': 'es-MX',
-    'es-US': 'es-US',
-    fr: 'fr-FR',
-    'fr-CA': 'fr-CA',
-    de: 'de-DE',
-    it: 'it-IT',
-    pt: 'pt-BR',
-    zh: 'zh-CN',
-    ja: 'ja-JP',
-    ko: 'ko-KR',
-    ru: 'ru-RU',
-    ar: 'ar-SA',
-    hi: 'hi-IN',
-  };
-
-  const exactMatch = langMap[browserLang];
-  if (exactMatch) {
-    return exactMatch;
-  }
-
-  const languageOnly = browserLang.split('-')[0];
-  const fallbackMatch = langMap[languageOnly];
-  if (fallbackMatch) {
-    return fallbackMatch;
-  }
-
-  return 'en-US'; // Ultimate fallback
-}
+// Import speech recognition utilities
+import {
+  initializeSpeechRecognition,
+  testMicrophoneAccess,
+} from './speech/speech-recognition-utils';
 
 /**
- * Enhanced custom hook for speech recognition functionality
- *
- * @param onTranscriptReceived Callback function that receives the final transcript text
- * @param config Optional configuration object
- * @returns Object containing speech recognition state and control functions
+ * React hook for speech recognition functionality
+ * @param config Configuration options for speech recognition
+ * @returns Speech recognition state and control functions
  */
 export function useSpeechRecognition(
-  onTranscriptReceived: (transcript: string) => void,
   config: SpeechRecognitionConfig = {}
 ): SpeechRecognitionHookResult {
+  const { toast } = useToast();
+
+  // Configuration with defaults
   const {
     continuous = true,
     interimResults = true,
     maxAlternatives = 3,
-    language = detectLanguage(),
-    confidenceThreshold = 0.7,
+    language = 'en-US',
+    confidenceThreshold = 0.5,
     autoRestart = true,
+    debugMode = false,
   } = config;
 
+  // State management
   const [isListening, setIsListening] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [speechSupported, setSpeechSupported] = useState(false);
@@ -380,740 +61,256 @@ export function useSpeechRecognition(
   const [audioLevel, setAudioLevel] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
+  // Refs for persistence across renders
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
-  const isInitializedRef = useRef(false);
-  const onTranscriptReceivedRef = useRef(onTranscriptReceived);
-  const shouldRestartRef = useRef(false);
-  const restartTimeoutRef = useRef<number | null>(null);
-  const isManualStopRef = useRef(false);
+  const restartTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastStartTimeRef = useRef<number>(0);
+  const isManualStopRef = useRef<boolean>(false);
+  const shouldRestartRef = useRef<boolean>(true);
+
+  // Audio monitoring refs
+  const streamRef = useRef<MediaStream | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const microphoneRef = useRef<MediaStreamAudioSourceNode | null>(null);
-  const streamRef = useRef<MediaStream | null>(null);
-  const micDeniedToastShownRef = useRef(false);
-  const langNotSupportedToastShownRef = useRef(false);
-  const networkErrorToastShownRef = useRef(false);
-  const serviceNotAllowedToastShownRef = useRef(false);
+  const animationFrameIdRef = useRef<number | null>(null);
 
-  const { toast } = useToast();
+  // Get platform information for enhanced diagnostics
+  const androidInfo = getAndroidInfo();
+  const iosInfo = getIOSInfo();
+  const browserInfo = getBrowserInfo();
 
-  // Debug logging
-  // Use shared logDebug for all debug logs
-
-  // Keep callback ref updated
+  // Initialize speech recognition on component mount
   useEffect(() => {
-    onTranscriptReceivedRef.current = onTranscriptReceived;
-  }, [onTranscriptReceived]);
+    // Check if speech recognition is supported
+    const supported = isSpeechRecognitionSupported();
+    setSpeechSupported(supported);
 
-  // Clear error function
-  const clearError = useCallback(() => {
-    setError(null);
-    micDeniedToastShownRef.current = false;
-    langNotSupportedToastShownRef.current = false;
-    networkErrorToastShownRef.current = false;
-    serviceNotAllowedToastShownRef.current = false;
-  }, []);
+    if (supported) {
+      // Initialize the speech recognition instance
+      recognitionRef.current = initializeSpeechRecognition(
+        continuous,
+        interimResults,
+        maxAlternatives,
+        language,
+        () => {}, // handleStart - will be overridden below
+        () => {}, // handleResult - will be overridden below
+        () => {}, // handleError - will be overridden below
+        () => {}, // handleEnd - will be overridden below
+        () => {}, // handleSpeechStart - will be overridden below
+        () => {} // handleSpeechEnd - will be overridden below
+      );
 
-  // Audio level monitoring
-  const startAudioMonitoring = useCallback(async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      streamRef.current = stream;
+      if (!recognitionRef.current) {
+        setSpeechSupported(false);
+        setError('Failed to initialize speech recognition');
+        return;
+      }
 
-      const audioContext = new (window.AudioContext ||
-        (window as any).webkitAudioContext)();
-      audioContextRef.current = audioContext;
+      // Configure event handlers for the recognition instance
+      const recognition = recognitionRef.current;
 
-      const analyser = audioContext.createAnalyser();
-      analyser.fftSize = 256;
-      analyserRef.current = analyser;
+      // Handle recognition start event
+      recognition.onstart = () => {
+        logDebug('🎙 Speech recognition started');
+        setIsListening(true);
+        setIsProcessing(true);
 
-      const microphone = audioContext.createMediaStreamSource(stream);
-      microphoneRef.current = microphone;
-      microphone.connect(analyser);
-
-      const dataArray = new Uint8Array(analyser.frequencyBinCount);
-
-      const updateAudioLevel = () => {
-        if (analyser && isListening) {
-          analyser.getByteFrequencyData(dataArray);
-          const sum = dataArray.reduce((a, b) => a + b, 0);
-          const average = sum / dataArray.length;
-          setAudioLevel(Math.round((average / 255) * 100));
-          requestAnimationFrame(updateAudioLevel);
-        }
+        // Setup audio monitoring for visualization
+        setupAudioMonitoring(
+          true,
+          streamRef,
+          audioContextRef,
+          analyserRef,
+          microphoneRef,
+          setAudioLevel
+        )
+          .then(() => {
+            // Start monitoring audio levels for visualization
+            startAudioLevelMonitoring(
+              analyserRef,
+              setAudioLevel,
+              animationFrameIdRef
+            );
+          })
+          .catch((error) => {
+            logDebug(`Audio monitoring setup error: ${String(error)}`);
+          });
       };
 
-      updateAudioLevel();
-      logDebug('Audio monitoring started');
-      return true;
-    } catch (error) {
-      logDebug(`Failed to start audio monitoring: ${String(error)}`);
-      return false;
-    }
-  }, [isListening]);
-
-  // Stop audio monitoring with iOS-specific cleanup
-  const stopAudioMonitoring = useCallback(async () => {
-    const iosInfo = getIOSInfo();
-
-    logDebug('🛑 Stopping audio monitoring', {
-      hasStream: !!streamRef.current,
-      hasAudioContext: !!audioContextRef.current,
-      audioContextState: audioContextRef.current?.state,
-      isIOS: iosInfo.isIOS,
-      browser: iosInfo.isSafari ? 'Safari' : iosInfo.isEdge ? 'Edge' : 'Other',
-    });
-
-    // Enhanced stream cleanup for iOS
-    if (streamRef.current) {
-      const tracks = streamRef.current.getTracks();
-
-      logDebug('🎵 Cleaning up media stream tracks', {
-        trackCount: tracks.length,
-        trackDetails: tracks.map((track) => ({
-          id: track.id,
-          kind: track.kind,
-          enabled: track.enabled,
-          muted: track.muted,
-          readyState: track.readyState,
-        })),
-      });
-
-      // iOS requires explicit track cleanup
-      tracks.forEach((track) => {
-        try {
-          logDebug(`🔌 Stopping track: ${track.kind} (${track.id})`);
-
-          // iOS-specific cleanup sequence
-          if (iosInfo.isIOS) {
-            track.enabled = false; // Disable before stopping on iOS
-
-            // Add small delay for iOS to process the disable
-            setTimeout(() => {
-              track.stop();
-            }, 10);
-          } else {
-            track.stop();
-          }
-        } catch (error) {
-          logDebug(`❌ Error stopping track ${track.id}: ${String(error)}`);
-        }
-      });
-
-      streamRef.current = null;
-      logDebug('✅ Media stream cleaned up');
-    }
-
-    // Enhanced AudioContext cleanup for iOS
-    if (audioContextRef.current) {
-      const audioContext = audioContextRef.current;
-
-      logDebug('🔊 Cleaning up AudioContext', {
-        currentState: audioContext.state,
-        sampleRate: audioContext.sampleRate,
-        isIOS: iosInfo.isIOS,
-      });
-
-      try {
-        // Disconnect all nodes first
-        if (microphoneRef.current) {
-          try {
-            microphoneRef.current.disconnect();
-            logDebug('🎤 Microphone node disconnected');
-          } catch (error) {
-            logDebug(`⚠️ Error disconnecting microphone: ${String(error)}`);
-          }
-        }
-
-        if (analyserRef.current) {
-          try {
-            analyserRef.current.disconnect();
-            logDebug('📊 Analyser node disconnected');
-          } catch (error) {
-            logDebug(`⚠️ Error disconnecting analyser: ${String(error)}`);
-          }
-        }
-
-        // iOS-specific AudioContext cleanup sequence
-        if (iosInfo.isIOS) {
-          logDebug('🍎 iOS detected - using enhanced cleanup sequence');
-
-          // Step 1: Suspend the context first on iOS
-          if (audioContext.state === 'running') {
-            try {
-              await audioContext.suspend();
-              logDebug('⏸️ AudioContext suspended');
-            } catch (error) {
-              logDebug(`⚠️ Error suspending AudioContext: ${String(error)}`);
-            }
-          }
-
-          // Step 2: Wait a bit for iOS to process the suspension
-          await new Promise((resolve) => setTimeout(resolve, 50));
-
-          // Step 3: Close the context
-          if (audioContext.state !== 'closed') {
-            try {
-              await audioContext.close();
-              logDebug('🔒 AudioContext closed');
-            } catch (error) {
-              logDebug(`⚠️ Error closing AudioContext: ${String(error)}`);
-            }
-          }
-
-          // Step 4: Additional delay for iOS resource cleanup
-          await new Promise((resolve) => setTimeout(resolve, 100));
-        } else {
-          // Standard cleanup for non-iOS
-          if (audioContext.state !== 'closed') {
-            try {
-              await audioContext.close();
-              logDebug('🔒 AudioContext closed (non-iOS)');
-            } catch (error) {
-              logDebug(`⚠️ Error closing AudioContext: ${String(error)}`);
-            }
-          }
-        }
-      } catch (error) {
-        logDebug(`❌ Error during AudioContext cleanup: ${String(error)}`);
-      }
-
-      audioContextRef.current = null;
-      logDebug('✅ AudioContext reference cleared');
-    }
-
-    // Clear all audio-related refs
-    microphoneRef.current = null;
-    analyserRef.current = null;
-    setAudioLevel(0);
-
-    // iOS-specific: Force garbage collection hint
-    if (iosInfo.isIOS && (window as any).gc) {
-      try {
-        (window as any).gc();
-        logDebug('🗑️ iOS garbage collection triggered');
-        // eslint-disable-next-line unused-imports/no-unused-vars
-      } catch (error) {
-        // Ignore - gc() is not always available
-      }
-    }
-
-    logDebug('✅ Audio monitoring stopped with enhanced iOS cleanup');
-  }, []);
-
-  // Test microphone access
-  const testMicrophone = useCallback(async (): Promise<boolean> => {
-    const androidInfo = getAndroidInfo();
-    const securityContext = getSecurityContext();
-    const gestureInfo = getUserGestureInfo();
-    const networkInfo = getNetworkInfo();
-
-    logDebug('🎤 Starting comprehensive microphone test', {
-      environment: {
-        userAgent: navigator.userAgent,
-        ...androidInfo,
-        ...securityContext,
-        ...gestureInfo,
-        ...networkInfo,
-      },
-    });
-
-    // Get media devices info
-    const mediaDevicesInfo = await getMediaDevicesInfo();
-    logDebug('📱 Media devices information', mediaDevicesInfo);
-
-    // Android-specific checks before attempting microphone access
-    if (androidInfo.isAndroid) {
-      logDebug('🤖 Android device detected - performing additional checks', {
-        androidVersion: androidInfo.androidVersion,
-        browser: androidInfo.browser,
-        chromeVersion: androidInfo.chromeVersion,
-        isWebView: androidInfo.isWebView,
-      });
-
-      if (!securityContext.isSecure) {
-        logDebug('❌ Android microphone test failed: HTTPS required', {
-          protocol: securityContext.protocol,
-          hostname: securityContext.hostname,
-          port: securityContext.port,
-          securityDetails: securityContext.details,
-        });
-        setError('HTTPS is required for microphone access on Android devices');
-        toast({
-          title: 'HTTPS Required',
-          description:
-            'Microphone access requires a secure connection on Android devices.',
-          variant: 'destructive',
-        });
-        return false;
-      }
-
-      if (!gestureInfo.hasGesture) {
-        logDebug('❌ Android microphone test failed: User gesture required', {
-          documentHasFocus: gestureInfo.documentHasFocus,
-          lastInteraction: gestureInfo.lastInteraction,
-          timeSinceInteraction: gestureInfo.timeSinceInteraction,
-          gestureDetails: gestureInfo.gestureDetails,
-        });
-        setError('User interaction required before testing microphone');
-        toast({
-          title: 'User Interaction Required',
-          description:
-            'Please interact with the page before testing microphone.',
-          variant: 'destructive',
-        });
-        return false;
-      }
-
-      logDebug('✅ Android pre-checks passed', {
-        secureContext: true,
-        userGesture: true,
-        networkOnline: networkInfo.online,
-      });
-    }
-
-    try {
-      const audioConstraints = {
-        echoCancellation: true,
-        noiseSuppression: true,
-        autoGainControl: true,
-        // Android-specific optimizations
-        ...(androidInfo.isAndroid && {
-          sampleRate: 16000,
-          channelCount: 1,
-        }),
+      // Handle speech start event
+      recognition.onspeechstart = () => {
+        logDebug('👄 Speech detected');
+        setIsProcessing(true);
       };
 
-      logDebug('🎵 Requesting microphone access with constraints', {
-        constraints: audioConstraints,
-        mediaDevicesAvailable: !!navigator.mediaDevices,
-        getUserMediaAvailable: !!navigator.mediaDevices?.getUserMedia,
-      });
-
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: audioConstraints,
-      });
-
-      logDebug('✅ Microphone stream obtained', {
-        streamId: stream.id,
-        tracks: stream.getTracks().map((track) => ({
-          id: track.id,
-          kind: track.kind,
-          label: track.label,
-          enabled: track.enabled,
-          muted: track.muted,
-          readyState: track.readyState,
-          settings: track.getSettings?.() || 'not available',
-        })),
-      });
-
-      // Test that we actually get audio data
-      const audioContext = new (window.AudioContext ||
-        (window as any).webkitAudioContext)();
-
-      logDebug('🔊 Testing audio context', {
-        audioContextState: audioContext.state,
-        sampleRate: audioContext.sampleRate,
-        baseLatency: audioContext.baseLatency,
-        outputLatency: audioContext.outputLatency,
-      });
-
-      const source = audioContext.createMediaStreamSource(stream);
-      const analyser = audioContext.createAnalyser();
-      source.connect(analyser);
-
-      // Quick test to see if audio data is flowing
-      const dataArray = new Uint8Array(analyser.frequencyBinCount);
-      analyser.getByteFrequencyData(dataArray);
-      const audioDataSum = dataArray.reduce((a, b) => a + b, 0);
-
-      logDebug('📊 Audio data test', {
-        frequencyBinCount: analyser.frequencyBinCount,
-        fftSize: analyser.fftSize,
-        audioDataSum,
-        hasAudioData: audioDataSum > 0,
-      });
-
-      // Clean up
-      stream.getTracks().forEach((track) => track.stop());
-      audioContext.close();
-
-      logDebug('✅ Microphone test successful - all systems operational');
-      return true;
-    } catch (error) {
-      const errorInfo = {
-        name: error instanceof Error ? error.name : 'Unknown',
-        message: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack : undefined,
-        androidInfo,
-        securityContext,
-        gestureInfo,
-        networkInfo,
-        mediaDevicesInfo,
+      // Handle speech end event
+      recognition.onspeechend = () => {
+        logDebug('🤐 Speech ended');
+        setIsProcessing(false);
       };
 
-      logDebug('❌ Microphone test failed with detailed context', errorInfo);
+      // Handle audio start event
+      recognition.onaudiostart = () => {
+        logDebug('🔊 Audio capturing started');
+      };
 
-      if (androidInfo.isAndroid) {
-        const errorMessage = errorInfo.message;
-        const errorName = errorInfo.name;
+      // Handle audio end event
+      recognition.onaudioend = () => {
+        logDebug('🔇 Audio capturing ended');
+      };
 
-        logDebug('🚨 Android-specific error analysis', {
-          errorName,
-          errorMessage,
-          isPermissionError:
-            errorName === 'NotAllowedError' ||
-            errorMessage.includes('Permission denied'),
-          isDeviceError: errorName === 'NotFoundError',
-          isInUseError:
-            errorName === 'NotReadableError' || errorMessage.includes('in use'),
-          isNetworkError:
-            errorMessage.includes('network') ||
-            errorMessage.includes('offline'),
-          commonAndroidIssues: {
-            chromeVersion: androidInfo.chromeVersion,
-            isWebView: androidInfo.isWebView,
-            androidVersion: androidInfo.androidVersion,
-            potentialIssues: [
-              androidInfo.chromeVersion &&
-              Number.parseInt(androidInfo.chromeVersion.split('.')[0]) < 70
-                ? 'Old Chrome version'
-                : null,
-              androidInfo.isWebView
-                ? 'WebView may have limited microphone support'
-                : null,
-              !networkInfo.online ? 'Device appears offline' : null,
-              mediaDevicesInfo.audioInputDevices === 0
-                ? 'No audio input devices detected'
-                : null,
-            ].filter(Boolean),
-          },
-        });
-
-        if (
-          errorName === 'NotAllowedError' ||
-          errorMessage.includes('Permission denied')
-        ) {
-          setError(
-            'Microphone permission denied. Please enable microphone access in browser settings.'
-          );
-          toast({
-            title: 'Microphone Permission Denied',
-            description:
-              'Go to browser settings and allow microphone access for this site.',
-            variant: 'destructive',
-          });
-        } else if (errorName === 'NotFoundError') {
-          setError('No microphone found on this Android device');
-          toast({
-            title: 'No Microphone Found',
-            description:
-              'This Android device does not have a microphone or it is not accessible.',
-            variant: 'destructive',
-          });
-        } else if (
-          errorName === 'NotReadableError' ||
-          errorMessage.includes('in use')
-        ) {
-          setError('Microphone is being used by another application');
-          toast({
-            title: 'Microphone In Use',
-            description:
-              'The microphone is being used by another app. Please close other apps and try again.',
-            variant: 'destructive',
-          });
-        } else {
-          setError(`Android microphone error: ${errorMessage}`);
-        }
-      } else {
-        setError('Microphone access denied or not available');
-      }
-      return false;
-    }
-  }, [toast]);
-
-  // Enhanced event handlers
-  const handleStart = useCallback(() => {
-    logDebug('Speech recognition started');
-    setIsListening(true);
-    setIsProcessing(false);
-    setError(null);
-    startAudioMonitoring();
-  }, [startAudioMonitoring]);
-
-  const handleResult = useCallback(
-    (event: any) => {
-      try {
-        logDebug('Speech recognition result event', event);
-
-        if (!event.results || event.results.length === 0) {
-          logDebug('No results in event');
-          return;
-        }
-
+      // Handle recognition results
+      recognition.onresult = (event: any) => {
         let finalTranscript = '';
-        let interim = '';
+        let interimResult = '';
 
+        // Process all recognition results
         for (let i = event.resultIndex; i < event.results.length; i++) {
           const result = event.results[i];
-          const transcript = result[0].transcript;
-          const confidence = result[0].confidence;
+          const transcript = result[0]?.transcript || '';
 
-          logDebug(
-            `Result ${i}: "${transcript}" (confidence: ${confidence}, final: ${result.isFinal})`
-          );
-
+          // High confidence results are considered final
           if (result.isFinal) {
-            // Only accept results above confidence threshold
+            const confidence = result[0]?.confidence || 0;
+
             if (confidence >= confidenceThreshold) {
               finalTranscript += transcript;
+              logDebug(
+                `✅ Final transcript: "${transcript}" (confidence: ${confidence.toFixed(2)})`
+              );
             } else {
               logDebug(
-                `Rejecting low confidence result: ${confidence} < ${confidenceThreshold}`
+                `⚠️ Rejected low confidence transcript: "${transcript}" (confidence: ${confidence.toFixed(2)})`
               );
             }
           } else {
-            interim += transcript;
+            interimResult += transcript;
+            logDebug(`⏳ Interim transcript: "${transcript}"`);
           }
         }
 
-        if (interim) {
-          setInterimTranscript(interim.toLowerCase().trim());
-          logDebug(`Interim transcript: ${interim}`);
-        }
-
+        // Update transcript state if we have results
         if (finalTranscript) {
-          const cleanTranscript = finalTranscript.toLowerCase().trim();
-          setCurrentTranscript(cleanTranscript);
-          setInterimTranscript('');
-          logDebug(`Final transcript: ${cleanTranscript}`);
-
-          if (cleanTranscript) {
-            onTranscriptReceivedRef.current(cleanTranscript);
-          }
+          setCurrentTranscript((prev) =>
+            (prev ? `${prev} ${finalTranscript}` : finalTranscript).trim()
+          );
         }
-      } catch (error) {
-        logDebug(`Error processing speech result: ${String(error)}`);
-        setError('Error processing speech result');
-      }
-    },
-    [confidenceThreshold]
-  );
 
-  const handleEnd = useCallback(() => {
-    const now = Date.now();
-    const timeSinceLastStart = now - lastStartTimeRef.current;
+        if (interimResult) {
+          setInterimTranscript(interimResult);
+        }
+      };
 
-    logDebug(
-      `Speech recognition ended, autoRestart: ${autoRestart}, shouldRestart: ${shouldRestartRef.current}, isManualStop: ${isManualStopRef.current}, timeSinceLastStart: ${timeSinceLastStart}`
-    );
+      // Handle recognition errors
+      recognition.onerror = (event: any) => {
+        const errorMessage = event.error || 'Unknown error';
+        logDebug(`❌ Speech recognition error: ${errorMessage}`, event);
 
-    setIsListening(false);
-    setIsProcessing(false);
-    setInterimTranscript('');
-    stopAudioMonitoring();
+        // Different error handling based on platform
+        if (iosInfo.isIOS) {
+          handleIOSError(errorMessage);
+        } else if (androidInfo.isAndroid) {
+          handleAndroidError(errorMessage);
+        } else {
+          handleGenericError(errorMessage);
+        }
 
-    // Only auto-restart if:
-    // 1. autoRestart is enabled
-    // 2. shouldRestart is true (not manually stopped)
-    // 3. it's not a manual stop
-    // 4. enough time has passed since last start (prevent rapid restarts)
-    // 5. recognition instance still exists
-    if (
-      autoRestart &&
-      shouldRestartRef.current &&
-      !isManualStopRef.current &&
-      timeSinceLastStart > 1000 && // At least 1 second since last start
-      recognitionRef.current
-    ) {
-      logDebug('Auto-restarting speech recognition in 1000ms');
-      restartTimeoutRef.current = window.setTimeout(() => {
+        // Stop audio monitoring on error
+        stopAudioMonitoring(
+          streamRef,
+          audioContextRef,
+          microphoneRef,
+          analyserRef,
+          setAudioLevel
+        );
+
+        setIsProcessing(false);
+      };
+
+      // Handle recognition end event
+      recognition.onend = () => {
+        logDebug('🛑 Speech recognition ended');
+        setIsListening(false);
+        setIsProcessing(false);
+
+        // Stop audio monitoring
+        stopAudioMonitoring(
+          streamRef,
+          audioContextRef,
+          microphoneRef,
+          analyserRef,
+          setAudioLevel
+        );
+
+        // Auto-restart if configured and not manually stopped
         if (
-          shouldRestartRef.current &&
+          autoRestart &&
           !isManualStopRef.current &&
-          recognitionRef.current
+          shouldRestartRef.current
         ) {
-          try {
-            lastStartTimeRef.current = Date.now();
-            recognitionRef.current.start();
-          } catch (error) {
-            logDebug(`Error restarting speech recognition: ${String(error)}`);
-            setError('Failed to restart speech recognition');
-            shouldRestartRef.current = false; // Stop trying to restart
+          const restartDelay = calculateRestartDelay();
+
+          logDebug(`🔄 Scheduling recognition restart in ${restartDelay}ms`);
+
+          // Clear any existing timeout
+          if (restartTimeoutRef.current) {
+            clearTimeout(restartTimeoutRef.current);
           }
+
+          // Set a timeout to restart recognition
+          restartTimeoutRef.current = setTimeout(() => {
+            if (shouldRestartRef.current) {
+              logDebug('🔄 Auto-restarting speech recognition');
+              try {
+                recognition.start();
+              } catch (error) {
+                logDebug(`❌ Auto-restart failed: ${String(error)}`);
+                setError(`Auto-restart failed: ${String(error)}`);
+
+                // Try one more time after a delay
+                setTimeout(() => {
+                  if (shouldRestartRef.current) {
+                    try {
+                      recognition.start();
+                    } catch (secondError) {
+                      logDebug(
+                        `❌ Second auto-restart attempt failed: ${String(secondError)}`
+                      );
+                      setError(
+                        `Speech recognition failed to restart. Please try again.`
+                      );
+                      shouldRestartRef.current = false;
+                    }
+                  }
+                }, 1000);
+              }
+            }
+          }, restartDelay);
         }
-      }, 1000); // Increased delay to prevent rapid restarts
+      };
     } else {
-      logDebug('Skipping auto-restart due to conditions not met');
-    }
+      setError('Speech recognition is not supported in this browser');
 
-    // Reset manual stop flag after a delay
-    if (isManualStopRef.current) {
-      setTimeout(() => {
-        isManualStopRef.current = false;
-      }, 2000);
-    }
-  }, [autoRestart, stopAudioMonitoring]);
-
-  const handleError = useCallback(
-    (event: any) => {
-      logDebug(`Speech recognition error: ${event.error}`, event);
-      setIsListening(false);
-      setIsProcessing(false);
-      setInterimTranscript('');
-      stopAudioMonitoring();
-
-      // Handle different error types
-      switch (event.error) {
-        case 'language-not-supported':
-          setError(`Language "${language}" not supported`);
-          if (!langNotSupportedToastShownRef.current) {
-            toast({
-              title: 'Language Not Supported',
-              description: `Try switching to a supported language. Currently using: ${language}`,
-              variant: 'destructive',
-            });
-            langNotSupportedToastShownRef.current = true;
-          }
-          break;
-        case 'not-allowed':
-          setError('Microphone access denied');
-          if (!micDeniedToastShownRef.current) {
-            toast({
-              title: 'Microphone Access Denied',
-              description:
-                'Please allow microphone access in browser settings and refresh the page.',
-              variant: 'destructive',
-            });
-            micDeniedToastShownRef.current = true;
-          }
-          break;
-        case 'network':
-          setError('Network error - speech recognition requires internet');
-          if (!networkErrorToastShownRef.current) {
-            toast({
-              title: 'Network Error',
-              description:
-                'Speech recognition requires an internet connection.',
-              variant: 'destructive',
-            });
-            networkErrorToastShownRef.current = true;
-          }
-          break;
-        case 'no-speech':
-          logDebug('No speech detected - this is normal');
-          // Don't show error for no-speech, it's common
-          break;
-        case 'aborted':
-          logDebug('Speech recognition aborted - this is normal when stopping');
-          // Don't show error for aborted, it's expected when stopping
-          break;
-        case 'service-not-allowed':
-          setError('Speech recognition service not allowed');
-          if (!serviceNotAllowedToastShownRef.current) {
-            toast({
-              title: 'Service Not Allowed',
-              description:
-                'Speech recognition service is not allowed on this page.',
-              variant: 'destructive',
-            });
-            serviceNotAllowedToastShownRef.current = true;
-          }
-          break;
-        default:
-          setError(`Speech recognition error: ${event.error}`);
-          logDebug(`Unknown error: ${event.error}`);
-      }
-    },
-    [language, toast, stopAudioMonitoring]
-  );
-
-  const handleSpeechStart = useCallback(() => {
-    logDebug('Speech started');
-    setIsProcessing(true);
-  }, []);
-
-  const handleSpeechEnd = useCallback(() => {
-    logDebug('Speech ended');
-    setIsProcessing(false);
-  }, []);
-
-  // Initialize once on mount - ONLY run this effect once
-  useEffect(() => {
-    const initialize = () => {
-      if (isInitializedRef.current) {
-        return speechSupported;
-      }
-
-      logDebug('Initializing speech recognition...');
-
-      const SpeechRecognition =
-        (window as any).SpeechRecognition ||
-        (window as any).webkitSpeechRecognition;
-
-      if (!SpeechRecognition) {
-        logDebug('Speech Recognition API not supported');
-        isInitializedRef.current = true;
-        setSpeechSupported(false);
-        setError('Speech recognition not supported in this browser');
-        return false;
-      }
-
-      try {
-        const recognition = new SpeechRecognition();
-        recognition.continuous = continuous;
-        recognition.interimResults = interimResults;
-        recognition.maxAlternatives = maxAlternatives;
-        recognition.lang = language;
-
-        recognition.onstart = handleStart;
-        recognition.onresult = handleResult;
-        recognition.onerror = handleError;
-        recognition.onend = handleEnd;
-
-        // Additional events for better feedback
-        if (recognition.onspeechstart !== undefined) {
-          recognition.onspeechstart = handleSpeechStart;
-        }
-        if (recognition.onspeechend !== undefined) {
-          recognition.onspeechend = handleSpeechEnd;
-        }
-
-        recognitionRef.current = recognition;
-        isInitializedRef.current = true;
-        setSpeechSupported(true);
-
-        logDebug('Speech recognition initialized successfully', {
-          continuous,
-          interimResults,
-          maxAlternatives,
-          language,
-          confidenceThreshold,
-        });
-
-        return true;
-      } catch (error) {
-        logDebug(`Failed to initialize speech recognition: ${String(error)}`);
-        setError('Failed to initialize speech recognition');
+      // Suggest alternatives based on platform
+      if (iosInfo.isIOS && !iosInfo.isSafari) {
         toast({
-          title: 'Speech Recognition Error',
-          description: 'Failed to initialize speech recognition.',
+          title: 'Browser Not Supported',
+          description: 'Please use Safari on iOS for speech recognition',
           variant: 'destructive',
         });
-        isInitializedRef.current = true;
-        setSpeechSupported(false);
-        return false;
+      } else if (androidInfo.isAndroid && androidInfo.browser === 'Other') {
+        toast({
+          title: 'Browser Not Supported',
+          description: 'Please use Chrome on Android for speech recognition',
+          variant: 'destructive',
+        });
       }
-    };
+    }
 
-    initialize();
-
+    // Cleanup function
     return () => {
-      logDebug('Cleaning up speech recognition');
       shouldRestartRef.current = false;
-      isManualStopRef.current = true; // Prevent any restart attempts during cleanup
 
       if (restartTimeoutRef.current) {
         clearTimeout(restartTimeoutRef.current);
@@ -1122,348 +319,155 @@ export function useSpeechRecognition(
 
       if (recognitionRef.current) {
         try {
-          recognitionRef.current.abort();
-        } catch (error) {
-          logDebug(`Error stopping speech recognition: ${String(error)}`);
-        }
-        recognitionRef.current = null;
-      }
-
-      // Clean up audio monitoring
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach((track) => track.stop());
-        streamRef.current = null;
-      }
-      if (audioContextRef.current) {
-        audioContextRef.current.close();
-        audioContextRef.current = null;
-      }
-      microphoneRef.current = null;
-      analyserRef.current = null;
-      setAudioLevel(0);
-
-      isInitializedRef.current = false;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Empty dependency array - only run once on mount
-
-  const startListening = useCallback(async () => {
-    const androidInfo = getAndroidInfo();
-    const iosInfo = getIOSInfo();
-    const securityContext = getSecurityContext();
-    const gestureInfo = getUserGestureInfo();
-    const networkInfo = getNetworkInfo();
-
-    logDebug(
-      '🎙️ Starting speech recognition with comprehensive environment check',
-      {
-        currentState: {
-          speechSupported,
-          isListening,
-          recognitionRef: !!recognitionRef.current,
-          hasRecognitionAPI:
-            !!(window as any).SpeechRecognition ||
-            !!(window as any).webkitSpeechRecognition,
-        },
-        environment: {
-          ...androidInfo,
-          ...iosInfo,
-          ...securityContext,
-          ...gestureInfo,
-          ...networkInfo,
-        },
-      }
-    );
-
-    if (!speechSupported) {
-      logDebug('❌ Speech recognition not supported - aborting', {
-        availableAPIs: {
-          SpeechRecognition: !!(window as any).SpeechRecognition,
-          webkitSpeechRecognition: !!(window as any).webkitSpeechRecognition,
-          mediaDevices: !!navigator.mediaDevices,
-          getUserMedia: !!navigator.mediaDevices?.getUserMedia,
-        },
-      });
-      setError('Speech recognition not supported in this browser');
-      return;
-    }
-
-    if (!recognitionRef.current) {
-      logDebug('❌ Speech recognition not initialized - aborting');
-      setError('Speech recognition not initialized');
-      return;
-    }
-
-    if (isListening) {
-      logDebug('⚠️ Already listening - ignoring start request');
-      return;
-    }
-
-    // iOS-specific: Wait for cleanup completion before starting
-    if (iosInfo.isIOS && audioContextRef.current) {
-      logDebug('🍎 iOS cleanup in progress - waiting for completion');
-      await new Promise((resolve) => setTimeout(resolve, 200));
-    }
-
-    // iOS-specific: Recreate Speech Recognition instance for reliability
-    if (iosInfo.isIOS) {
-      logDebug(
-        '🍎 iOS detected - recreating Speech Recognition instance for clean start'
-      );
-
-      const SpeechRecognition =
-        (window as any).SpeechRecognition ||
-        (window as any).webkitSpeechRecognition;
-
-      if (SpeechRecognition) {
-        try {
-          // Abort old instance if it exists
-          if (recognitionRef.current) {
-            try {
-              recognitionRef.current.abort();
-            } catch (error) {
-              logDebug(`⚠️ Error aborting old recognition: ${String(error)}`);
-            }
-          }
-
-          // Create fresh instance
-          const recognition = new SpeechRecognition();
-          recognition.continuous = continuous;
-          recognition.interimResults = interimResults;
-          recognition.maxAlternatives = maxAlternatives;
-          recognition.lang = language;
-
-          recognition.onstart = handleStart;
-          recognition.onresult = handleResult;
-          recognition.onerror = handleError;
-          recognition.onend = handleEnd;
-
-          // Additional events for better feedback
-          if (recognition.onspeechstart !== undefined) {
-            recognition.onspeechstart = handleSpeechStart;
-          }
-          if (recognition.onspeechend !== undefined) {
-            recognition.onspeechend = handleSpeechEnd;
-          }
-
-          recognitionRef.current = recognition;
-          logDebug('✅ Fresh Speech Recognition instance created for iOS');
+          recognitionRef.current.stop();
         } catch (error) {
           logDebug(
-            `❌ Failed to recreate Speech Recognition instance: ${String(error)}`
+            `Error stopping speech recognition during cleanup: ${String(error)}`
           );
-          setError('Failed to initialize speech recognition');
-          return;
         }
       }
-    }
 
-    // Get fresh media devices info for comprehensive debugging
-    const mediaDevicesInfo = await getMediaDevicesInfo();
-
-    // Android-specific comprehensive validation
-    if (androidInfo.isAndroid) {
-      logDebug(
-        '🤖 Android device detected - performing comprehensive validation',
-        {
-          deviceInfo: {
-            androidVersion: androidInfo.androidVersion,
-            browser: androidInfo.browser,
-            chromeVersion: androidInfo.chromeVersion,
-            isWebView: androidInfo.isWebView,
-          },
-          capabilities: {
-            ...mediaDevicesInfo,
-            speechRecognitionAPI: !!recognitionRef.current,
-            audioContextSupported: !!(
-              window.AudioContext || (window as any).webkitAudioContext
-            ),
-          },
-        }
+      stopAudioMonitoring(
+        streamRef,
+        audioContextRef,
+        microphoneRef,
+        analyserRef,
+        setAudioLevel
       );
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-      if (!securityContext.isSecure) {
-        logDebug('❌ Android security check failed - HTTPS required', {
-          currentContext: securityContext,
-          requirement: 'HTTPS or localhost for microphone access on Android',
-        });
-        setError('HTTPS is required for microphone access on Android devices');
-        toast({
-          title: 'HTTPS Required',
-          description:
-            'Voice input requires a secure connection on Android. Please use HTTPS.',
-          variant: 'destructive',
-        });
-        return;
-      }
+  /**
+   * Calculate delay for auto-restart based on how long recognition was running
+   */
+  const calculateRestartDelay = () => {
+    const now = Date.now();
+    const runningTime = now - lastStartTimeRef.current;
 
-      if (!gestureInfo.hasGesture) {
-        logDebug(
-          '❌ Android gesture check failed - user interaction required',
-          {
-            gestureInfo,
-            requirement:
-              'Recent user interaction (within 5 seconds) required for microphone access',
-          }
-        );
-        setError('User interaction required before using microphone');
-        toast({
-          title: 'User Interaction Required',
-          description:
-            'Please tap the microphone button to enable voice input.',
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      if (!networkInfo.online) {
-        logDebug('❌ Android network check failed - offline detected', {
-          networkInfo,
-          requirement: 'Internet connection required for speech recognition',
-        });
-        setError('Internet connection required for speech recognition');
-        toast({
-          title: 'Network Required',
-          description:
-            'Speech recognition requires an active internet connection.',
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      // Check for known Android issues
-      const potentialIssues = [];
-      if (
-        androidInfo.chromeVersion &&
-        Number.parseInt(androidInfo.chromeVersion.split('.')[0]) < 70
-      ) {
-        potentialIssues.push(
-          'Chrome version may be too old for reliable speech recognition'
-        );
-      }
-      if (androidInfo.isWebView) {
-        potentialIssues.push(
-          'WebView environment may have limited speech recognition support'
-        );
-      }
-      if (mediaDevicesInfo.audioInputDevices === 0) {
-        potentialIssues.push('No audio input devices detected');
-      }
-
-      if (potentialIssues.length > 0) {
-        logDebug('⚠️ Android compatibility issues detected', {
-          issues: potentialIssues,
-          recommendation: 'May experience reduced functionality',
-        });
-      }
-
-      logDebug('✅ Android validation passed - all requirements met', {
-        secureContext: true,
-        userGesture: true,
-        networkOnline: true,
-        audioDevices: mediaDevicesInfo.audioInputDevices,
-        microphonePermission: mediaDevicesInfo.permissions.microphone,
-      });
+    // Use longer delays for very short recognition sessions
+    // to avoid rapid cycling when there's an issue
+    if (runningTime < 1000) {
+      return 2000; // 2 seconds for very short sessions
+    } else if (runningTime < 5000) {
+      return 1000; // 1 second for short sessions
+    } else {
+      return 300; // 300ms for normal sessions
     }
+  };
 
-    // iOS-specific comprehensive validation
-    if (iosInfo.isIOS) {
-      logDebug('🍎 iOS device detected - performing comprehensive validation', {
-        deviceInfo: {
-          iosVersion: iosInfo.iosVersion,
-          browser: iosInfo.isSafari
-            ? 'Safari'
-            : iosInfo.isEdge
-              ? 'Edge'
-              : 'Other',
-          safariVersion: iosInfo.safariVersion,
-          isWebView: iosInfo.isWebView,
-        },
-        capabilities: {
-          ...mediaDevicesInfo,
-          speechRecognitionAPI: !!recognitionRef.current,
-          audioContextSupported: !!(
-            window.AudioContext || (window as any).webkitAudioContext
-          ),
-        },
+  /**
+   * Handle iOS-specific recognition errors
+   */
+  const handleIOSError = (errorMessage: string) => {
+    if (
+      errorMessage.includes('not-allowed') ||
+      errorMessage.includes('denied')
+    ) {
+      setError(
+        'Microphone permission denied. Please enable microphone access in browser settings.'
+      );
+      toast({
+        title: 'Microphone Permission Required',
+        description:
+          'Go to Safari settings and allow microphone access for this site.',
+        variant: 'destructive',
       });
-
-      if (!securityContext.isSecure) {
-        logDebug('❌ iOS security check failed - HTTPS required', {
-          currentContext: securityContext,
-          requirement: 'HTTPS or localhost for microphone access on iOS',
-        });
-        setError('HTTPS is required for microphone access on iOS devices');
-        toast({
-          title: 'HTTPS Required',
-          description:
-            'Voice input requires a secure connection on iOS. Please use HTTPS.',
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      if (!gestureInfo.hasGesture) {
-        logDebug('❌ iOS gesture check failed - user interaction required', {
-          gestureInfo,
-          requirement:
-            'Recent user interaction (within 5 seconds) required for microphone access',
-        });
-        setError('User interaction required before using microphone');
-        toast({
-          title: 'User Interaction Required',
-          description:
-            'Please tap the microphone button to enable voice input.',
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      if (!networkInfo.online) {
-        logDebug('❌ iOS network check failed - offline detected', {
-          networkInfo,
-          requirement: 'Internet connection required for speech recognition',
-        });
-        setError('Internet connection required for speech recognition');
-        toast({
-          title: 'Network Required',
-          description:
-            'Speech recognition requires an active internet connection.',
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      // Check for known iOS issues
-      const potentialIssues = [];
-      if (iosInfo.iosVersion && Number.parseFloat(iosInfo.iosVersion) < 14.0) {
-        potentialIssues.push(
-          'iOS version may be too old for reliable speech recognition'
-        );
-      }
-      if (iosInfo.isWebView) {
-        potentialIssues.push(
-          'WebView environment may have limited speech recognition support'
-        );
-      }
-      if (mediaDevicesInfo.audioInputDevices === 0) {
-        potentialIssues.push('No audio input devices detected');
-      }
-
-      if (potentialIssues.length > 0) {
-        logDebug('⚠️ iOS compatibility issues detected', {
-          issues: potentialIssues,
-          recommendation: 'May experience reduced functionality',
-        });
-      }
-
-      logDebug('✅ iOS validation passed - all requirements met', {
-        secureContext: true,
-        userGesture: true,
-        networkOnline: true,
-        audioDevices: mediaDevicesInfo.audioInputDevices,
-        microphonePermission: mediaDevicesInfo.permissions.microphone,
+    } else if (
+      errorMessage.includes('network') ||
+      errorMessage.includes('offline')
+    ) {
+      setError('Network connection required for speech recognition on iOS');
+      toast({
+        title: 'Network Required',
+        description:
+          'Speech recognition requires an active internet connection.',
+        variant: 'destructive',
       });
+    } else {
+      setError(`iOS speech recognition error: ${errorMessage}`);
+    }
+  };
+
+  /**
+   * Handle Android-specific recognition errors
+   */
+  const handleAndroidError = (errorMessage: string) => {
+    if (
+      errorMessage.includes('not-allowed') ||
+      errorMessage.includes('denied')
+    ) {
+      setError(
+        'Microphone permission denied. Please enable microphone access in browser settings.'
+      );
+      toast({
+        title: 'Microphone Permission Required',
+        description:
+          'Go to browser settings and allow microphone access for this site.',
+        variant: 'destructive',
+      });
+    } else if (
+      errorMessage.includes('network') ||
+      errorMessage.includes('offline')
+    ) {
+      setError('Network connection required for speech recognition on Android');
+      toast({
+        title: 'Network Required',
+        description:
+          'Speech recognition requires an active internet connection.',
+        variant: 'destructive',
+      });
+    } else {
+      setError(`Android microphone error: ${errorMessage}`);
+    }
+  };
+
+  /**
+   * Handle generic recognition errors
+   */
+  const handleGenericError = (errorMessage: string) => {
+    if (
+      errorMessage.includes('not-allowed') ||
+      errorMessage.includes('permission')
+    ) {
+      setError(
+        'Microphone permission denied. Please check your browser settings.'
+      );
+    } else if (
+      errorMessage.includes('network') ||
+      errorMessage.includes('offline')
+    ) {
+      setError('Network connection required for speech recognition');
+    } else if (errorMessage.includes('audio')) {
+      setError('Audio capture error. Please check your microphone connection.');
+    } else if (errorMessage.includes('aborted')) {
+      setError('Speech recognition was aborted');
+    } else {
+      setError(`Speech recognition error: ${errorMessage}`);
+    }
+  };
+
+  /**
+   * Clear current error state
+   */
+  const clearError = useCallback(() => {
+    setError(null);
+  }, []);
+
+  /**
+   * Test microphone access with diagnostics
+   */
+  const testMicrophone = useCallback(async () => {
+    return await testMicrophoneAccess(toast);
+  }, [toast]);
+
+  /**
+   * Start speech recognition
+   */
+  const startListening = useCallback(() => {
+    // Don't start if already listening
+    if (isListening || !speechSupported) {
+      return;
     }
 
     // Clear any previous timeouts
@@ -1491,78 +495,22 @@ export function useSpeechRecognition(
       logDebug(`Error starting speech recognition: ${String(error)}`);
       setIsListening(false);
 
-      // Enhanced error handling for iOS
+      // Handle errors based on platform
       if (iosInfo.isIOS) {
-        const errorMessage =
-          error instanceof Error ? error.message : String(error);
-        if (
-          errorMessage.includes('not-allowed') ||
-          errorMessage.includes('denied')
-        ) {
-          setError(
-            'Microphone permission denied. Please enable microphone access in browser settings.'
-          );
-          toast({
-            title: 'Microphone Permission Required',
-            description:
-              'Go to Safari settings and allow microphone access for this site.',
-            variant: 'destructive',
-          });
-        } else if (
-          errorMessage.includes('network') ||
-          errorMessage.includes('offline')
-        ) {
-          setError('Network connection required for speech recognition on iOS');
-          toast({
-            title: 'Network Required',
-            description:
-              'Speech recognition requires an active internet connection.',
-            variant: 'destructive',
-          });
-        } else {
-          setError(`iOS speech recognition error: ${errorMessage}`);
-        }
-      }
-      // Enhanced error handling for Android
-      else if (isAndroid()) {
-        const errorMessage =
-          error instanceof Error ? error.message : String(error);
-        if (
-          errorMessage.includes('not-allowed') ||
-          errorMessage.includes('denied')
-        ) {
-          setError(
-            'Microphone permission denied. Please enable microphone access in browser settings.'
-          );
-          toast({
-            title: 'Microphone Permission Required',
-            description:
-              'Go to browser settings and allow microphone access for this site.',
-            variant: 'destructive',
-          });
-        } else if (
-          errorMessage.includes('network') ||
-          errorMessage.includes('offline')
-        ) {
-          setError(
-            'Network connection required for speech recognition on Android'
-          );
-          toast({
-            title: 'Network Required',
-            description:
-              'Speech recognition requires an active internet connection.',
-            variant: 'destructive',
-          });
-        } else {
-          setError(`Android microphone error: ${errorMessage}`);
-        }
+        handleIOSError(error instanceof Error ? error.message : String(error));
+      } else if (androidInfo.isAndroid) {
+        handleAndroidError(
+          error instanceof Error ? error.message : String(error)
+        );
       } else {
         setError('Failed to start speech recognition');
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [speechSupported, isListening]);
+  }, [speechSupported, isListening, androidInfo, iosInfo]);
 
+  /**
+   * Stop speech recognition
+   */
   const stopListening = useCallback(() => {
     logDebug('stopListening called');
 
@@ -1584,13 +532,22 @@ export function useSpeechRecognition(
         logDebug(`Error stopping speech recognition: ${String(error)}`);
         setIsListening(false);
         setIsProcessing(false);
-        stopAudioMonitoring();
+
+        // Stop audio monitoring on error
+        stopAudioMonitoring(
+          streamRef,
+          audioContextRef,
+          microphoneRef,
+          analyserRef,
+          setAudioLevel
+        );
       }
     }
 
     setInterimTranscript('');
-  }, [isListening, stopAudioMonitoring]);
+  }, [isListening]);
 
+  // Return the hook result
   return {
     isListening,
     isProcessing,
@@ -1605,3 +562,13 @@ export function useSpeechRecognition(
     clearError,
   };
 }
+
+// Export the hook as default
+export default useSpeechRecognition;
+
+// Re-export all types for convenience
+export type {
+  SpeechRecognitionConfig,
+  SpeechRecognitionHookResult,
+  SpeechRecognitionInstance,
+};

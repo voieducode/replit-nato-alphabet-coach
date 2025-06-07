@@ -1,5 +1,5 @@
 import type { Translations } from '@/lib/i18n';
-import React, { memo } from 'react';
+import React, { memo, useEffect } from 'react';
 import { useSpeechRecognition } from '@/hooks/use-speech-recognition';
 import { useSpeechSynthesis } from '@/hooks/use-speech-synthesis';
 import {
@@ -47,19 +47,20 @@ export const AnswerInput = memo(
       stopListening,
       testMicrophone,
       clearError,
-    } = useSpeechRecognition(
-      (transcript) => {
-        // Ensure complete overwrite of the input value
-        setUserAnswer(transcript);
-      },
-      {
-        debugMode: true, // Enable debug logging to help troubleshoot
-        continuous: true, // Keep listening for better UX
-        interimResults: true, // Show real-time feedback
-        autoRestart: true, // Auto-restart when speech ends
-        confidenceThreshold: 0.6, // Lower threshold for NATO words
+    } = useSpeechRecognition({
+      debugMode: true, // Enable debug logging to help troubleshoot
+      continuous: true, // Keep listening for better UX
+      interimResults: true, // Show real-time feedback
+      autoRestart: true, // Auto-restart when speech ends
+      confidenceThreshold: 0.6, // Lower threshold for NATO words
+    });
+
+    // Add effect to watch for transcript changes
+    useEffect(() => {
+      if (interimTranscript) {
+        setUserAnswer(interimTranscript);
       }
-    );
+    }, [interimTranscript, setUserAnswer]);
 
     const handleSpeak = () => speak(`${letter}... ${correctAnswer}`);
 

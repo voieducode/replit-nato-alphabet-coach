@@ -61,15 +61,17 @@ app.use((req, res, next) => {
   // ALWAYS serve the app on port 5000
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
-  const port = 5000;
+  const port = process.env.PORT ? Number.parseInt(process.env.PORT, 10) : 5000;
+  const host = process.env.HOST || 'localhost';
+  
   server.listen(
     {
       port,
-      host: '0.0.0.0',
-      reusePort: true,
+      host,
+      // Remove reusePort option as it may be causing issues on macOS
     },
     () => {
-      log(`serving on port ${port}`);
+      log(`serving on ${host}:${port}`);
     }
   );
 })();
