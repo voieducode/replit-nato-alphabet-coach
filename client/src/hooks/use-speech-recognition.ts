@@ -11,11 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { logDebug } from '../lib/debug-logger';
 
 // Import audio monitoring utilities
-import {
-  setupAudioMonitoring,
-  startAudioLevelMonitoring,
-  stopAudioMonitoring,
-} from './speech/audio-monitoring';
+import { stopAudioMonitoring } from './speech/audio-monitoring';
 
 // Import platform detection utilities
 import {
@@ -25,11 +21,22 @@ import {
   isSpeechRecognitionSupported,
 } from './speech/platform-detection';
 
+// Import error handlers
+import {
+  handleAndroidError,
+  handleIOSError,
+} from './speech/platform-error-handlers';
+
+// Import recognition event handlers
+import { createRecognitionHandlers } from './speech/recognition-handlers';
+
 // Import speech recognition utilities
 import {
   initializeSpeechRecognition,
   testMicrophoneAccess,
 } from './speech/speech-recognition-utils';
+
+// Import restart delay utility
 
 /**
  * React hook for speech recognition functionality
@@ -109,114 +116,7 @@ export function useSpeechRecognition(
 
       // Configure event handlers for the recognition instance
       const recognition = recognitionRef.current;
-
-      // Handle recognition start event
-      recognition.onstart = () => {
-        logDebug('🎙 Speech recognition started');
-        setIsListening(true);
-        setIsProcessing(true);
-
-        // Setup audio monitoring for visualization
-        setupAudioMonitoring(
-          true,
-          streamRef,
-          audioContextRef,
-          analyserRef,
-          microphoneRef,
-          setAudioLevel
-        )
-          .then(() => {
-            // Start monitoring audio levels for visualization
-            startAudioLevelMonitoring(
-              analyserRef,
-              setAudioLevel,
-              animationFrameIdRef
-            );
-          })
-          .catch((error) => {
-            logDebug(`Audio monitoring setup error: ${String(error)}`);
-          });
-      };
-
-      // Handle speech start event
-      recognition.onspeechstart = () => {
-        logDebug('👄 Speech detected');
-        setIsProcessing(true);
-      };
-
-      // Handle speech end event
-      recognition.onspeechend = () => {
-        logDebug('🤐 Speech ended');
-        setIsProcessing(false);
-      };
-
-      // Handle audio start event
-      recognition.onaudiostart = () => {
-        logDebug('🔊 Audio capturing started');
-      };
-
-      // Handle audio end event
-      recognition.onaudioend = () => {
-        logDebug('🔇 Audio capturing ended');
-      };
-
-      // Handle recognition results
-      recognition.onresult = (event: any) => {
-        let finalTranscript = '';
-        let interimResult = '';
-
-        // Process all recognition results
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          const result = event.results[i];
-          const transcript = result[0]?.transcript || '';
-
-          // High confidence results are considered final
-          if (result.isFinal) {
-            const confidence = result[0]?.confidence || 0;
-
-            if (confidence >= confidenceThreshold) {
-              finalTranscript += transcript;
-              logDebug(
-                `✅ Final transcript: "${transcript}" (confidence: ${confidence.toFixed(2)})`
-              );
-            } else {
-              logDebug(
-                `⚠️ Rejected low confidence transcript: "${transcript}" (confidence: ${confidence.toFixed(2)})`
-              );
-            }
-          } else {
-            interimResult += transcript;
-            logDebug(`⏳ Interim transcript: "${transcript}"`);
-          }
-        }
-
-        // Update transcript state if we have results
-        if (finalTranscript) {
-          setCurrentTranscript((prev) =>
-            (prev ? `${prev} ${finalTranscript}` : finalTranscript).trim()
-          );
-        }
-
-        if (interimResult) {
-          setInterimTranscript(interimResult);
-        }
-      };
-
-      // Handle recognition errors
-      recognition.onerror = (event: any) => {
-        const errorMessage = event.error || 'Unknown error';
-        logDebug(`❌ Speech recognition error: ${errorMessage}`, event);
-
-        // Different error handling based on platform
-        if (iosInfo.isIOS) {
-          handleIOSError(errorMessage);
-        } else if (androidInfo.isAndroid) {
-          handleAndroidError(errorMessage);
-        } else {
-          handleGenericError(errorMessage);
-        }
-
-        // Stop audio monitoring on error
+      const stopAudioMonitoringFn = () =>
         stopAudioMonitoring(
           streamRef,
           audioContextRef,
@@ -224,71 +124,32 @@ export function useSpeechRecognition(
           analyserRef,
           setAudioLevel
         );
-
-        setIsProcessing(false);
-      };
-
-      // Handle recognition end event
-      recognition.onend = () => {
-        logDebug('🛑 Speech recognition ended');
-        setIsListening(false);
-        setIsProcessing(false);
-
-        // Stop audio monitoring
-        stopAudioMonitoring(
-          streamRef,
-          audioContextRef,
-          microphoneRef,
-          analyserRef,
-          setAudioLevel
-        );
-
-        // Auto-restart if configured and not manually stopped
-        if (
-          autoRestart &&
-          !isManualStopRef.current &&
-          shouldRestartRef.current
-        ) {
-          const restartDelay = calculateRestartDelay();
-
-          logDebug(`🔄 Scheduling recognition restart in ${restartDelay}ms`);
-
-          // Clear any existing timeout
-          if (restartTimeoutRef.current) {
-            clearTimeout(restartTimeoutRef.current);
-          }
-
-          // Set a timeout to restart recognition
-          restartTimeoutRef.current = setTimeout(() => {
-            if (shouldRestartRef.current) {
-              logDebug('🔄 Auto-restarting speech recognition');
-              try {
-                recognition.start();
-              } catch (error) {
-                logDebug(`❌ Auto-restart failed: ${String(error)}`);
-                setError(`Auto-restart failed: ${String(error)}`);
-
-                // Try one more time after a delay
-                setTimeout(() => {
-                  if (shouldRestartRef.current) {
-                    try {
-                      recognition.start();
-                    } catch (secondError) {
-                      logDebug(
-                        `❌ Second auto-restart attempt failed: ${String(secondError)}`
-                      );
-                      setError(
-                        `Speech recognition failed to restart. Please try again.`
-                      );
-                      shouldRestartRef.current = false;
-                    }
-                  }
-                }, 1000);
-              }
-            }
-          }, restartDelay);
-        }
-      };
+      const handlers = createRecognitionHandlers({
+        setIsListening,
+        setIsProcessing,
+        setCurrentTranscript,
+        setInterimTranscript,
+        setAudioLevel,
+        setError,
+        streamRef,
+        audioContextRef,
+        analyserRef,
+        microphoneRef,
+        animationFrameIdRef,
+        iosInfo,
+        androidInfo,
+        toast,
+        confidenceThreshold,
+        stopAudioMonitoringFn,
+      });
+      recognition.onstart = handlers.onstart;
+      recognition.onspeechstart = handlers.onspeechstart;
+      recognition.onspeechend = handlers.onspeechend;
+      recognition.onaudiostart = handlers.onaudiostart;
+      recognition.onaudioend = handlers.onaudioend;
+      recognition.onresult = handlers.onresult;
+      recognition.onerror = handlers.onerror;
+      recognition.onend = handlers.onend;
     } else {
       setError('Speech recognition is not supported in this browser');
 
@@ -337,115 +198,6 @@ export function useSpeechRecognition(
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  /**
-   * Calculate delay for auto-restart based on how long recognition was running
-   */
-  const calculateRestartDelay = () => {
-    const now = Date.now();
-    const runningTime = now - lastStartTimeRef.current;
-
-    // Use longer delays for very short recognition sessions
-    // to avoid rapid cycling when there's an issue
-    if (runningTime < 1000) {
-      return 2000; // 2 seconds for very short sessions
-    } else if (runningTime < 5000) {
-      return 1000; // 1 second for short sessions
-    } else {
-      return 300; // 300ms for normal sessions
-    }
-  };
-
-  /**
-   * Handle iOS-specific recognition errors
-   */
-  const handleIOSError = (errorMessage: string) => {
-    if (
-      errorMessage.includes('not-allowed') ||
-      errorMessage.includes('denied')
-    ) {
-      setError(
-        'Microphone permission denied. Please enable microphone access in browser settings.'
-      );
-      toast({
-        title: 'Microphone Permission Required',
-        description:
-          'Go to Safari settings and allow microphone access for this site.',
-        variant: 'destructive',
-      });
-    } else if (
-      errorMessage.includes('network') ||
-      errorMessage.includes('offline')
-    ) {
-      setError('Network connection required for speech recognition on iOS');
-      toast({
-        title: 'Network Required',
-        description:
-          'Speech recognition requires an active internet connection.',
-        variant: 'destructive',
-      });
-    } else {
-      setError(`iOS speech recognition error: ${errorMessage}`);
-    }
-  };
-
-  /**
-   * Handle Android-specific recognition errors
-   */
-  const handleAndroidError = (errorMessage: string) => {
-    if (
-      errorMessage.includes('not-allowed') ||
-      errorMessage.includes('denied')
-    ) {
-      setError(
-        'Microphone permission denied. Please enable microphone access in browser settings.'
-      );
-      toast({
-        title: 'Microphone Permission Required',
-        description:
-          'Go to browser settings and allow microphone access for this site.',
-        variant: 'destructive',
-      });
-    } else if (
-      errorMessage.includes('network') ||
-      errorMessage.includes('offline')
-    ) {
-      setError('Network connection required for speech recognition on Android');
-      toast({
-        title: 'Network Required',
-        description:
-          'Speech recognition requires an active internet connection.',
-        variant: 'destructive',
-      });
-    } else {
-      setError(`Android microphone error: ${errorMessage}`);
-    }
-  };
-
-  /**
-   * Handle generic recognition errors
-   */
-  const handleGenericError = (errorMessage: string) => {
-    if (
-      errorMessage.includes('not-allowed') ||
-      errorMessage.includes('permission')
-    ) {
-      setError(
-        'Microphone permission denied. Please check your browser settings.'
-      );
-    } else if (
-      errorMessage.includes('network') ||
-      errorMessage.includes('offline')
-    ) {
-      setError('Network connection required for speech recognition');
-    } else if (errorMessage.includes('audio')) {
-      setError('Audio capture error. Please check your microphone connection.');
-    } else if (errorMessage.includes('aborted')) {
-      setError('Speech recognition was aborted');
-    } else {
-      setError(`Speech recognition error: ${errorMessage}`);
-    }
-  };
 
   /**
    * Clear current error state
@@ -497,10 +249,16 @@ export function useSpeechRecognition(
 
       // Handle errors based on platform
       if (iosInfo.isIOS) {
-        handleIOSError(error instanceof Error ? error.message : String(error));
+        handleIOSError(
+          error instanceof Error ? error.message : String(error),
+          setError,
+          toast
+        );
       } else if (androidInfo.isAndroid) {
         handleAndroidError(
-          error instanceof Error ? error.message : String(error)
+          error instanceof Error ? error.message : String(error),
+          setError,
+          toast
         );
       } else {
         setError('Failed to start speech recognition');
