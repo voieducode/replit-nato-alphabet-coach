@@ -5,17 +5,8 @@ import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
-function getBase() {
-  // In GitHub Actions
-  if (process.env.GITHUB_REPOSITORY) {
-    return `/${process.env.GITHUB_REPOSITORY.split('/')[1]}/`;
-  }
-  // In Replit or local dev
-  return '/';
-}
-
 export default defineConfig({
-  base: getBase(),
+  base: '/',
   plugins: [
     react(),
     tailwindcss(),
