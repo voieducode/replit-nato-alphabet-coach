@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NATO Alphabet Coach</title>
+    <script>
+      // Handles GitHub Pages subdirectory path
+      (function () {
+        const repo = 'replit-nato-alphabet-coach';
+        const l = window.location;
+        const segments = l.pathname.split('/');
+        const repoIndex = segments.indexOf(repo);
+
+        if (repoIndex > -1) {
+          const path = segments.slice(repoIndex + 1).join('/') || '';
+          const redirectPath = `/${repo}/?p=${path}${l.search}${l.hash}`;
+          l.replace(redirectPath);
+        } else {
+          l.replace(
+            `/${segments[1]}/?p=${segments.slice(2).join('/')}${l.search}${l.hash}`
+          );
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <noscript>
+      <strong>JavaScript is required to run this application.</strong>
+    </noscript>
+  </body>
+</html>
